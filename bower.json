@@ -1,0 +1,29 @@
+{
+  "name": "palavaTest",
+  "description": "JavaScript library for WebRTC",
+  "version": "0.0.1",
+  "author": {
+    "name": "palava e. V.",
+    "web": "https://palava.tv"
+  },
+  "licenses": [
+    {
+    "type": "LPGLv3",
+    "url": "https://raw.github.com/palavatv/palava/master/COPYING.LESSER"
+    }
+  ],
+  "dependencies": {
+    "eventEmitter": "~4.2.3",
+  },
+  "devDependencies": {
+  },
+  "main": [
+    "./palava.js",
+  ],
+  "keywords": [
+    "webrtc",
+    "peerconnection",
+    "getusermedia",
+    "datachannel"
+  ]
+}

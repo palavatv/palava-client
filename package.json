@@ -1,0 +1,13 @@
+{
+  "name": "palava-test",
+  "version": "0.0.1",
+  "dependencies": {
+    "eventEmitter": "~4.2.3",
+  },
+  "devDependencies": {
+  },
+  "engines": {
+  },
+  "scripts": {
+  }
+}
