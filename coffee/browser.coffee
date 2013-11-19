@@ -27,13 +27,16 @@ namespace 'palava.browser', (exports) ->
 
     !( exports.PeerConnection && exports.IceCandidate && exports.SessionDescription && exports.getUserMedia)
 
-  exports.checkForPartialSupport = ->
+  exports.chromeVersion = ->
     matches =  /Chrome\/(\d+)/i.exec(navigator.userAgent)
-
     if matches
       [_, version] = matches
-      return parseInt(version) < 26
-    false
+      parseInt(version)
+    else
+      false
+
+  exports.checkForPartialSupport = ->
+    exports.isChrome() && exports.chromeVersion() < 26
 
   exports.getConstraints = () ->
     constraints =
@@ -52,6 +55,7 @@ namespace 'palava.browser', (exports) ->
       {}
 
   exports.patchSDP = (sdp) ->
+    return sdp if exports.isChrome() && exports.chromeVersion() >= 31
     chars = [33..58].concat([60..126]).map (a) ->
       String.fromCharCode(a)
     key = ''
