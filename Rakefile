@@ -13,10 +13,9 @@ namespace :coffee do
     asset.write_to('palava.js')
     puts Paint["Successfully built palava.js", :green]
 
+    uglifier_options = JSON(File.read(File.dirname(__FILE__) + '/uglifier_options.json'))
     File.open('palava.min.js', 'w'){ |f|
-      f.write Uglifier.compile File.read('palava.js'), {
-        # uglifier options can be put here, see https://github.com/lautis/uglifier#usage
-      }
+      f.write Uglifier.compile File.read('palava.js'), uglifier_options
     }
     puts Paint["Successfully built palava.min.js", :green]
   end
