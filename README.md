@@ -16,72 +16,16 @@ For more information on bower, see [bower.io](http://bower.io/)
 
 Include a direct link to the source file into your HTML:
 
-<script src="https://palava.tv/assets/js/palava.min.js" type="text/javascript"></script>
+<script src="https://assets.palava.tv/js/palava.min.js" type="text/javascript"></script>
 
 ### 3) Sprockets/Middleman
 
-Alternatively, directly include the coffee file into your project. See the [palava portal](https://github.com/palavatv/palava-portal) for how it is done.
+Alternatively, directly include the coffee files into your project. See the [palava portal](https://github.com/palavatv/palava-portal) for how it is done.
 
 
 ## Usage
 
-All features are namespaced into "palava"
-
-[...]
-
-# Session
-## Description of Events
-
-Note: Sometimes not yet implemented
-
-### argument error (reason)
-- Internal Client Error
-
-### webrtc no support ??? args
-
-### webrtc partial support ()
-- Fires for Chrome 25
-
-### local stream ready (stream)
-- Gum ready
-
-### local stream error () ??? removed?
-
-### room join error (room, error)
-- No "joined room" received after room's join timeout
-
-### room joined (room)
-- Received "joined room"
-
-### room full (room) ??? isnt this a room join error?
-
-### signaling shutdown (seconds)
-
-### signaling error (error) ??? separate socket error and json error message?
-
-### signaling close (reason) ??? signaling in general: move to room_ / prefix others with channel_
-
-### signaling not reachable (address)
-- Timeout after first message send to server and socket is not ready anymore
-
-### peer joined (member)
-- Server sends new peer info
-
-### peer offer (member)
-- PeerConnection offer received
-
-### peer answer (member)
-- PeerConnection answer received
-
-### peer stream ready (member)
-- New stream available, also triggers for local member
-
-### peer stream removed (member)
-- PeerConnection 'onremovestream' received / local stream released
-- Not neceassarily triggered on PeerConnection close
-
-### peer left
-- Server tells us that a peer is gone
+All features are namespaced into "palava" or "palava.browser". More documentation will be added.
 
 
 ## Credits
