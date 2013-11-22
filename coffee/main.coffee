@@ -1,3 +1,4 @@
+#= require ./license
 #= require ./namespace
 #= require ./browser
 #= require ./identity

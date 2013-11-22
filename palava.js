@@ -1,3 +1,30 @@
+/*
+palava v1.0.0 | LGPL | https://github.com/palavatv/palava-client
+
+Copyright (C) 2013 Jan Lelis       jan@signaling.io
+Copyright (C) 2013 Marius Melzer   marius@signaling.io
+Copyright (C) 2013 Stephan Thamm   thammi@chaossource.net
+Copyright (C) 2013 Kilian Ulbrich  kilian@innovailable.eu
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+(function() {
+
+
+}).call(this);
 (function() {
   var __slice = [].slice;
 
@@ -53,14 +80,18 @@
       }
       return !(exports.PeerConnection && exports.IceCandidate && exports.SessionDescription && exports.getUserMedia);
     };
-    exports.checkForPartialSupport = function() {
+    exports.chromeVersion = function() {
       var matches, version, _;
       matches = /Chrome\/(\d+)/i.exec(navigator.userAgent);
       if (matches) {
         _ = matches[0], version = matches[1];
-        return parseInt(version) < 26;
+        return parseInt(version);
+      } else {
+        return false;
       }
-      return false;
+    };
+    exports.checkForPartialSupport = function() {
+      return exports.isChrome() && exports.chromeVersion() < 26;
     };
     exports.getConstraints = function() {
       var constraints;
@@ -91,6 +122,9 @@
     };
     exports.patchSDP = function(sdp) {
       var chars, crypto, i, key, _i, _j, _k, _results, _results1;
+      if (exports.isChrome() && exports.chromeVersion() >= 31) {
+        return sdp;
+      }
       chars = (function() {
         _results1 = [];
         for (_j = 33; _j <= 58; _j++){ _results1.push(_j); }
