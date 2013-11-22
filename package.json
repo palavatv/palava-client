@@ -1,6 +1,6 @@
 {
-  "name": "palava-test",
-  "version": "0.0.1",
+  "name": "palava",
+  "version": "0.9.0",
   "dependencies": {
     "eventEmitter": "~4.2.3",
   },
