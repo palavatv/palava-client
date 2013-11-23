@@ -25,7 +25,11 @@ Alternatively, directly include the coffee files into your project. See the [pal
 
 ## Usage
 
-All features are namespaced into "palava" or "palava.browser". More documentation will be added.
+All features are namespaced into "palava" or "palava.browser". More documentation will be added. For now, see how it is used in the portal:
+
+- https://github.com/palavatv/palava-portal/blob/master/source/assets/js/app/controllers/palava_controller.coffee.erb#L91
+- https://github.com/palavatv/palava-portal/blob/master/source/assets/js/app/controllers/palava_controller.coffee.erb#L53
+- https://github.com/palavatv/palava-portal/blob/master/source/assets/js/app/controllers/palava_controller.coffee.erb#L11
 
 
 ## Credits
