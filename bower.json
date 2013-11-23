@@ -10,7 +10,7 @@
   "licenses": [
     {
     "type": "LPGLv3",
-    "url": "https://raw.github.com/palavatv/palava/master/COPYING.LESSER"
+    "url": "https://raw.github.com/palavatv/palava-client/master/COPYING.LESSER"
     }
   ],
   "dependencies": {
