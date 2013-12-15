@@ -1,128 +1,127 @@
-namespace 'palava.browser', (exports) ->
-  exports.PeerConnection     = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection
-  exports.IceCandidate       = window.mozRTCIceCandidate || window.RTCIceCandidate
-  exports.SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription
-  exports.getUserMedia       = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
+palava.browser.PeerConnection     = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection
+palava.browser.IceCandidate       = window.mozRTCIceCandidate || window.RTCIceCandidate
+palava.browser.SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription
+palava.browser.getUserMedia       = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
 
-  exports.isMozilla = ->
-    if window.mozRTCPeerConnection then true
-    else false
+palava.browser.isMozilla = ->
+  if window.mozRTCPeerConnection then true
+  else false
 
-  exports.isChrome = ->
-    /Chrome/i.test(navigator.userAgent)
+palava.browser.isChrome = ->
+  /Chrome/i.test(navigator.userAgent)
 
-  exports.getUserAgent = ->
-    if exports.isMozilla()
-      'firefox'
-    else if exports.isChrome()
-      'chrome'
+palava.browser.getUserAgent = ->
+  if palava.browser.isMozilla()
+    'firefox'
+  else if palava.browser.isChrome()
+    'chrome'
+  else
+    'unknown'
+
+palava.browser.checkForWebrtcError = ->
+  try
+    new palava.browser.PeerConnection({iceServers: []})
+  catch e
+    return e
+
+  !( palava.browser.PeerConnection && palava.browser.IceCandidate && palava.browser.SessionDescription && palava.browser.getUserMedia)
+
+palava.browser.chromeVersion = ->
+  matches =  /Chrome\/(\d+)/i.exec(navigator.userAgent)
+  if matches
+    [_, version] = matches
+    parseInt(version)
+  else
+    false
+
+palava.browser.checkForPartialSupport = ->
+  palava.browser.isChrome() && palava.browser.chromeVersion() < 26
+
+palava.browser.getConstraints = () ->
+  constraints =
+    optional: []
+    mandatory:
+      OfferToReceiveAudio: true
+      OfferToReceiveVideo: true
+  if palava.browser.isMozilla()
+    constraints.mandatory.MozDontOfferDataChannel = true
+  constraints
+
+palava.browser.getPeerConnectionOptions = () ->
+  if palava.browser.isChrome()
+    {"optional": [{"DtlsSrtpKeyAgreement": true}]}
+  else
+    {}
+
+palava.browser.patchSDP = (sdp) ->
+  return sdp if palava.browser.isChrome() && palava.browser.chromeVersion() >= 31
+  chars = [33..58].concat([60..126]).map (a) ->
+    String.fromCharCode(a)
+  key = ''
+  for i in [0...40]
+    key += chars[Math.floor(Math.random() * chars.length)]
+  crypto = 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + key + '\r\nc=IN'
+  if sdp.sdp.indexOf('a=crypto') == -1
+    sdp.sdp = sdp.sdp.replace(/c=IN/g, crypto)
+  sdp
+
+## DOM
+
+palava.browser.registerFullscreen = (element, eventName) ->
+  if(element[0].requestFullscreen)
+    element.on eventName, -> this.requestFullscreen()
+  else if(element[0].mozRequestFullScreen)
+    element.on eventName, -> this.mozRequestFullScreen()
+  else if(element[0].webkitRequestFullscreen)
+    element.on eventName, -> this.webkitRequestFullscreen()
+
+if palava.browser.isMozilla()
+  palava.browser.attachMediaStream = (element, stream) ->
+    if stream
+      $(element).prop 'mozSrcObject',  stream
     else
-      'unknown'
+      $(element).prop 'mozSrcObject', null
 
-  exports.checkForWebrtcError = ->
-    try
-      new exports.PeerConnection({iceServers: []})
-    catch e
-      return e
+  # waiter = 0
+  # palava.browser.cloneMediaStream = (to, from) ->
+  #   # TODO: this is a very hacky way to avoid the connecting streams from colliding
+  #   now = new Date().getTime()
+  #   doIt = ->
+  #     if $(from).prop("tagName") == 'VIDEO'
+  #       $(to).prop 'mozSrcObject', from.mozSrcObject
+  #       $(to).show()
+  #       $(to)[0].play()
+  #     else
+  #       $(to).hide()
+  #   if waiter > now
+  #     setTimeout(doIt, waiter - now)
+  #     waiter = Math.max(now, waiter) + 2000
+  #   else
+  #     doIt()
+  #     waiter = now + 2000
 
-    !( exports.PeerConnection && exports.IceCandidate && exports.SessionDescription && exports.getUserMedia)
+  palava.browser.fixAudio = (videoWrapper) ->
+    # nothing
 
-  exports.chromeVersion = ->
-    matches =  /Chrome\/(\d+)/i.exec(navigator.userAgent)
-    if matches
-      [_, version] = matches
-      parseInt(version)
+else if palava.browser.isChrome()
+  palava.browser.attachMediaStream = (element, stream) ->
+    if stream
+      $(element).prop 'src',  webkitURL.createObjectURL stream
     else
-      false
+      $(element).prop 'src', null
 
-  exports.checkForPartialSupport = ->
-    exports.isChrome() && exports.chromeVersion() < 26
+  # palava.browser.cloneMediaStream = (to, from) ->
+  #   if $(from).prop("tagName") == 'VIDEO'
+  #     $(to).prop 'src', $(from).prop('src')
+  #     $(to).show()
+  #     palava.browser.fixAudio $(from).parents('.plv-video-wrapper')
+  #   else
+  #     $(to).hide()
 
-  exports.getConstraints = () ->
-    constraints =
-      optional: []
-      mandatory:
-        OfferToReceiveAudio: true
-        OfferToReceiveVideo: true
-    if exports.isMozilla()
-      constraints.mandatory.MozDontOfferDataChannel = true
-    constraints
-
-  exports.getPeerConnectionOptions = () ->
-    if exports.isChrome()
-      {"optional": [{"DtlsSrtpKeyAgreement": true}]}
-    else
-      {}
-
-  exports.patchSDP = (sdp) ->
-    return sdp if exports.isChrome() && exports.chromeVersion() >= 31
-    chars = [33..58].concat([60..126]).map (a) ->
-      String.fromCharCode(a)
-    key = ''
-    for i in [0...40]
-      key += chars[Math.floor(Math.random() * chars.length)]
-    crypto = 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + key + '\r\nc=IN'
-    if sdp.sdp.indexOf('a=crypto') == -1
-      sdp.sdp = sdp.sdp.replace(/c=IN/g, crypto)
-    sdp
-
-  ## DOM
-
-  exports.registerFullscreen = (element, eventName) ->
-    if(element[0].requestFullscreen)
-      element.on eventName, -> this.requestFullscreen()
-    else if(element[0].mozRequestFullScreen)
-      element.on eventName, -> this.mozRequestFullScreen()
-    else if(element[0].webkitRequestFullscreen)
-      element.on eventName, -> this.webkitRequestFullscreen()
-
-  if exports.isMozilla()
-    exports.attachMediaStream = (element, stream) ->
-      if stream
-        $(element).prop 'mozSrcObject',  stream
-      else
-        $(element).prop 'mozSrcObject', null
-
-    # waiter = 0
-    # exports.cloneMediaStream = (to, from) ->
-    #   # TODO: this is a very hacky way to avoid the connecting streams from colliding
-    #   now = new Date().getTime()
-    #   doIt = ->
-    #     if $(from).prop("tagName") == 'VIDEO'
-    #       $(to).prop 'mozSrcObject', from.mozSrcObject
-    #       $(to).show()
-    #       $(to)[0].play()
-    #     else
-    #       $(to).hide()
-    #   if waiter > now
-    #     setTimeout(doIt, waiter - now)
-    #     waiter = Math.max(now, waiter) + 2000
-    #   else
-    #     doIt()
-    #     waiter = now + 2000
-
-    exports.fixAudio = (videoWrapper) ->
-      # nothing
-
-  else if exports.isChrome()
-    exports.attachMediaStream = (element, stream) ->
-      if stream
-        $(element).prop 'src',  webkitURL.createObjectURL stream
-      else
-        $(element).prop 'src', null
-
-    # exports.cloneMediaStream = (to, from) ->
-    #   if $(from).prop("tagName") == 'VIDEO'
-    #     $(to).prop 'src', $(from).prop('src')
-    #     $(to).show()
-    #     exports.fixAudio $(from).parents('.plv-video-wrapper')
-    #   else
-    #     $(to).hide()
-
-    exports.fixAudio = (videoWrapper) ->
-      if videoWrapper.attr('data-peer-muted') != 'true'
-        $([200, 400, 1000, 2000, 4000, 8000, 16000]).each (_, n) -> # chrome bug
-          setTimeout ( ->
-            videoWrapper.find('.plv-video-mute').click()
-            videoWrapper.find('.plv-video-mute').click()
-          ), n
+  palava.browser.fixAudio = (videoWrapper) ->
+    if videoWrapper.attr('data-peer-muted') != 'true'
+      $([200, 400, 1000, 2000, 4000, 8000, 16000]).each (_, n) -> # chrome bug
+        setTimeout ( ->
+          videoWrapper.find('.plv-video-mute').click()
+          videoWrapper.find('.plv-video-mute').click()
+        ), n

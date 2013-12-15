@@ -1,6 +1,6 @@
 # Channel implementation for websockets
 # Events: open -> (), message -> (msg), error -> (), close -> ()
-class WebSocketChannel extends EventEmitter
+class palava.WebSocketChannel extends EventEmitter
   constructor: (address) ->
     @reached      = false
     @socket       = new WebSocket(address)#, [palava.protocol_identifier()])
@@ -34,6 +34,3 @@ class WebSocketChannel extends EventEmitter
       else
         @reached = true
     ), 500
-
-namespace 'palava', (exports) ->
-  exports.WebSocketChannel = WebSocketChannel

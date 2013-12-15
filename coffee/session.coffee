@@ -3,7 +3,7 @@
 
 # Session is a wrapper around a concrete room + channel + userMedia
 
-class Session extends EventEmitter
+class palava.Session extends EventEmitter
   constructor: (o) ->
     @channel     = null
     @userMedia   = null
@@ -84,6 +84,3 @@ class Session extends EventEmitter
     @channel   && @channel.close()
     @userMedia && @userMedia.releaseStream()
     @emit 'session_after_destroy'
-
-namespace 'palava', (exports) ->
-  exports.Session = Session

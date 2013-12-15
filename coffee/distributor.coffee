@@ -1,4 +1,4 @@
-Distributor = (channel, peerId = null) ->
+palava.Distributor = (channel, peerId = null) ->
   on: (event, handler) ->
     channel.on 'message', (msg) ->
       # console.log('got msg', msg)
@@ -22,6 +22,3 @@ Distributor = (channel, peerId = null) ->
     else
       payload = msg
     channel.send(payload)
-
-namespace 'palava', (exports) ->
-  exports.Distributor = Distributor
