@@ -3,7 +3,7 @@
 #= require ./gum
 #= require ./distributor
 
-class Room extends EventEmitter
+class palava.Room extends EventEmitter
   constructor: (roomId, channel, userMedia, options = {}) ->
     @id        = roomId
     @userMedia = userMedia
@@ -77,6 +77,3 @@ class Room extends EventEmitter
       if allowLocal || !peer.local
         peers.push peer
     peers
-
-namespace 'palava', (exports) ->
-  exports.Room = Room

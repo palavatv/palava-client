@@ -3,7 +3,7 @@
 #= require ./distributor
 
 # TODO pack 'peer left' into 'send_to_peer' on server side
-class RemotePeer extends palava.Peer
+class palava.RemotePeer extends palava.Peer
   constructor: (id, status, room) ->
     @muted = false
     @local = false
@@ -129,5 +129,3 @@ class RemotePeer extends palava.Peer
             timeouts.each (_, t) => clearTimeout(t)
             @peerConnection.onaddstream({stream: remoteTrack})
         ), n
-
-namespace 'palava', (exports) -> exports.RemotePeer = RemotePeer

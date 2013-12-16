@@ -1,6 +1,6 @@
 #= require ./browser
 
-class Peer extends EventEmitter
+class palava.Peer extends EventEmitter
   constructor: (id, status) ->
     @id     = id
     @status = status || {}
@@ -11,5 +11,3 @@ class Peer extends EventEmitter
   isMuted:  => if @muted  then true else false
   isReady:  => if @ready  then true else false
   isLocal:  => if @local  then true else false
-
-namespace 'palava', (exports) -> exports.Peer = Peer

@@ -1,7 +1,7 @@
 #= require ./browser
 #= require ./peer
 
-class LocalPeer extends palava.Peer
+class palava.LocalPeer extends palava.Peer
   constructor: (id, status, room) ->
     @muted    = true # currently refers to displaying of local stream, not the sent one
     @local    = true
@@ -52,5 +52,3 @@ class LocalPeer extends palava.Peer
     @ready = false
     # @emit 'stream_removed'
     @emit 'left'
-
-namespace 'palava', (exports) -> exports.LocalPeer = LocalPeer

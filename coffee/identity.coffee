@@ -1,6 +1,6 @@
 #= require ./gum
 
-class Identity
+class palava.Identity
   constructor: (o) ->
     @userMediaConfig = o.userMediaConfig
     @name            = o.name
@@ -10,6 +10,3 @@ class Identity
 
   getName: ->
     @name
-
-namespace 'palava', (exports) ->
-  exports.Identity = Identity
