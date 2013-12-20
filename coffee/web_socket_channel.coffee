@@ -6,7 +6,6 @@ class palava.WebSocketChannel extends EventEmitter
 
   # @param address [String] Address of the websocket. Should start with `ws://` for web sockets or `wss://` for secure web sockets.
   constructor: (address) ->
-    @timeout = timeout
     @reached      = false
     @socket       = new WebSocket(address)#, [palava.protocol_identifier()])
     @socket.onopen = (handshake) =>

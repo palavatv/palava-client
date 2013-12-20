@@ -56,7 +56,7 @@ class palava.Room extends EventEmitter
   # @nodoc
   #
   setupDistributor: =>
-    @distributor = palava.Distributor(@channel)
+    @distributor = new palava.Distributor(@channel)
 
     @distributor.on 'joined_room', (msg) =>
       clearTimeout(@joinCheckTimeout)

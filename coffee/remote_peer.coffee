@@ -84,7 +84,7 @@ class palava.RemotePeer extends palava.Peer
   setupDistributor: =>
     # TODO _ in events also in rtc-server
     # TODO consistent protocol naming
-    @distributor = palava.Distributor(@room.channel, @id)
+    @distributor = new palava.Distributor(@room.channel, @id)
 
     @distributor.on 'peer_left', (msg) =>
       if @ready

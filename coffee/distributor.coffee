@@ -7,7 +7,7 @@ class palava.Distributor
   # @param channel [palava.Channel] The channel to connect through
   # @param peerId [String] The id of the peer to connect to or `null` for global messages
   #
-  constuctor: (channel, peerId = null) =>
+  constructor: (channel, peerId = null) ->
     @channel = channel
     @peerId = peerId
 
@@ -20,7 +20,7 @@ class palava.Distributor
   # @param handler [function] This function is called when the event is received
   #
   on: (event, handler) =>
-    @channel.on 'message', (msg) ->
+    @channel.on 'message', (msg) =>
       # console.log('got msg', msg)
       if @peerId
         # TODO not in sync with protocol page
