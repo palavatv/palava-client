@@ -1,13 +1,22 @@
-# Channel implementation for websockets
+# Channel implementation using websockets
+#
 # Events: open -> (), message -> (msg), error -> (), close -> ()
+#
 class palava.WebSocketChannel extends EventEmitter
+
+  # @param address [String] Address of the websocket. Should start with `ws://` for web sockets or `wss://` for secure web sockets.
   constructor: (address) ->
+    @timeout = timeout
     @reached      = false
     @socket       = new WebSocket(address)#, [palava.protocol_identifier()])
     @socket.onopen = (handshake) =>
       @setupEvents()
       @emit 'open', handshake
 
+  # Connects websocket events with the events of this object
+  #
+  # @nodoc
+  #
   setupEvents: =>
     @socket.onmessage = (msg) =>
       try
@@ -19,14 +28,24 @@ class palava.WebSocketChannel extends EventEmitter
     @socket.onclose = =>
       @emit 'close'
 
+  # Sends the given data through the websocket
+  #
+  # @param data [Object] Object to send through the channel
+  #
   send: (data) =>
     @socket.send JSON.stringify(data)
     unless @reached
       @checkConnectionTimeout()
 
+  # Closes the websocket
+  #
   close: () =>
     @socket.close()
 
+  # Checks whether the websocket can be reached
+  #
+  # @nodoc
+  #
   checkConnectionTimeout: =>
     setTimeout ( =>
       if @socket.readyState == 3

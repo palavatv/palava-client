@@ -3,7 +3,15 @@
 #= require ./distributor
 
 # TODO pack 'peer left' into 'send_to_peer' on server side
+
+# A remote participant in a room
+#
 class palava.RemotePeer extends palava.Peer
+
+  # @param id [String] ID of the participant
+  # @param status [Object] Status object of the participant
+  # @param room [palava.Room] Room the participant is in
+  #
   constructor: (id, status, room) ->
     @muted = false
     @local = false
@@ -16,15 +24,29 @@ class palava.RemotePeer extends palava.Peer
     @setupPeerConnection()
     @setupDistributor()
 
+  # Get the stream
+  #
+  # @return [MediaStream] Remote stream as defined by WebRTC
+  #
   getStream: =>
     @remoteStream
 
+  # Check whether the participant is sending audio
+  #
+  # @return [Boolean] `true` if the peer is sending audio
+  #
   hasAudio: =>
     @remoteStream && ( palava.browser.checkForPartialSupport() || @remoteStream.getAudioTracks().length ) # TODO is the || really correct?
 
+  # Toggle the mute state of the peer
+  #
   toggleMute: =>
     @muted = !@muted
 
+  # Sets up the peer connection and its events
+  #
+  # @nodoc
+  #
   setupPeerConnection: =>
     @peerConnection = new palava.browser.PeerConnection({iceServers: [{url: @room.options.stun}]}, palava.browser.getPeerConnectionOptions())
 
@@ -55,6 +77,10 @@ class palava.RemotePeer extends palava.Peer
 
     @peerConnection
 
+  # Sets up the distributor connecting to the participant
+  #
+  # @nodoc
+  #
   setupDistributor: =>
     # TODO _ in events also in rtc-server
     # TODO consistent protocol naming
@@ -86,6 +112,10 @@ class palava.RemotePeer extends palava.Peer
       @emit 'update'
     @distributor
 
+  # Forward events to the room
+  #
+  # @nodoc
+  #
   setupRoom: =>
     @room.peers[@id] = @
     @on 'left', =>
@@ -98,17 +128,31 @@ class palava.RemotePeer extends palava.Peer
     @on 'stream_removed', => @room.emit('peer_stream_removed', @)
     @on 'oaerror',    (e) => @room.emit('peer_oaerror', @, e)
 
+  # Sends the offer for a peer connection
+  #
+  # @nodoc
+  #
   sendOffer: =>
     @peerConnection.createOffer  @sdpSender('offer'),  @oaError, palava.browser.getConstraints()
     @mozillaCheckAddStream()
 
+  # TODO: why is this needed???
+  #
+  # @nodoc
+  #
   sendOfferIf: (cond) =>
     if cond then @sendOffer()
 
+  # Sends the answer to create a peer connection
+  #
   sendAnswer: =>
     @peerConnection.createAnswer @sdpSender('answer'), @oaError, palava.browser.getConstraints()
     @mozillaCheckAddStream()
 
+  # Helper for sending sdp
+  #
+  # @nodoc
+  #
   sdpSender: (event) =>
     (sdp) =>
       sdp = palava.browser.patchSDP(sdp)
@@ -117,9 +161,17 @@ class palava.RemotePeer extends palava.Peer
         event: event
         sdp: sdp
 
+  # TODO: what is this?
+  #
+  # @nodoc
+  #
   oaError: (error) =>
     @emit 'oaerror', error
 
+  # Workaround for a Firefox bug
+  #
+  # @nodoc
+  #
   mozillaCheckAddStream: =>
     if palava.browser.isMozilla() # TODO research remove / bug ticket
       timeouts = $([100, 200, 400, 1000, 2000, 4000, 8000, 12000, 16000]).map (_, n) =>

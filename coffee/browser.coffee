@@ -3,13 +3,25 @@ palava.browser.IceCandidate       = window.mozRTCIceCandidate || window.RTCIceCa
 palava.browser.SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription
 palava.browser.getUserMedia       = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
 
+# Checks whether the browser is a Firefox
+#
+# @return [Boolean] `true` if Firefox
+#
 palava.browser.isMozilla = ->
   if window.mozRTCPeerConnection then true
   else false
 
+# Checks whether the browser is a Chrome/Chromium
+#
+# @return [Boolean] `true` if Chrome
+#
 palava.browser.isChrome = ->
   /Chrome/i.test(navigator.userAgent)
 
+# Checks which browser is used
+#
+# @return [String] A well defined id of the browser (firefox, chrome or unknown)
+#
 palava.browser.getUserAgent = ->
   if palava.browser.isMozilla()
     'firefox'
@@ -18,6 +30,10 @@ palava.browser.getUserAgent = ->
   else
     'unknown'
 
+# Checks whether the WebRTC support of the browser should be compatible with palava
+#
+# @return [Boolean] `true` if the browser is supported by palava
+#
 palava.browser.checkForWebrtcError = ->
   try
     new palava.browser.PeerConnection({iceServers: []})
@@ -26,6 +42,10 @@ palava.browser.checkForWebrtcError = ->
 
   !( palava.browser.PeerConnection && palava.browser.IceCandidate && palava.browser.SessionDescription && palava.browser.getUserMedia)
 
+# Check which version of Chrome is present
+#
+# @return [Integer] Chrome version number
+#
 palava.browser.chromeVersion = ->
   matches =  /Chrome\/(\d+)/i.exec(navigator.userAgent)
   if matches
@@ -34,9 +54,16 @@ palava.browser.chromeVersion = ->
   else
     false
 
+# Check whether the browser is only partially supported by palava
+#
+# @return [Boolean] `true` if there are no known bugs for the used browser
 palava.browser.checkForPartialSupport = ->
   palava.browser.isChrome() && palava.browser.chromeVersion() < 26
 
+# Get WebRTC constraints argument
+#
+# @return [Object] Appropriate constraints for WebRTC
+#
 palava.browser.getConstraints = () ->
   constraints =
     optional: []
@@ -47,12 +74,20 @@ palava.browser.getConstraints = () ->
     constraints.mandatory.MozDontOfferDataChannel = true
   constraints
 
+# Get WebRTC PeerConnection options
+#
+# @return [Object] Appropriate options for the PeerConnection
+#
 palava.browser.getPeerConnectionOptions = () ->
   if palava.browser.isChrome()
     {"optional": [{"DtlsSrtpKeyAgreement": true}]}
   else
     {}
 
+# Patch given SDP
+#
+# @return [String] Adjusted SDP fixing bugs and compability issues
+#
 palava.browser.patchSDP = (sdp) ->
   return sdp if palava.browser.isChrome() && palava.browser.chromeVersion() >= 31
   chars = [33..58].concat([60..126]).map (a) ->
@@ -67,7 +102,13 @@ palava.browser.patchSDP = (sdp) ->
 
 ## DOM
 
+# Activates fullscreen on the given event
+#
+# @param element [JQuery Elements] Element to put into fullscreen
+# @param eventName [String] Event name on which to activate fullscreen
+#
 palava.browser.registerFullscreen = (element, eventName) ->
+  # TODO: provide only function to activate fullscreen to reduce complexity and widen use cases of helper?
   if(element[0].requestFullscreen)
     element.on eventName, -> this.requestFullscreen()
   else if(element[0].mozRequestFullScreen)
@@ -75,6 +116,7 @@ palava.browser.registerFullscreen = (element, eventName) ->
   else if(element[0].webkitRequestFullscreen)
     element.on eventName, -> this.webkitRequestFullscreen()
 
+# TODO move this if out of the way here
 if palava.browser.isMozilla()
   palava.browser.attachMediaStream = (element, stream) ->
     if stream

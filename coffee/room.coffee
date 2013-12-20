@@ -3,7 +3,17 @@
 #= require ./gum
 #= require ./distributor
 
+# A room connecting multiple participants
+#
 class palava.Room extends EventEmitter
+
+  # @param roomId [String] ID of the room
+  # @param channel [palava.Channel] Channel used for communication
+  # @param userMedia [UserMedia] UserMedia used for local user
+  # @param options [Object] Further objects for the room
+  # @option options joinTimeout [Integer] Timeout for joining
+  # @option options ownStatus [Object] The status of the local user
+  #
   constructor: (roomId, channel, userMedia, options = {}) ->
     @id        = roomId
     @userMedia = userMedia
@@ -16,19 +26,35 @@ class palava.Room extends EventEmitter
     @setupDistributor()
     @setupOptions()
 
+  # Bind UserMedia events to room events
+  #
+  # @nodoc
+  #
   setupUserMedia: =>
     @userMedia.on 'stream_ready', (event) => @emit 'local_stream_ready', event.stream
     @userMedia.on 'stream_released',      => @emit 'local_stream_removed'
 
+  # Bind channel events to room events
+  #
+  # @nodoc
+  #
   setupChannel: => # TODO move to session?
     @channel.on 'not_reachable', (e) => @emit 'signaling_not_reachable', e
     @channel.on 'error',         (e) => @emit 'signaling_error', e
     @channel.on 'close',         (e) => @emit 'signaling_close', e
 
+  # Set default options
+  #
+  # @nodoc
+  #
   setupOptions: =>
     @options.joinTimeout ||= 1000
     @options.ownStatus ||= {}
 
+  # Initialize global distributor and messaging
+  #
+  # @nodoc
+  #
   setupDistributor: =>
     @distributor = palava.Distributor(@channel)
 
@@ -49,6 +75,10 @@ class palava.Room extends EventEmitter
 
     @distributor.on 'shutdown', (msg) => @emit 'signaling_shutdown', msg.seconds
 
+  # Join the room
+  #
+  # @param status [Object] Status of the local user
+  #
   join: (status = {}) =>
     @joinCheckTimeout = setTimeout ( =>
       @emit 'join_error', 'Not able to join room'
@@ -63,14 +93,37 @@ class palava.Room extends EventEmitter
       room_id: @id
       status: @options.ownStatus
 
+  # Leave the room
+  #
   leave: =>
     @emit 'leave'
     @channel && @channel.close()
     @localPeer && @localPeer.stream && @localPeer.stream.close()
 
+  # Find peer with the given id
+  #
+  # @param id [String] id of the searched peer
+  #
+  # @return [palava.Peer] The peer with the given id or `undefined`
+  #
   getPeerById: (id) => @peers[id]
+
+  # Get local peer
+  #
+  # @return [palava.Peer] The local peer
+  #
   getLocalPeer:     => @localPeer
+
+  # Get remote peers
+  #
+  # @return [Array] All peers except the local peer
+  #
   getRemotePeers:   => @getAllPeers(false)
+
+  # Get all peers
+  #
+  # @return [Array] All peers including the local peer
+  #
   getAllPeers: (allowLocal = true) =>
     peers = []
     for id, peer of @peers

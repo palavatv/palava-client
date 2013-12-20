@@ -1,9 +1,15 @@
 #= require ./browser
 #= require ./web_socket_channel
 
-# Session is a wrapper around a concrete room + channel + userMedia
-
+# Session is a wrapper around a concrete room, channel and userMedia
 class palava.Session extends EventEmitter
+
+  # @param o [Object] Options for the session
+  # @option o channel [palava.Channel] A channel Object which will be used for communication
+  # @option o web_socket_channel [WebSocket] A websocket from which a channel will be created
+  # @option o identity [palava.Identity] TODO
+  # @option o options [Object] TODO
+  #
   constructor: (o) ->
     @channel     = null
     @userMedia   = null
@@ -11,12 +17,20 @@ class palava.Session extends EventEmitter
     @roomOptions = {}
     @assignOptions(o)
 
+  # Initializes the session
+  #
+  # @param o [Object] See constructor for details
+  #
   init: (o) =>
     @assignOptions(o)
     @checkRequirements()
     @setupRoom()
     @userMedia.requestStream()
 
+  # Moves options into inner state
+  #
+  # @nodoc
+  #
   assignOptions: (o) =>
     @roomId = o.roomId || @roomId
 
@@ -33,6 +47,10 @@ class palava.Session extends EventEmitter
       @roomOptions.stun        = o.options.stun        || @roomOptions.stun
       @roomOptions.joinTimeout = o.options.joinTimeout || @roomOptions.joinTimeout
 
+  # Checks whether the inner state of the session is valid. Emits events otherwise
+  #
+  # @nodoc
+  #
   checkRequirements: =>
     unless @channel
       @emit 'argument_error', 'no channel given'
@@ -52,10 +70,28 @@ class palava.Session extends EventEmitter
     if palava.browser.checkForPartialSupport()
       @emit 'webrtc_partial_support'
 
+  # Get the channel of the session
+  #
+  # @return [palava.Channel] The channel of the session
+  #
   getChannel:   => @channel
+
+  # Get the UserMedia of the session
+  #
+  # @return [UserMedia] UserMedia of the session
+  #
   getUserMedia: => @userMedia
+
+  # Get the room of the session
+  #
+  # @return [palava.Room] Room of the session
+  #
   getRoom:      => @room
 
+  # Maps signals from room to session signals
+  #
+  # @nodoc
+  #
   setupRoom: => # TODO move some more stuff away from the room? eg signaling
     @room = new palava.Room @roomId, @channel, @userMedia, @roomOptions
     @room.on 'local_stream_ready',      (s) => @emit 'local_stream_ready', s
@@ -77,6 +113,8 @@ class palava.Session extends EventEmitter
     @room.on 'signaling_not_reachable', (p) => @emit 'signaling_not_reachable', p
     true
 
+  # Destroys the session
+  #
   destroy: =>
     @emit 'session_before_destroy'
     # @removeListeners() # TODO do we want to remove all listeners? not working
