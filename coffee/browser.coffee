@@ -122,6 +122,7 @@ if palava.browser.isMozilla()
     if stream
       $(element).prop 'mozSrcObject',  stream
     else
+      $(element).each (key, el) -> el.pause()
       $(element).prop 'mozSrcObject', null
 
   # waiter = 0
@@ -150,6 +151,7 @@ else if palava.browser.isChrome()
     if stream
       $(element).prop 'src',  webkitURL.createObjectURL stream
     else
+      $(element).each (key, el) -> el.pause()
       $(element).prop 'src', null
 
   # palava.browser.cloneMediaStream = (to, from) ->
