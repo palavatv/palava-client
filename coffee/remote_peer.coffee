@@ -136,13 +136,6 @@ class palava.RemotePeer extends palava.Peer
     @peerConnection.createOffer  @sdpSender('offer'),  @oaError, palava.browser.getConstraints()
     @mozillaCheckAddStream()
 
-  # TODO: why is this needed???
-  #
-  # @nodoc
-  #
-  sendOfferIf: (cond) =>
-    if cond then @sendOffer()
-
   # Sends the answer to create a peer connection
   #
   sendAnswer: =>

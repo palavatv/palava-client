@@ -63,12 +63,14 @@ class palava.Room extends EventEmitter
       new palava.LocalPeer(msg.own_id, @options.ownStatus, @)
       for peer in msg.peers
         newPeer = new palava.RemotePeer(peer.peer_id, peer.status, @)
-        newPeer.sendOfferIf !palava.browser.isChrome()
+        if !palava.browser.isChrome()
+          newPeer.sendOffer()
       @emit "joined", @
 
     @distributor.on 'new_peer', (msg) =>
       newPeer = new palava.RemotePeer(msg.peer_id, msg.status, @)
-      newPeer.sendOfferIf msg.status.user_agent == 'chrome'
+      if msg.status.user_agent == 'chrome'
+        newPeer.sendOffer()
       @emit 'peer_joined', newPeer
 
     @distributor.on 'error',    (msg) => @emit 'signaling_error',    msg.message
