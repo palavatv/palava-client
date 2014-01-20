@@ -16,7 +16,7 @@ For more information on bower, see [bower.io](http://bower.io/)
 
 Include a direct link to the source file into your HTML:
 
-<script src="https://assets.palava.tv/js/palava.min.js" type="text/javascript"></script>
+    <script src="https://assets.palava.tv/js/palava.min.js" type="text/javascript"></script>
 
 ### 3) Sprockets/Middleman
 
