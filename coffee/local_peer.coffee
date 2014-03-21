@@ -64,12 +64,16 @@ class palava.LocalPeer extends palava.Peer
     @status
 
   hasAudio: =>
-    # TODO: this is *not* the expected result
+    # TODO: to be tested
+    if stream = @getStream
+      return (stream.getAudioTracks.length() > 0)
     false
 
   toggleMute: =>
-    # TODO: stop sending audio?
-    false
+    # TODO: to be tested
+    @userMedia.changeConfig
+      video: @userMedia.config.video
+      audio: !@userMedia.config.audio
 
   # Leave the room
   leave: =>
