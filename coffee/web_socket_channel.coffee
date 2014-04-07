@@ -32,23 +32,26 @@ class palava.WebSocketChannel extends EventEmitter
   # @param data [Object] Object to send through the channel
   #
   send: (data) =>
-    @socket.send JSON.stringify(data)
-    unless @reached
-      @checkConnectionTimeout()
+    @send_or_retry(data, 3)
+
+  # Sends given data, if connection is established
+  # Otherwise retry 'retries' times and emit a not_reachable error in the end
+  #
+  # @param data [Object] Object to send through the channel
+  # @param retries [Integer] Number of retries
+  #
+  send_or_retry: (data, retries) =>
+    if countdown == 0
+      @emit 'not_reachable', @serverAddress
+    else if @reached || @socket.readyState != 3
+      @reached = true
+      @socket.send JSON.stringify(data)
+    else
+      setTimeout (=>
+        send_or_retry(data, retries - 1)
+      ), 400
 
   # Closes the websocket
   #
   close: () =>
     @socket.close()
-
-  # Checks whether the websocket can be reached
-  #
-  # @nodoc
-  #
-  checkConnectionTimeout: =>
-    setTimeout ( =>
-      if @socket.readyState == 3
-        @emit 'not_reachable', @serverAddress
-      else
-        @reached = true
-    ), 500
