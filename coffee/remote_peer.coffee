@@ -43,12 +43,21 @@ class palava.RemotePeer extends palava.Peer
   toggleMute: =>
     @muted = !@muted
 
+  generateIceOptions: =>
+    options = []
+    if @room.options.stun
+      options.push({url: @room.options.stun})
+    if @room.options.turn
+      url = 'turn:' + @room.options.turn.username + '@' + @room.options.turn.url
+      options.push({url: url, credential: @room.options.turn.password})
+    {iceServers: options}
+
   # Sets up the peer connection and its events
   #
   # @nodoc
   #
   setupPeerConnection: =>
-    @peerConnection = new palava.browser.PeerConnection({iceServers: [{url: @room.options.stun}]}, palava.browser.getPeerConnectionOptions())
+    @peerConnection = new palava.browser.PeerConnection(@generateIceOptions(), palava.browser.getPeerConnectionOptions())
 
     @peerConnection.onicecandidate = (event) =>
       if event.candidate

@@ -45,6 +45,7 @@ class palava.Session extends EventEmitter
 
     if o.options
       @roomOptions.stun        = o.options.stun        || @roomOptions.stun
+      @roomOptions.turn        = o.options.turn        || @roomOptions.turn
       @roomOptions.joinTimeout = o.options.joinTimeout || @roomOptions.joinTimeout
 
   # Checks whether the inner state of the session is valid. Emits events otherwise

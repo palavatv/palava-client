@@ -20,8 +20,8 @@ class palava.Gum extends EventEmitter
       navigator
       , @config
       , (stream) => # success
-        @detectMedia()
         @stream = stream
+        @detectMedia()
         @emit 'stream_ready', @
       , => # error
         @emit 'stream_error', @
