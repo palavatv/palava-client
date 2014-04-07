@@ -41,7 +41,7 @@ class palava.WebSocketChannel extends EventEmitter
   # @param retries [Integer] Number of retries
   #
   send_or_retry: (data, retries) =>
-    if countdown == 0
+    if retries == 0
       @emit 'not_reachable', @serverAddress
     else if @reached || @socket.readyState != 3
       @reached = true
