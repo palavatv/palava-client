@@ -380,6 +380,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         _this.ready = true;
         return _this.emit('stream_ready', e);
       });
+      this.userMedia.on('stream_error', function(e) {
+        return _this.emit('stream_error', e);
+      });
       if (this.getStream()) {
         this.ready = true;
         return this.emit('stream_ready');
@@ -740,6 +743,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.userMedia.on('stream_ready', function(event) {
         return _this.emit('local_stream_ready', event.stream);
       });
+      this.userMedia.on('stream_error', function(event) {
+        return _this.emit('local_stream_error', event.stream);
+      });
       return this.userMedia.on('stream_released', function() {
         return _this.emit('local_stream_removed');
       });
@@ -907,12 +913,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       var _this = this;
       if (retries === 0) {
         return this.emit('not_reachable', this.serverAddress);
-      } else if (this.reached || this.socket.readyState !== 3) {
+      } else if (this.reached || this.socket.readyState === 1) {
         this.reached = true;
         return this.socket.send(JSON.stringify(data));
       } else {
         return setTimeout((function() {
-          return send_or_retry(data, retries - 1);
+          return _this.send_or_retry(data, retries - 1);
         }), 400);
       }
     };

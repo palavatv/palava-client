@@ -43,12 +43,12 @@ class palava.WebSocketChannel extends EventEmitter
   send_or_retry: (data, retries) =>
     if retries == 0
       @emit 'not_reachable', @serverAddress
-    else if @reached || @socket.readyState != 3
+    else if @reached || @socket.readyState == 1
       @reached = true
       @socket.send JSON.stringify(data)
     else
       setTimeout (=>
-        send_or_retry(data, retries - 1)
+        @send_or_retry(data, retries - 1)
       ), 400
 
   # Closes the websocket
