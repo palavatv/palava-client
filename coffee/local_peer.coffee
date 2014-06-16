@@ -29,6 +29,8 @@ class palava.LocalPeer extends palava.Peer
     @userMedia.on 'stream_ready', (e) =>
       @ready = true
       @emit 'stream_ready', e
+    @userMedia.on 'stream_error', (e) =>
+      @emit 'stream_error', e
     if @getStream()
       @ready = true
       @emit 'stream_ready'
