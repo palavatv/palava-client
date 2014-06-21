@@ -582,6 +582,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         _this.ready = false;
         return _this.emit('stream_removed');
       };
+      this.peerConnection.oniceconnectionstatechange = function(event) {
+        var connectionState;
+        connectionState = event.target.iceConnectionState;
+        if (connectionState === 'failed') {
+          return _this.emit('stream_error');
+        }
+      };
       if (this.room.localPeer.getStream()) {
         this.peerConnection.addStream(this.room.localPeer.getStream());
       } else {
@@ -645,6 +652,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       });
       this.on('stream_ready', function() {
         return _this.room.emit('peer_stream_ready', _this);
+      });
+      this.on('stream_error', function() {
+        return _this.room.emit('peer_stream_error', _this);
       });
       this.on('stream_removed', function() {
         return _this.room.emit('peer_stream_removed', _this);
@@ -1057,6 +1067,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       });
       this.room.on('peer_stream_ready', function(p) {
         return _this.emit('peer_stream_ready', p);
+      });
+      this.room.on('peer_stream_error', function(p) {
+        return _this.emit('peer_stream_error', p);
       });
       this.room.on('peer_stream_removed', function(p) {
         return _this.emit('peer_stream_removed', p);

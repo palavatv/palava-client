@@ -77,6 +77,11 @@ class palava.RemotePeer extends palava.Peer
       @ready = false
       @emit 'stream_removed'
 
+    @peerConnection.oniceconnectionstatechange = (event) =>
+      connectionState = event.target.iceConnectionState
+      if connectionState == 'failed'
+        @emit 'stream_error'
+
     # TODO onsignalingstatechange
 
     if @room.localPeer.getStream()
@@ -134,6 +139,7 @@ class palava.RemotePeer extends palava.Peer
     @on 'answer',         => @room.emit('peer_answer', @)
     @on 'update',         => @room.emit('peer_update', @)
     @on 'stream_ready',   => @room.emit('peer_stream_ready', @)
+    @on 'stream_error',   => @room.emit('peer_stream_error', @)
     @on 'stream_removed', => @room.emit('peer_stream_removed', @)
     @on 'oaerror',    (e) => @room.emit('peer_oaerror', @, e)
 
