@@ -43,6 +43,10 @@ class palava.RemotePeer extends palava.Peer
   toggleMute: =>
     @muted = !@muted
 
+  # Generates the STUN and TURN options for a peer connection
+  #
+  # @return [Object] ICE options for the peer connections
+  #
   generateIceOptions: =>
     options = []
     if @room.options.stun
