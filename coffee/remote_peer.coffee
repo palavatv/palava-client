@@ -52,8 +52,10 @@ class palava.RemotePeer extends palava.Peer
     if @room.options.stun
       options.push({url: @room.options.stun})
     if @room.options.turn
-      url = 'turn:' + @room.options.turn.username + '@' + @room.options.turn.url
-      options.push({url: url, credential: @room.options.turn.password})
+      options.push
+        url: @room.options.turn.url
+        username: @room.options.turn.username
+        credential: @room.options.turn.password
     {iceServers: options}
 
   # Sets up the peer connection and its events

@@ -540,7 +540,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     RemotePeer.prototype.generateIceOptions = function() {
-      var options, url;
+      var options;
       options = [];
       if (this.room.options.stun) {
         options.push({
@@ -548,9 +548,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         });
       }
       if (this.room.options.turn) {
-        url = 'turn:' + this.room.options.turn.username + '@' + this.room.options.turn.url;
         options.push({
-          url: url,
+          url: this.room.options.turn.url,
+          username: this.room.options.turn.username,
           credential: this.room.options.turn.password
         });
       }
