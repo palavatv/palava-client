@@ -25,7 +25,7 @@ class palava.Session extends @EventEmitter
   #
   init: (o) =>
     @assignOptions(o)
-    @checkRequirements()
+    return unless @checkRequirements()
     @setupRoom()
     @userMedia.requestStream()
 
@@ -43,7 +43,7 @@ class palava.Session extends @EventEmitter
 
     if o.identity
       @userMedia = o.identity.newUserMedia()
-      @roomOptions.ownStatus = { name: o.identity.getName() }
+      @roomOptions.ownStatus = o.identity.getStatus()
 
     if o.dataChannels
       @roomOptions.dataChannels = o.dataChannels
@@ -55,26 +55,28 @@ class palava.Session extends @EventEmitter
 
   # Checks whether the inner state of the session is valid. Emits events otherwise
   #
-  # @nodoc
+  # @return [Boolean] `true` if options are correct and webrtc support is given
   #
   checkRequirements: =>
     unless @channel
       @emit 'argument_error', 'no channel given'
-      return
+      return false
     unless @userMedia
       @emit 'argument_error', 'no user media given'
-      return
+      return false
     unless @roomId
       @emit 'argument_error', 'no room id given'
-      return
+      return false
     unless @roomOptions.stun
       @emit 'argument_error', 'no stun server given'
-      return
+      return false
     if e = palava.browser.checkForWebrtcError()
       @emit 'webrtc_no_support', 'WebRTC is not supported by your browser', e
-      return
+      return false
     if palava.browser.checkForPartialSupport()
       @emit 'webrtc_partial_support'
+      return true
+    true
 
   # Get the channel of the session
   #
