@@ -5,10 +5,14 @@ palava = @palava
 class palava.Identity
   constructor: (o) ->
     @userMediaConfig = o.userMediaConfig
-    @name            = o.name
+    @status       = o.status || {}
+    @status.name  = o.name
 
   newUserMedia: ->
     new palava.Gum(@userMediaConfig)
 
-  getName: ->
+  getName: =>
     @name
+
+  getStatus: =>
+    @status
