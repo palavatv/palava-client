@@ -3,9 +3,11 @@
 #= require ./gum
 #= require ./distributor
 
+palava = @palava
+
 # A room connecting multiple participants
 #
-class palava.Room extends EventEmitter
+class palava.Room extends @EventEmitter
 
   # @param roomId [String] ID of the room
   # @param channel [palava.Channel] Channel used for communication

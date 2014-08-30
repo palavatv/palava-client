@@ -1,3 +1,5 @@
+palava = @palava
+
 # Distributor supports exchanging direct messages with peers through a channel.
 # The incoming messages are filtered and outgoing messages are are sent within
 # appropriate `send_to_peer` messages.
