@@ -45,12 +45,27 @@ class palava.RemotePeer extends palava.Peer
   toggleMute: =>
     @muted = !@muted
 
+  # Generates the STUN and TURN options for a peer connection
+  #
+  # @return [Object] ICE options for the peer connections
+  #
+  generateIceOptions: =>
+    options = []
+    if @room.options.stun
+      options.push({url: @room.options.stun})
+    if @room.options.turn
+      options.push
+        url: @room.options.turn.url
+        username: @room.options.turn.username
+        credential: @room.options.turn.password
+    {iceServers: options}
+
   # Sets up the peer connection and its events
   #
   # @nodoc
   #
   setupPeerConnection: =>
-    @peerConnection = new palava.browser.PeerConnection({iceServers: [{url: @room.options.stun}]}, palava.browser.getPeerConnectionOptions())
+    @peerConnection = new palava.browser.PeerConnection(@generateIceOptions(), palava.browser.getPeerConnectionOptions())
 
     @peerConnection.onicecandidate = (event) =>
       if event.candidate
@@ -69,6 +84,11 @@ class palava.RemotePeer extends palava.Peer
       @remoteStream = null
       @ready = false
       @emit 'stream_removed'
+
+    @peerConnection.oniceconnectionstatechange = (event) =>
+      connectionState = event.target.iceConnectionState
+      if connectionState == 'failed'
+        @emit 'stream_error'
 
     # TODO onsignalingstatechange
 
@@ -127,6 +147,7 @@ class palava.RemotePeer extends palava.Peer
     @on 'answer',         => @room.emit('peer_answer', @)
     @on 'update',         => @room.emit('peer_update', @)
     @on 'stream_ready',   => @room.emit('peer_stream_ready', @)
+    @on 'stream_error',   => @room.emit('peer_stream_error', @)
     @on 'stream_removed', => @room.emit('peer_stream_removed', @)
     @on 'oaerror',    (e) => @room.emit('peer_oaerror', @, e)
 

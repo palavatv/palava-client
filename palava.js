@@ -26,185 +26,194 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 }).call(this);
 (function() {
-  var __slice = [].slice;
+  var palava;
 
-  this.namespace = function(target, name, block) {
-    var item, top, _i, _len, _ref, _ref1;
-    if (arguments.length < 3) {
-      _ref = [(typeof exports !== 'undefined' ? exports : window)].concat(__slice.call(arguments)), target = _ref[0], name = _ref[1], block = _ref[2];
-    }
-    top = target;
-    _ref1 = name.split('.');
-    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-      item = _ref1[_i];
-      target = target[item] || (target[item] = {});
-    }
-    return block(target, top);
+  this.palava = palava = {
+    browser: {}
   };
 
 }).call(this);
 (function() {
-  namespace('palava.browser', function(exports) {
-    exports.PeerConnection = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-    exports.IceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
-    exports.SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-    exports.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-    exports.isMozilla = function() {
-      if (window.mozRTCPeerConnection) {
-        return true;
-      } else {
-        return false;
-      }
-    };
-    exports.isChrome = function() {
-      return /Chrome/i.test(navigator.userAgent);
-    };
-    exports.getUserAgent = function() {
-      if (exports.isMozilla()) {
-        return 'firefox';
-      } else if (exports.isChrome()) {
-        return 'chrome';
-      } else {
-        return 'unknown';
-      }
-    };
-    exports.checkForWebrtcError = function() {
-      var e;
-      try {
-        new exports.PeerConnection({
-          iceServers: []
-        });
-      } catch (_error) {
-        e = _error;
-        return e;
-      }
-      return !(exports.PeerConnection && exports.IceCandidate && exports.SessionDescription && exports.getUserMedia);
-    };
-    exports.chromeVersion = function() {
-      var matches, version, _;
-      matches = /Chrome\/(\d+)/i.exec(navigator.userAgent);
-      if (matches) {
-        _ = matches[0], version = matches[1];
-        return parseInt(version);
-      } else {
-        return false;
-      }
-    };
-    exports.checkForPartialSupport = function() {
-      return exports.isChrome() && exports.chromeVersion() < 26;
-    };
-    exports.getConstraints = function() {
-      var constraints;
-      constraints = {
-        optional: [],
-        mandatory: {
-          OfferToReceiveAudio: true,
-          OfferToReceiveVideo: true
-        }
-      };
-      if (exports.isMozilla()) {
-        constraints.mandatory.MozDontOfferDataChannel = true;
-      }
-      return constraints;
-    };
-    exports.getPeerConnectionOptions = function() {
-      if (exports.isChrome()) {
-        return {
-          "optional": [
-            {
-              "DtlsSrtpKeyAgreement": true
-            }
-          ]
-        };
-      } else {
-        return {};
-      }
-    };
-    exports.patchSDP = function(sdp) {
-      var chars, crypto, i, key, _i, _j, _k, _results, _results1;
-      if (exports.isChrome() && exports.chromeVersion() >= 31) {
-        return sdp;
-      }
-      chars = (function() {
-        _results1 = [];
-        for (_j = 33; _j <= 58; _j++){ _results1.push(_j); }
-        return _results1;
-      }).apply(this).concat((function() {
-        _results = [];
-        for (_i = 60; _i <= 126; _i++){ _results.push(_i); }
-        return _results;
-      }).apply(this)).map(function(a) {
-        return String.fromCharCode(a);
-      });
-      key = '';
-      for (i = _k = 0; _k < 40; i = ++_k) {
-        key += chars[Math.floor(Math.random() * chars.length)];
-      }
-      crypto = 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + key + '\r\nc=IN';
-      if (sdp.sdp.indexOf('a=crypto') === -1) {
-        sdp.sdp = sdp.sdp.replace(/c=IN/g, crypto);
-      }
-      return sdp;
-    };
-    exports.registerFullscreen = function(element, eventName) {
-      if (element[0].requestFullscreen) {
-        return element.on(eventName, function() {
-          return this.requestFullscreen();
-        });
-      } else if (element[0].mozRequestFullScreen) {
-        return element.on(eventName, function() {
-          return this.mozRequestFullScreen();
-        });
-      } else if (element[0].webkitRequestFullscreen) {
-        return element.on(eventName, function() {
-          return this.webkitRequestFullscreen();
-        });
-      }
-    };
-    if (exports.isMozilla()) {
-      exports.attachMediaStream = function(element, stream) {
-        if (stream) {
-          return $(element).prop('mozSrcObject', stream);
-        } else {
-          return $(element).prop('mozSrcObject', null);
-        }
-      };
-      return exports.fixAudio = function(videoWrapper) {};
-    } else if (exports.isChrome()) {
-      exports.attachMediaStream = function(element, stream) {
-        if (stream) {
-          return $(element).prop('src', webkitURL.createObjectURL(stream));
-        } else {
-          return $(element).prop('src', null);
-        }
-      };
-      return exports.fixAudio = function(videoWrapper) {
-        if (videoWrapper.attr('data-peer-muted') !== 'true') {
-          return $([200, 400, 1000, 2000, 4000, 8000, 16000]).each(function(_, n) {
-            return setTimeout((function() {
-              videoWrapper.find('.plv-video-mute').click();
-              return videoWrapper.find('.plv-video-mute').click();
-            }), n);
-          });
-        }
-      };
+  palava.browser.PeerConnection = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
+
+  palava.browser.IceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+
+  palava.browser.SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
+
+  palava.browser.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+  palava.browser.isMozilla = function() {
+    if (window.mozRTCPeerConnection) {
+      return true;
+    } else {
+      return false;
     }
-  });
+  };
+
+  palava.browser.isChrome = function() {
+    return /Chrome/i.test(navigator.userAgent);
+  };
+
+  palava.browser.getUserAgent = function() {
+    if (palava.browser.isMozilla()) {
+      return 'firefox';
+    } else if (palava.browser.isChrome()) {
+      return 'chrome';
+    } else {
+      return 'unknown';
+    }
+  };
+
+  palava.browser.checkForWebrtcError = function() {
+    var e;
+    try {
+      new palava.browser.PeerConnection({
+        iceServers: []
+      });
+    } catch (_error) {
+      e = _error;
+      return e;
+    }
+    return !(palava.browser.PeerConnection && palava.browser.IceCandidate && palava.browser.SessionDescription && palava.browser.getUserMedia);
+  };
+
+  palava.browser.chromeVersion = function() {
+    var matches, version, _;
+    matches = /Chrome\/(\d+)/i.exec(navigator.userAgent);
+    if (matches) {
+      _ = matches[0], version = matches[1];
+      return parseInt(version);
+    } else {
+      return false;
+    }
+  };
+
+  palava.browser.checkForPartialSupport = function() {
+    return palava.browser.isChrome() && palava.browser.chromeVersion() < 26;
+  };
+
+  palava.browser.getConstraints = function() {
+    var constraints;
+    constraints = {
+      optional: [],
+      mandatory: {
+        OfferToReceiveAudio: true,
+        OfferToReceiveVideo: true
+      }
+    };
+    if (palava.browser.isMozilla()) {
+      constraints.mandatory.MozDontOfferDataChannel = true;
+    }
+    return constraints;
+  };
+
+  palava.browser.getPeerConnectionOptions = function() {
+    if (palava.browser.isChrome()) {
+      return {
+        "optional": [
+          {
+            "DtlsSrtpKeyAgreement": true
+          }
+        ]
+      };
+    } else {
+      return {};
+    }
+  };
+
+  palava.browser.patchSDP = function(sdp) {
+    var chars, crypto, i, key, _i, _j, _k, _results, _results1;
+    if (palava.browser.isChrome() && palava.browser.chromeVersion() >= 31) {
+      return sdp;
+    }
+    chars = (function() {
+      _results1 = [];
+      for (_j = 33; _j <= 58; _j++){ _results1.push(_j); }
+      return _results1;
+    }).apply(this).concat((function() {
+      _results = [];
+      for (_i = 60; _i <= 126; _i++){ _results.push(_i); }
+      return _results;
+    }).apply(this)).map(function(a) {
+      return String.fromCharCode(a);
+    });
+    key = '';
+    for (i = _k = 0; _k < 40; i = ++_k) {
+      key += chars[Math.floor(Math.random() * chars.length)];
+    }
+    crypto = 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + key + '\r\nc=IN';
+    if (sdp.sdp.indexOf('a=crypto') === -1) {
+      sdp.sdp = sdp.sdp.replace(/c=IN/g, crypto);
+    }
+    return sdp;
+  };
+
+  palava.browser.registerFullscreen = function(element, eventName) {
+    if (element[0].requestFullscreen) {
+      return element.on(eventName, function() {
+        return this.requestFullscreen();
+      });
+    } else if (element[0].mozRequestFullScreen) {
+      return element.on(eventName, function() {
+        return this.mozRequestFullScreen();
+      });
+    } else if (element[0].webkitRequestFullscreen) {
+      return element.on(eventName, function() {
+        return this.webkitRequestFullscreen();
+      });
+    }
+  };
+
+  if (palava.browser.isMozilla()) {
+    palava.browser.attachMediaStream = function(element, stream) {
+      if (stream) {
+        return $(element).prop('mozSrcObject', stream);
+      } else {
+        $(element).each(function(key, el) {
+          return el.pause();
+        });
+        return $(element).prop('mozSrcObject', null);
+      }
+    };
+    palava.browser.fixAudio = function(videoWrapper) {};
+  } else if (palava.browser.isChrome()) {
+    palava.browser.attachMediaStream = function(element, stream) {
+      if (stream) {
+        return $(element).prop('src', webkitURL.createObjectURL(stream));
+      } else {
+        $(element).each(function(key, el) {
+          return el.pause();
+        });
+        return $(element).prop('src', null);
+      }
+    };
+    palava.browser.fixAudio = function(videoWrapper) {
+      if (videoWrapper.attr('data-peer-muted') !== 'true') {
+        return $([200, 400, 1000, 2000, 4000, 8000, 16000]).each(function(_, n) {
+          return setTimeout((function() {
+            videoWrapper.find('.plv-video-mute').click();
+            return videoWrapper.find('.plv-video-mute').click();
+          }), n);
+        });
+      }
+    };
+  }
 
 }).call(this);
 (function() {
-  var Gum,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Gum = (function(_super) {
+  palava.Gum = (function(_super) {
     __extends(Gum, _super);
 
     function Gum(config) {
       this.releaseStream = __bind(this.releaseStream, this);
       this.getStream = __bind(this.getStream, this);
       this.requestStream = __bind(this.requestStream, this);
+      this.detectMedia = __bind(this.detectMedia, this);
+      this.changeConfig = __bind(this.changeConfig, this);
       this.config = config || {
         video: true,
         audio: true
@@ -212,10 +221,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.stream = null;
     }
 
+    Gum.prototype.changeConfig = function(config) {
+      this.config = config;
+      this.releaseStream();
+      return this.requestStream();
+    };
+
+    Gum.prototype.detectMedia = function() {
+      this.config = {
+        video: false,
+        audio: false
+      };
+      if (this.stream.getVideoTracks().length > 0) {
+        this.config.video = true;
+      }
+      if (this.stream.getAudioTracks().length > 0) {
+        return this.config.audio = true;
+      }
+    };
+
     Gum.prototype.requestStream = function() {
       var _this = this;
       palava.browser.getUserMedia.call(navigator, this.config, function(stream) {
         _this.stream = stream;
+        _this.detectMedia();
         return _this.emit('stream_ready', _this);
       }, function() {
         return _this.emit('stream_error', _this);
@@ -242,15 +271,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   })(EventEmitter);
 
-  namespace('palava', function(exports) {
-    return exports.Gum = Gum;
-  });
-
 }).call(this);
 (function() {
-  var Identity;
-
-  Identity = (function() {
+  palava.Identity = (function() {
     function Identity(o) {
       this.userMediaConfig = o.userMediaConfig;
       this.name = o.name;
@@ -268,18 +291,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   })();
 
-  namespace('palava', function(exports) {
-    return exports.Identity = Identity;
-  });
-
 }).call(this);
 (function() {
-  var Peer,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Peer = (function(_super) {
+  palava.Peer = (function(_super) {
     __extends(Peer, _super);
 
     function Peer(id, status) {
@@ -326,18 +344,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   })(EventEmitter);
 
-  namespace('palava', function(exports) {
-    return exports.Peer = Peer;
-  });
-
 }).call(this);
 (function() {
-  var LocalPeer,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  LocalPeer = (function(_super) {
+  palava.LocalPeer = (function(_super) {
     __extends(LocalPeer, _super);
 
     function LocalPeer(id, status, room) {
@@ -366,6 +379,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.userMedia.on('stream_ready', function(e) {
         _this.ready = true;
         return _this.emit('stream_ready', e);
+      });
+      this.userMedia.on('stream_error', function(e) {
+        return _this.emit('stream_error', e);
       });
       if (this.getStream()) {
         this.ready = true;
@@ -408,11 +424,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     LocalPeer.prototype.hasAudio = function() {
+      var stream;
+      if (stream = this.getStream) {
+        return stream.getAudioTracks.length() > 0;
+      }
       return false;
     };
 
     LocalPeer.prototype.toggleMute = function() {
-      return false;
+      return this.userMedia.changeConfig({
+        video: this.userMedia.config.video,
+        audio: !this.userMedia.config.audio
+      });
     };
 
     LocalPeer.prototype.leave = function() {
@@ -424,60 +447,61 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   })(palava.Peer);
 
-  namespace('palava', function(exports) {
-    return exports.LocalPeer = LocalPeer;
-  });
-
 }).call(this);
 (function() {
-  var Distributor;
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  Distributor = function(channel, peerId) {
-    if (peerId == null) {
-      peerId = null;
-    }
-    return {
-      on: function(event, handler) {
-        return channel.on('message', function(msg) {
-          if (peerId) {
-            if (msg.sender_id === peerId && event === msg.event) {
-              return handler(msg);
-            }
-          } else {
-            if (!msg.sender_id && event === msg.event) {
-              return handler(msg);
-            }
-          }
-        });
-      },
-      send: function(msg) {
-        var payload;
-        if (peerId) {
-          payload = {
-            event: 'send_to_peer',
-            peer_id: peerId,
-            data: msg
-          };
-        } else {
-          payload = msg;
-        }
-        return channel.send(payload);
+  palava.Distributor = (function() {
+    function Distributor(channel, peerId) {
+      if (peerId == null) {
+        peerId = null;
       }
-    };
-  };
+      this.send = __bind(this.send, this);
+      this.on = __bind(this.on, this);
+      this.channel = channel;
+      this.peerId = peerId;
+    }
 
-  namespace('palava', function(exports) {
-    return exports.Distributor = Distributor;
-  });
+    Distributor.prototype.on = function(event, handler) {
+      var _this = this;
+      return this.channel.on('message', function(msg) {
+        if (_this.peerId) {
+          if (msg.sender_id === _this.peerId && event === msg.event) {
+            return handler(msg);
+          }
+        } else {
+          if (!msg.sender_id && event === msg.event) {
+            return handler(msg);
+          }
+        }
+      });
+    };
+
+    Distributor.prototype.send = function(msg) {
+      var payload;
+      if (this.peerId) {
+        payload = {
+          event: 'send_to_peer',
+          peer_id: this.peerId,
+          data: msg
+        };
+      } else {
+        payload = msg;
+      }
+      return this.channel.send(payload);
+    };
+
+    return Distributor;
+
+  })();
 
 }).call(this);
 (function() {
-  var RemotePeer,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  RemotePeer = (function(_super) {
+  palava.RemotePeer = (function(_super) {
     __extends(RemotePeer, _super);
 
     function RemotePeer(id, status, room) {
@@ -485,11 +509,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.oaError = __bind(this.oaError, this);
       this.sdpSender = __bind(this.sdpSender, this);
       this.sendAnswer = __bind(this.sendAnswer, this);
-      this.sendOfferIf = __bind(this.sendOfferIf, this);
       this.sendOffer = __bind(this.sendOffer, this);
       this.setupRoom = __bind(this.setupRoom, this);
       this.setupDistributor = __bind(this.setupDistributor, this);
       this.setupPeerConnection = __bind(this.setupPeerConnection, this);
+      this.generateIceOptions = __bind(this.generateIceOptions, this);
       this.toggleMute = __bind(this.toggleMute, this);
       this.hasAudio = __bind(this.hasAudio, this);
       this.getStream = __bind(this.getStream, this);
@@ -515,15 +539,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       return this.muted = !this.muted;
     };
 
+    RemotePeer.prototype.generateIceOptions = function() {
+      var options;
+      options = [];
+      if (this.room.options.stun) {
+        options.push({
+          url: this.room.options.stun
+        });
+      }
+      if (this.room.options.turn) {
+        options.push({
+          url: this.room.options.turn.url,
+          username: this.room.options.turn.username,
+          credential: this.room.options.turn.password
+        });
+      }
+      return {
+        iceServers: options
+      };
+    };
+
     RemotePeer.prototype.setupPeerConnection = function() {
       var _this = this;
-      this.peerConnection = new palava.browser.PeerConnection({
-        iceServers: [
-          {
-            url: this.room.options.stun
-          }
-        ]
-      }, palava.browser.getPeerConnectionOptions());
+      this.peerConnection = new palava.browser.PeerConnection(this.generateIceOptions(), palava.browser.getPeerConnectionOptions());
       this.peerConnection.onicecandidate = function(event) {
         if (event.candidate) {
           return _this.distributor.send({
@@ -544,6 +582,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         _this.ready = false;
         return _this.emit('stream_removed');
       };
+      this.peerConnection.oniceconnectionstatechange = function(event) {
+        var connectionState;
+        connectionState = event.target.iceConnectionState;
+        if (connectionState === 'failed') {
+          return _this.emit('stream_error');
+        }
+      };
       if (this.room.localPeer.getStream()) {
         this.peerConnection.addStream(this.room.localPeer.getStream());
       } else {
@@ -554,7 +599,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     RemotePeer.prototype.setupDistributor = function() {
       var _this = this;
-      this.distributor = palava.Distributor(this.room.channel, this.id);
+      this.distributor = new palava.Distributor(this.room.channel, this.id);
       this.distributor.on('peer_left', function(msg) {
         if (_this.ready) {
           _this.remoteStream = null;
@@ -608,6 +653,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.on('stream_ready', function() {
         return _this.room.emit('peer_stream_ready', _this);
       });
+      this.on('stream_error', function() {
+        return _this.room.emit('peer_stream_error', _this);
+      });
       this.on('stream_removed', function() {
         return _this.room.emit('peer_stream_removed', _this);
       });
@@ -619,12 +667,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     RemotePeer.prototype.sendOffer = function() {
       this.peerConnection.createOffer(this.sdpSender('offer'), this.oaError, palava.browser.getConstraints());
       return this.mozillaCheckAddStream();
-    };
-
-    RemotePeer.prototype.sendOfferIf = function(cond) {
-      if (cond) {
-        return this.sendOffer();
-      }
     };
 
     RemotePeer.prototype.sendAnswer = function() {
@@ -672,18 +714,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   })(palava.Peer);
 
-  namespace('palava', function(exports) {
-    return exports.RemotePeer = RemotePeer;
-  });
-
 }).call(this);
 (function() {
-  var Room,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Room = (function(_super) {
+  palava.Room = (function(_super) {
     __extends(Room, _super);
 
     function Room(roomId, channel, userMedia, options) {
@@ -716,6 +753,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.userMedia.on('stream_ready', function(event) {
         return _this.emit('local_stream_ready', event.stream);
       });
+      this.userMedia.on('stream_error', function(event) {
+        return _this.emit('local_stream_error', event.stream);
+      });
       return this.userMedia.on('stream_released', function() {
         return _this.emit('local_stream_removed');
       });
@@ -742,7 +782,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Room.prototype.setupDistributor = function() {
       var _this = this;
-      this.distributor = palava.Distributor(this.channel);
+      this.distributor = new palava.Distributor(this.channel);
       this.distributor.on('joined_room', function(msg) {
         var newPeer, peer, _i, _len, _ref;
         clearTimeout(_this.joinCheckTimeout);
@@ -751,14 +791,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           peer = _ref[_i];
           newPeer = new palava.RemotePeer(peer.peer_id, peer.status, _this);
-          newPeer.sendOfferIf(!palava.browser.isChrome());
+          if (!palava.browser.isChrome()) {
+            newPeer.sendOffer();
+          }
         }
         return _this.emit("joined", _this);
       });
       this.distributor.on('new_peer', function(msg) {
         var newPeer;
         newPeer = new palava.RemotePeer(msg.peer_id, msg.status, _this);
-        newPeer.sendOfferIf(msg.status.user_agent === 'chrome');
+        if (msg.status.user_agent === 'chrome') {
+          newPeer.sendOffer();
+        }
         return _this.emit('peer_joined', newPeer);
       });
       this.distributor.on('error', function(msg) {
@@ -829,23 +873,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   })(EventEmitter);
 
-  namespace('palava', function(exports) {
-    return exports.Room = Room;
-  });
-
 }).call(this);
 (function() {
-  var WebSocketChannel,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  WebSocketChannel = (function(_super) {
+  palava.WebSocketChannel = (function(_super) {
     __extends(WebSocketChannel, _super);
 
     function WebSocketChannel(address) {
-      this.checkConnectionTimeout = __bind(this.checkConnectionTimeout, this);
       this.close = __bind(this.close, this);
+      this.send_or_retry = __bind(this.send_or_retry, this);
       this.send = __bind(this.send, this);
       this.setupEvents = __bind(this.setupEvents, this);
       var _this = this;
@@ -877,9 +916,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     WebSocketChannel.prototype.send = function(data) {
-      this.socket.send(JSON.stringify(data));
-      if (!this.reached) {
-        return this.checkConnectionTimeout();
+      return this.send_or_retry(data, 3);
+    };
+
+    WebSocketChannel.prototype.send_or_retry = function(data, retries) {
+      var _this = this;
+      if (retries === 0) {
+        return this.emit('not_reachable', this.serverAddress);
+      } else if (this.reached || this.socket.readyState === 1) {
+        this.reached = true;
+        return this.socket.send(JSON.stringify(data));
+      } else {
+        return setTimeout((function() {
+          return _this.send_or_retry(data, retries - 1);
+        }), 400);
       }
     };
 
@@ -887,33 +937,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       return this.socket.close();
     };
 
-    WebSocketChannel.prototype.checkConnectionTimeout = function() {
-      var _this = this;
-      return setTimeout((function() {
-        if (_this.socket.readyState === 3) {
-          return _this.emit('not_reachable', _this.serverAddress);
-        } else {
-          return _this.reached = true;
-        }
-      }), 500);
-    };
-
     return WebSocketChannel;
 
   })(EventEmitter);
 
-  namespace('palava', function(exports) {
-    return exports.WebSocketChannel = WebSocketChannel;
-  });
-
 }).call(this);
 (function() {
-  var Session,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  Session = (function(_super) {
+  palava.Session = (function(_super) {
     __extends(Session, _super);
 
     function Session(o) {
@@ -954,6 +988,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       }
       if (o.options) {
         this.roomOptions.stun = o.options.stun || this.roomOptions.stun;
+        this.roomOptions.turn = o.options.turn || this.roomOptions.turn;
         return this.roomOptions.joinTimeout = o.options.joinTimeout || this.roomOptions.joinTimeout;
       }
     };
@@ -1033,6 +1068,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.room.on('peer_stream_ready', function(p) {
         return _this.emit('peer_stream_ready', p);
       });
+      this.room.on('peer_stream_error', function(p) {
+        return _this.emit('peer_stream_error', p);
+      });
       this.room.on('peer_stream_removed', function(p) {
         return _this.emit('peer_stream_removed', p);
       });
@@ -1066,18 +1104,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   })(EventEmitter);
 
-  namespace('palava', function(exports) {
-    return exports.Session = Session;
-  });
-
 }).call(this);
 (function() {
-  namespace('palava', function(exports) {
-    exports.PROTOCOL_NAME = 'palava';
-    exports.PROTOCOL_VERSION = '1.0.0';
-    return exports.protocol_identifier = function() {
-      return exports.PROTOCOL_NAME = "palava.1.0";
-    };
-  });
+  palava.PROTOCOL_NAME = 'palava';
+
+  palava.PROTOCOL_VERSION = '1.0.0';
+
+  palava.protocol_identifier = function() {
+    return palava.PROTOCOL_NAME = "palava.1.0";
+  };
 
 }).call(this);

@@ -34,6 +34,7 @@ class palava.Room extends @EventEmitter
   #
   setupUserMedia: =>
     @userMedia.on 'stream_ready', (event) => @emit 'local_stream_ready', event.stream
+    @userMedia.on 'stream_error', (event) => @emit 'local_stream_error', event.stream
     @userMedia.on 'stream_released',      => @emit 'local_stream_removed'
 
   # Bind channel events to room events

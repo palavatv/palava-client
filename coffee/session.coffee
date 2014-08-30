@@ -47,6 +47,7 @@ class palava.Session extends @EventEmitter
 
     if o.options
       @roomOptions.stun        = o.options.stun        || @roomOptions.stun
+      @roomOptions.turn        = o.options.turn        || @roomOptions.turn
       @roomOptions.joinTimeout = o.options.joinTimeout || @roomOptions.joinTimeout
 
   # Checks whether the inner state of the session is valid. Emits events otherwise
@@ -107,6 +108,7 @@ class palava.Session extends @EventEmitter
     @room.on 'peer_answer',             (p) => @emit 'peer_answer', p
     @room.on 'peer_update',             (p) => @emit 'peer_update', p
     @room.on 'peer_stream_ready',       (p) => @emit 'peer_stream_ready', p
+    @room.on 'peer_stream_error',       (p) => @emit 'peer_stream_error', p
     @room.on 'peer_stream_removed',     (p) => @emit 'peer_stream_removed', p
     @room.on 'peer_left',               (p) => @emit 'peer_left', p
     @room.on 'signaling_shutdown',      (p) => @emit 'signaling_shutdown', p
