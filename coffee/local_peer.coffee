@@ -1,6 +1,8 @@
 #= require ./browser
 #= require ./peer
 
+palava = @palava
+
 # A specialized peer representing the local user in the conference
 class palava.LocalPeer extends palava.Peer
 

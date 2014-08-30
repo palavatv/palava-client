@@ -1,3 +1,5 @@
+palava = @palava
+
 palava.browser.PeerConnection     = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection
 palava.browser.IceCandidate       = window.mozRTCIceCandidate || window.RTCIceCandidate
 palava.browser.SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription

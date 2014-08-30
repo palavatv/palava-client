@@ -1,8 +1,10 @@
+palava = @palava
+
 # Channel implementation using websockets
 #
 # Events: open -> (), message -> (msg), error -> (), close -> ()
 #
-class palava.WebSocketChannel extends EventEmitter
+class palava.WebSocketChannel extends @EventEmitter
 
   # @param address [String] Address of the websocket. Should start with `ws://` for web sockets or `wss://` for secure web sockets.
   constructor: (address) ->

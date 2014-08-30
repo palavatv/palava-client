@@ -1,8 +1,10 @@
 #= require ./browser
 #= require ./web_socket_channel
 
+palava = @palava
+
 # Session is a wrapper around a concrete room, channel and userMedia
-class palava.Session extends EventEmitter
+class palava.Session extends @EventEmitter
 
   # @param o [Object] Options for the session
   # @option o channel [palava.Channel] A channel Object which will be used for communication
