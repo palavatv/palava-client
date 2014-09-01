@@ -40,11 +40,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     this.EventEmitter = require('wolfy87-eventemitter');
   }
 
+  if (typeof $ !== "object" && typeof require === "function") {
+    this.$ = require('jquery');
+  }
+
 }).call(this);
 (function() {
-  var palava;
+  var $, palava;
 
   palava = this.palava;
+
+  $ = this.$;
 
   palava.browser.PeerConnection = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
 
