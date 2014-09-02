@@ -1,7 +1,7 @@
 {
     "name": "palava-client",
     "description": "JavaScript library for WebRTC",
-    "version": "1.0.0-2",
+    "version": "1.0.0-3",
     "author": {
         "name": "palava e. V.",
         "email": "contact@palava.tv",
