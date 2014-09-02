@@ -45,6 +45,9 @@ class palava.Session extends @EventEmitter
       @userMedia = o.identity.newUserMedia()
       @roomOptions.ownStatus = { name: o.identity.getName() }
 
+    if o.dataChannels
+      @roomOptions.dataChannels = o.dataChannels
+
     if o.options
       @roomOptions.stun        = o.options.stun        || @roomOptions.stun
       @roomOptions.turn        = o.options.turn        || @roomOptions.turn
@@ -111,6 +114,7 @@ class palava.Session extends @EventEmitter
     @room.on 'peer_stream_error',       (p) => @emit 'peer_stream_error', p
     @room.on 'peer_stream_removed',     (p) => @emit 'peer_stream_removed', p
     @room.on 'peer_left',               (p) => @emit 'peer_left', p
+    @room.on 'peer_channel_ready',      (p, n, c) => @emit 'peer_channel_ready', p, n, c
     @room.on 'signaling_shutdown',      (p) => @emit 'signaling_shutdown', p
     @room.on 'signaling_close',         (p) => @emit 'signaling_close', p
     @room.on 'signaling_error',         (p) => @emit 'signaling_error', p

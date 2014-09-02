@@ -1,6 +1,7 @@
 #= require ./browser
 #= require ./peer
 #= require ./distributor
+#= require ./data_channel
 
 palava = @palava
 $ = @$
@@ -15,7 +16,7 @@ class palava.RemotePeer extends palava.Peer
   # @param status [Object] Status object of the participant
   # @param room [palava.Room] Room the participant is in
   #
-  constructor: (id, status, room) ->
+  constructor: (id, status, room, offers) ->
     @muted = false
     @local = false
     super id, status
@@ -23,9 +24,14 @@ class palava.RemotePeer extends palava.Peer
     @room = room
     @remoteStream = null
 
+    @dataChannels = {}
+
     @setupRoom()
-    @setupPeerConnection()
+    @setupPeerConnection(offers)
     @setupDistributor()
+
+    if offers
+      @sendOffer()
 
   # Get the stream
   #
@@ -65,7 +71,7 @@ class palava.RemotePeer extends palava.Peer
   #
   # @nodoc
   #
-  setupPeerConnection: =>
+  setupPeerConnection: (offers) =>
     @peerConnection = new palava.browser.PeerConnection(@generateIceOptions(), palava.browser.getPeerConnectionOptions())
 
     @peerConnection.onicecandidate = (event) =>
@@ -97,6 +103,25 @@ class palava.RemotePeer extends palava.Peer
       @peerConnection.addStream @room.localPeer.getStream()
     else
       # not suppored yet
+
+    # data channel setup
+
+    if @room.options.dataChannels?
+      registerChannel = (channel) =>
+        name = channel.label
+        wrapper = new palava.DataChannel(channel)
+        @dataChannels[name] = wrapper
+        @emit 'channel_ready', name, wrapper
+
+      if offers
+        for label, options of @room.options.dataChannels
+          channel = @peerConnection.createDataChannel(label, options)
+
+          channel.onopen = () ->
+            registerChannel(channel)
+      else
+        @peerConnection.ondatachannel = (event) =>
+          registerChannel(event.channel)
 
     @peerConnection
 
@@ -155,6 +180,7 @@ class palava.RemotePeer extends palava.Peer
     @on 'stream_error',   => @room.emit('peer_stream_error', @)
     @on 'stream_removed', => @room.emit('peer_stream_removed', @)
     @on 'oaerror',    (e) => @room.emit('peer_oaerror', @, e)
+    @on 'channel_ready', (n, c) => @room.emit('peer_channel_ready', @, n, c)
 
   # Sends the offer for a peer connection
   #

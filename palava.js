@@ -567,6 +567,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 }).call(this);
 (function() {
+  var palava,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  palava = this.palava;
+
+  palava.DataChannel = (function(_super) {
+    __extends(DataChannel, _super);
+
+    function DataChannel(channel) {
+      this.channel = channel;
+      this.channel.onmessage = (function(_this) {
+        return function(event) {
+          return _this.emit('message', event.data);
+        };
+      })(this);
+      this.channel.onclose = (function(_this) {
+        return function() {
+          return _this.emit('close');
+        };
+      })(this);
+    }
+
+    DataChannel.prototype.send = function(data) {
+      return this.channel.send(data);
+    };
+
+    return DataChannel;
+
+  })(this.EventEmitter);
+
+}).call(this);
+(function() {
   var $, palava,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -579,10 +612,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   palava.RemotePeer = (function(_super) {
     __extends(RemotePeer, _super);
 
-    function RemotePeer(id, status, room) {
+    function RemotePeer(id, status, room, offers) {
       this.mozillaCheckAddStream = __bind(this.mozillaCheckAddStream, this);
       this.oaError = __bind(this.oaError, this);
       this.sdpSender = __bind(this.sdpSender, this);
+      this.sendMessage = __bind(this.sendMessage, this);
       this.sendAnswer = __bind(this.sendAnswer, this);
       this.sendOffer = __bind(this.sendOffer, this);
       this.setupRoom = __bind(this.setupRoom, this);
@@ -597,9 +631,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       RemotePeer.__super__.constructor.call(this, id, status);
       this.room = room;
       this.remoteStream = null;
+      this.dataChannels = {};
       this.setupRoom();
-      this.setupPeerConnection();
+      this.setupPeerConnection(offers);
       this.setupDistributor();
+      if (offers) {
+        this.sendOffer();
+      }
     }
 
     RemotePeer.prototype.getStream = function() {
@@ -634,7 +672,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       };
     };
 
-    RemotePeer.prototype.setupPeerConnection = function() {
+    RemotePeer.prototype.setupPeerConnection = function(offers) {
+      var channel, label, options, registerChannel, _ref;
       this.peerConnection = new palava.browser.PeerConnection(this.generateIceOptions(), palava.browser.getPeerConnectionOptions());
       this.peerConnection.onicecandidate = (function(_this) {
         return function(event) {
@@ -675,6 +714,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         this.peerConnection.addStream(this.room.localPeer.getStream());
       } else {
 
+      }
+      if (this.room.options.dataChannels != null) {
+        registerChannel = (function(_this) {
+          return function(channel) {
+            var name, wrapper;
+            name = channel.label;
+            wrapper = new palava.DataChannel(channel);
+            _this.dataChannels[name] = wrapper;
+            return _this.emit('channel_ready', name, wrapper);
+          };
+        })(this);
+        if (offers) {
+          _ref = this.room.options.dataChannels;
+          for (label in _ref) {
+            options = _ref[label];
+            channel = this.peerConnection.createDataChannel(label, options);
+            channel.onopen = function() {
+              return registerChannel(channel);
+            };
+          }
+        } else {
+          this.peerConnection.ondatachannel = (function(_this) {
+            return function(event) {
+              return registerChannel(event.channel);
+            };
+          })(this);
+        }
       }
       return this.peerConnection;
     };
@@ -722,6 +788,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           return _this.emit('update');
         };
       })(this));
+      this.distributor.on('message', (function(_this) {
+        return function(msg) {
+          return _this.emit('message', msg.data);
+        };
+      })(this));
       return this.distributor;
     };
 
@@ -763,9 +834,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           return _this.room.emit('peer_stream_removed', _this);
         };
       })(this));
-      return this.on('oaerror', (function(_this) {
+      this.on('oaerror', (function(_this) {
         return function(e) {
           return _this.room.emit('peer_oaerror', _this, e);
+        };
+      })(this));
+      return this.on('channel_ready', (function(_this) {
+        return function(n, c) {
+          return _this.room.emit('peer_channel_ready', _this, n, c);
         };
       })(this));
     };
@@ -778,6 +854,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     RemotePeer.prototype.sendAnswer = function() {
       this.peerConnection.createAnswer(this.sdpSender('answer'), this.oaError, palava.browser.getConstraints());
       return this.mozillaCheckAddStream();
+    };
+
+    RemotePeer.prototype.sendMessage = function(data) {
+      return this.distributor.send({
+        event: 'message',
+        data: data
+      });
     };
 
     RemotePeer.prototype.sdpSender = function(event) {
@@ -905,27 +988,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.distributor = new palava.Distributor(this.channel);
       this.distributor.on('joined_room', (function(_this) {
         return function(msg) {
-          var newPeer, peer, _i, _len, _ref;
+          var newPeer, offers, peer, _i, _len, _ref;
           clearTimeout(_this.joinCheckTimeout);
           new palava.LocalPeer(msg.own_id, _this.options.ownStatus, _this);
           _ref = msg.peers;
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             peer = _ref[_i];
-            newPeer = new palava.RemotePeer(peer.peer_id, peer.status, _this);
-            if (!palava.browser.isChrome()) {
-              newPeer.sendOffer();
-            }
+            offers = !palava.browser.isChrome();
+            newPeer = new palava.RemotePeer(peer.peer_id, peer.status, _this, offers);
           }
           return _this.emit("joined", _this);
         };
       })(this));
       this.distributor.on('new_peer', (function(_this) {
         return function(msg) {
-          var newPeer;
-          newPeer = new palava.RemotePeer(msg.peer_id, msg.status, _this);
-          if (msg.status.user_agent === 'chrome') {
-            newPeer.sendOffer();
-          }
+          var newPeer, offers;
+          offers = msg.status.user_agent === 'chrome';
+          newPeer = new palava.RemotePeer(msg.peer_id, msg.status, _this, offers);
           return _this.emit('peer_joined', newPeer);
         };
       })(this));
@@ -1128,6 +1207,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           name: o.identity.getName()
         };
       }
+      if (o.dataChannels) {
+        this.roomOptions.dataChannels = o.dataChannels;
+      }
       if (o.options) {
         this.roomOptions.stun = o.options.stun || this.roomOptions.stun;
         this.roomOptions.turn = o.options.turn || this.roomOptions.turn;
@@ -1244,6 +1326,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.room.on('peer_left', (function(_this) {
         return function(p) {
           return _this.emit('peer_left', p);
+        };
+      })(this));
+      this.room.on('peer_channel_ready', (function(_this) {
+        return function(p, n, c) {
+          return _this.emit('peer_channel_ready', p, n, c);
         };
       })(this));
       this.room.on('signaling_shutdown', (function(_this) {
