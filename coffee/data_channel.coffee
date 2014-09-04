@@ -1,6 +1,4 @@
-palava = @palava
-
-class palava.DataChannel extends @EventEmitter
+class palava.DataChannel extends EventEmitter
 
   constructor: (@channel) ->
     @channel.onmessage = (event) => @emit 'message', event.data
