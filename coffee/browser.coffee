@@ -73,8 +73,6 @@ palava.browser.getConstraints = () ->
     mandatory:
       OfferToReceiveAudio: true
       OfferToReceiveVideo: true
-  if palava.browser.isMozilla()
-    constraints.mandatory.MozDontOfferDataChannel = true
   constraints
 
 # Get WebRTC PeerConnection options
