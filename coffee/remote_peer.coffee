@@ -115,7 +115,7 @@ class palava.RemotePeer extends palava.Peer
           channel = @peerConnection.createDataChannel(label, options)
 
           channel.onopen = () ->
-            registerChannel(channel)
+            registerChannel(@)
       else
         @peerConnection.ondatachannel = (event) =>
           registerChannel(event.channel)
