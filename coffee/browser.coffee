@@ -169,3 +169,18 @@ else if palava.browser.isChrome()
           videoWrapper.find('.plv-video-mute').click()
           videoWrapper.find('.plv-video-mute').click()
         ), n
+
+palava.browser.attachPeer = (element, peer) ->
+  attach = () ->
+    palava.browser.attachMediaStream(element, peer.getStream())
+
+    if peer.isLocal()
+      element.attr('muted', true)
+
+    element[0].play()
+
+  if peer.getStream()
+    attach()
+  else
+    peer.on 'stream_ready', () ->
+      attach()
