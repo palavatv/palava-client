@@ -1,6 +1,8 @@
 #= require ./browser
 
-class palava.Gum extends EventEmitter
+palava = @palava
+
+class palava.Gum extends @EventEmitter
   constructor: (config) ->
     @config = config || { video: true, audio: true }
     @stream = null

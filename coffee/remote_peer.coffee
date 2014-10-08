@@ -2,6 +2,9 @@
 #= require ./peer
 #= require ./distributor
 
+palava = @palava
+$ = @$
+
 # TODO pack 'peer left' into 'send_to_peer' on server side
 
 # A remote participant in a room

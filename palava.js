@@ -26,14 +26,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 }).call(this);
 (function() {
-  var palava;
-
-  this.palava = palava = {
+  this.palava = {
     browser: {}
   };
 
 }).call(this);
 (function() {
+  if (typeof module === "object" && typeof module.exports === "object") {
+    module.exports = this.palava;
+  }
+
+  if (typeof EventEmitter !== "object" && typeof require === "function") {
+    this.EventEmitter = require('wolfy87-eventemitter');
+  }
+
+  if (typeof $ !== "object" && typeof require === "function") {
+    this.$ = require('jquery');
+  }
+
+}).call(this);
+(function() {
+  var $, palava;
+
+  palava = this.palava;
+
+  $ = this.$;
+
   palava.browser.PeerConnection = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
 
   palava.browser.IceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
@@ -201,9 +219,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 }).call(this);
 (function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var palava,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  palava = this.palava;
 
   palava.Gum = (function(_super) {
     __extends(Gum, _super);
@@ -269,10 +290,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     return Gum;
 
-  })(EventEmitter);
+  })(this.EventEmitter);
 
 }).call(this);
 (function() {
+  var palava;
+
+  palava = this.palava;
+
   palava.Identity = (function() {
     function Identity(o) {
       this.userMediaConfig = o.userMediaConfig;
@@ -293,9 +318,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 }).call(this);
 (function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var palava,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  palava = this.palava;
 
   palava.Peer = (function(_super) {
     __extends(Peer, _super);
@@ -342,13 +370,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     return Peer;
 
-  })(EventEmitter);
+  })(this.EventEmitter);
 
 }).call(this);
 (function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var palava,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  palava = this.palava;
 
   palava.LocalPeer = (function(_super) {
     __extends(LocalPeer, _super);
@@ -449,7 +480,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 }).call(this);
 (function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var palava,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  palava = this.palava;
 
   palava.Distributor = (function() {
     function Distributor(channel, peerId) {
@@ -497,9 +531,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 }).call(this);
 (function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var $, palava,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  palava = this.palava;
+
+  $ = this.$;
 
   palava.RemotePeer = (function(_super) {
     __extends(RemotePeer, _super);
@@ -716,9 +755,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 }).call(this);
 (function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var palava,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  palava = this.palava;
 
   palava.Room = (function(_super) {
     __extends(Room, _super);
@@ -871,13 +913,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     return Room;
 
-  })(EventEmitter);
+  })(this.EventEmitter);
 
 }).call(this);
 (function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var palava,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  palava = this.palava;
 
   palava.WebSocketChannel = (function(_super) {
     __extends(WebSocketChannel, _super);
@@ -939,13 +984,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     return WebSocketChannel;
 
-  })(EventEmitter);
+  })(this.EventEmitter);
 
 }).call(this);
 (function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+  var palava,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  palava = this.palava;
 
   palava.Session = (function(_super) {
     __extends(Session, _super);
@@ -1102,10 +1150,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     return Session;
 
-  })(EventEmitter);
+  })(this.EventEmitter);
 
 }).call(this);
 (function() {
+  var palava;
+
+  palava = this.palava;
+
   palava.PROTOCOL_NAME = 'palava';
 
   palava.PROTOCOL_VERSION = '1.0.0';

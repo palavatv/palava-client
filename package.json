@@ -1,0 +1,31 @@
+{
+    "name": "palava-client",
+    "description": "JavaScript library for WebRTC",
+    "version": "1.0.0-3",
+    "author": {
+        "name": "palava e. V.",
+        "email": "contact@palava.tv",
+        "homepage": "https://palava.tv"
+    },
+    "licenses": [
+        {
+            "type": "LPGLv3",
+            "url": "https://raw.github.com/palavatv/palava-client/master/COPYING.LESSER"
+        }
+    ],
+    "dependencies": {
+        "wolfy87-eventemitter": "~4.2.3",
+        "jquery": "~2.1.1"
+    },
+    "browser": "./palava.js",
+    "keywords": [
+        "webrtc",
+        "peerconnection",
+        "getusermedia",
+        "datachannel"
+    ],
+    "repository": {
+        "type" : "git",
+        "url" : "https://github.com/palavatv/palava-client.git"
+    }
+}

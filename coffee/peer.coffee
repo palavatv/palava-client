@@ -1,8 +1,10 @@
 #= require ./browser
 
+palava = @palava
+
 # Class representing a participant in a room
 #
-class palava.Peer extends EventEmitter
+class palava.Peer extends @EventEmitter
 
   # @param id [String] ID of the participant
   # @param status [Object] An object conataining state which is exchanged through the palava machine
