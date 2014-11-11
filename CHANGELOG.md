@@ -1,6 +1,8 @@
 # Change Log
 ## 1.2.0 (master)
 
+* Be compatible with CommonJS, improve npm/bower packaging
+* Make clear that jQuery is a dependency
 
 
 ## 1.1.0
