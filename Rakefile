@@ -2,7 +2,7 @@ require 'fileutils'
 require 'bundler'
 Bundler.require
 
-namespace :coffee do
+namespace :build do
   desc 'compile coffee code'
   task :compile do
     sprockets = Sprockets::Environment.new(File.dirname(__FILE__)) { |env|
@@ -33,7 +33,7 @@ namespace :coffee do
       node_modules/wolfy87-eventemitter/EventEmitter.min.js
       palava.min.js
     ].each{ |input_file|
-      File.open('palava.bundle.js', 'a'){ |f| f.write File.read(input_file) }
+      File.open('palava.bundle.js', 'a'){ |f| f.puts File.read(input_file) }
     }
     FileUtils.rm_r 'node_modules'
     puts Paint["Successfully built palava.bundle.js", :green]
