@@ -1,5 +1,5 @@
 ###
-palava v1.0.0 | LGPL | https://github.com/palavatv/palava-client
+palava v1.2.0-pre | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2013 Jan Lelis       jan@signaling.io
 Copyright (C) 2013 Marius Melzer   marius@signaling.io

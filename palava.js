@@ -1,5 +1,6 @@
+
 /*
-palava v1.0.0 | LGPL | https://github.com/palavatv/palava-client
+palava v1.2.0-pre | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2013 Jan Lelis       jan@signaling.io
 Copyright (C) 2013 Marius Melzer   marius@signaling.io
@@ -18,8 +19,7 @@ GNU Lesser General Public License for more details.
 
 You should have received a copy of the GNU Lesser General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
+ */
 
 (function() {
 
@@ -38,10 +38,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   if (typeof EventEmitter !== "object" && typeof require === "function") {
     this.EventEmitter = require('wolfy87-eventemitter');
+  } else {
+    this.EventEmitter = EventEmitter;
   }
 
   if (typeof $ !== "object" && typeof require === "function") {
     this.$ = require('jquery');
+  } else {
+    this.$ = $;
   }
 
 }).call(this);
@@ -217,6 +221,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
   }
 
+  palava.browser.attachPeer = function(element, peer) {
+    var attach;
+    attach = function() {
+      palava.browser.attachMediaStream(element, peer.getStream());
+      if (peer.isLocal()) {
+        element.attr('muted', true);
+      }
+      return element[0].play();
+    };
+    if (peer.getStream()) {
+      return attach();
+    } else {
+      return peer.on('stream_ready', function() {
+        return attach();
+      });
+    }
+  };
+
 }).call(this);
 (function() {
   var palava,
@@ -262,14 +284,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     Gum.prototype.requestStream = function() {
-      var _this = this;
-      palava.browser.getUserMedia.call(navigator, this.config, function(stream) {
-        _this.stream = stream;
-        _this.detectMedia();
-        return _this.emit('stream_ready', _this);
-      }, function() {
-        return _this.emit('stream_error', _this);
-      });
+      palava.browser.getUserMedia.call(navigator, this.config, (function(_this) {
+        return function(stream) {
+          _this.stream = stream;
+          _this.detectMedia();
+          return _this.emit('stream_ready', _this);
+        };
+      })(this), (function(_this) {
+        return function() {
+          return _this.emit('stream_error', _this);
+        };
+      })(this));
       return true;
     };
 
@@ -402,18 +427,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
 
     LocalPeer.prototype.setupUserMedia = function() {
-      var _this = this;
-      this.userMedia.on('stream_released', function() {
-        _this.ready = false;
-        return _this.emit('stream_removed');
-      });
-      this.userMedia.on('stream_ready', function(e) {
-        _this.ready = true;
-        return _this.emit('stream_ready', e);
-      });
-      this.userMedia.on('stream_error', function(e) {
-        return _this.emit('stream_error', e);
-      });
+      this.userMedia.on('stream_released', (function(_this) {
+        return function() {
+          _this.ready = false;
+          return _this.emit('stream_removed');
+        };
+      })(this));
+      this.userMedia.on('stream_ready', (function(_this) {
+        return function(e) {
+          _this.ready = true;
+          return _this.emit('stream_ready', e);
+        };
+      })(this));
+      this.userMedia.on('stream_error', (function(_this) {
+        return function(e) {
+          return _this.emit('stream_error', e);
+        };
+      })(this));
       if (this.getStream()) {
         this.ready = true;
         return this.emit('stream_ready');
@@ -421,17 +451,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     LocalPeer.prototype.setupRoom = function() {
-      var _this = this;
       this.room.peers[this.id] = this.room.localPeer = this;
-      this.on('update', function() {
-        return _this.room.emit('peer_update', _this);
-      });
-      this.on('stream_ready', function() {
-        return _this.room.emit('peer_stream_ready', _this);
-      });
-      return this.on('stream_removed', function() {
-        return _this.room.emit('peer_stream_removed', _this);
-      });
+      this.on('update', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_update', _this);
+        };
+      })(this));
+      this.on('stream_ready', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_stream_ready', _this);
+        };
+      })(this));
+      return this.on('stream_removed', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_stream_removed', _this);
+        };
+      })(this));
     };
 
     LocalPeer.prototype.getStream = function() {
@@ -497,18 +532,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
 
     Distributor.prototype.on = function(event, handler) {
-      var _this = this;
-      return this.channel.on('message', function(msg) {
-        if (_this.peerId) {
-          if (msg.sender_id === _this.peerId && event === msg.event) {
-            return handler(msg);
+      return this.channel.on('message', (function(_this) {
+        return function(msg) {
+          if (_this.peerId) {
+            if (msg.sender_id === _this.peerId && event === msg.event) {
+              return handler(msg);
+            }
+          } else {
+            if (!msg.sender_id && event === msg.event) {
+              return handler(msg);
+            }
           }
-        } else {
-          if (!msg.sender_id && event === msg.event) {
-            return handler(msg);
-          }
-        }
-      });
+        };
+      })(this));
     };
 
     Distributor.prototype.send = function(msg) {
@@ -599,35 +635,42 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     RemotePeer.prototype.setupPeerConnection = function() {
-      var _this = this;
       this.peerConnection = new palava.browser.PeerConnection(this.generateIceOptions(), palava.browser.getPeerConnectionOptions());
-      this.peerConnection.onicecandidate = function(event) {
-        if (event.candidate) {
-          return _this.distributor.send({
-            event: 'ice_candidate',
-            sdpmlineindex: event.candidate.sdpMLineIndex,
-            sdpmid: event.candidate.sdpMid,
-            candidate: event.candidate.candidate
-          });
-        }
-      };
-      this.peerConnection.onaddstream = function(event) {
-        _this.remoteStream = event.stream;
-        _this.ready = true;
-        return _this.emit('stream_ready');
-      };
-      this.peerConnection.onremovestream = function(event) {
-        _this.remoteStream = null;
-        _this.ready = false;
-        return _this.emit('stream_removed');
-      };
-      this.peerConnection.oniceconnectionstatechange = function(event) {
-        var connectionState;
-        connectionState = event.target.iceConnectionState;
-        if (connectionState === 'failed') {
-          return _this.emit('stream_error');
-        }
-      };
+      this.peerConnection.onicecandidate = (function(_this) {
+        return function(event) {
+          if (event.candidate) {
+            return _this.distributor.send({
+              event: 'ice_candidate',
+              sdpmlineindex: event.candidate.sdpMLineIndex,
+              sdpmid: event.candidate.sdpMid,
+              candidate: event.candidate.candidate
+            });
+          }
+        };
+      })(this);
+      this.peerConnection.onaddstream = (function(_this) {
+        return function(event) {
+          _this.remoteStream = event.stream;
+          _this.ready = true;
+          return _this.emit('stream_ready');
+        };
+      })(this);
+      this.peerConnection.onremovestream = (function(_this) {
+        return function(event) {
+          _this.remoteStream = null;
+          _this.ready = false;
+          return _this.emit('stream_removed');
+        };
+      })(this);
+      this.peerConnection.oniceconnectionstatechange = (function(_this) {
+        return function(event) {
+          var connectionState;
+          connectionState = event.target.iceConnectionState;
+          if (connectionState === 'failed') {
+            return _this.emit('stream_error');
+          }
+        };
+      })(this);
       if (this.room.localPeer.getStream()) {
         this.peerConnection.addStream(this.room.localPeer.getStream());
       } else {
@@ -637,70 +680,94 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     RemotePeer.prototype.setupDistributor = function() {
-      var _this = this;
       this.distributor = new palava.Distributor(this.room.channel, this.id);
-      this.distributor.on('peer_left', function(msg) {
-        if (_this.ready) {
-          _this.remoteStream = null;
-          _this.emit('stream_removed');
-          _this.ready = false;
-        }
-        _this.peerConnection.close();
-        return _this.emit('left');
-      });
-      this.distributor.on('ice_candidate', function(msg) {
-        var candidate;
-        candidate = new palava.browser.IceCandidate({
-          candidate: msg.candidate,
-          sdpMLineIndex: msg.sdpmlineindex,
-          sdpMid: msg.sdpmid
-        });
-        return _this.peerConnection.addIceCandidate(candidate);
-      });
-      this.distributor.on('offer', function(msg) {
-        _this.peerConnection.setRemoteDescription(new palava.browser.SessionDescription(msg.sdp));
-        _this.emit('offer');
-        return _this.sendAnswer();
-      });
-      this.distributor.on('answer', function(msg) {
-        _this.peerConnection.setRemoteDescription(new palava.browser.SessionDescription(msg.sdp));
-        return _this.emit('answer');
-      });
-      this.distributor.on('peer_updated_status', function(msg) {
-        _this.status = msg.status;
-        return _this.emit('update');
-      });
+      this.distributor.on('peer_left', (function(_this) {
+        return function(msg) {
+          if (_this.ready) {
+            _this.remoteStream = null;
+            _this.emit('stream_removed');
+            _this.ready = false;
+          }
+          _this.peerConnection.close();
+          return _this.emit('left');
+        };
+      })(this));
+      this.distributor.on('ice_candidate', (function(_this) {
+        return function(msg) {
+          var candidate;
+          candidate = new palava.browser.IceCandidate({
+            candidate: msg.candidate,
+            sdpMLineIndex: msg.sdpmlineindex,
+            sdpMid: msg.sdpmid
+          });
+          return _this.peerConnection.addIceCandidate(candidate);
+        };
+      })(this));
+      this.distributor.on('offer', (function(_this) {
+        return function(msg) {
+          _this.peerConnection.setRemoteDescription(new palava.browser.SessionDescription(msg.sdp));
+          _this.emit('offer');
+          return _this.sendAnswer();
+        };
+      })(this));
+      this.distributor.on('answer', (function(_this) {
+        return function(msg) {
+          _this.peerConnection.setRemoteDescription(new palava.browser.SessionDescription(msg.sdp));
+          return _this.emit('answer');
+        };
+      })(this));
+      this.distributor.on('peer_updated_status', (function(_this) {
+        return function(msg) {
+          _this.status = msg.status;
+          return _this.emit('update');
+        };
+      })(this));
       return this.distributor;
     };
 
     RemotePeer.prototype.setupRoom = function() {
-      var _this = this;
       this.room.peers[this.id] = this;
-      this.on('left', function() {
-        delete _this.room.peers[_this.id];
-        return _this.room.emit('peer_left', _this);
-      });
-      this.on('offer', function() {
-        return _this.room.emit('peer_offer', _this);
-      });
-      this.on('answer', function() {
-        return _this.room.emit('peer_answer', _this);
-      });
-      this.on('update', function() {
-        return _this.room.emit('peer_update', _this);
-      });
-      this.on('stream_ready', function() {
-        return _this.room.emit('peer_stream_ready', _this);
-      });
-      this.on('stream_error', function() {
-        return _this.room.emit('peer_stream_error', _this);
-      });
-      this.on('stream_removed', function() {
-        return _this.room.emit('peer_stream_removed', _this);
-      });
-      return this.on('oaerror', function(e) {
-        return _this.room.emit('peer_oaerror', _this, e);
-      });
+      this.on('left', (function(_this) {
+        return function() {
+          delete _this.room.peers[_this.id];
+          return _this.room.emit('peer_left', _this);
+        };
+      })(this));
+      this.on('offer', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_offer', _this);
+        };
+      })(this));
+      this.on('answer', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_answer', _this);
+        };
+      })(this));
+      this.on('update', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_update', _this);
+        };
+      })(this));
+      this.on('stream_ready', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_stream_ready', _this);
+        };
+      })(this));
+      this.on('stream_error', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_stream_error', _this);
+        };
+      })(this));
+      this.on('stream_removed', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_stream_removed', _this);
+        };
+      })(this));
+      return this.on('oaerror', (function(_this) {
+        return function(e) {
+          return _this.room.emit('peer_oaerror', _this, e);
+        };
+      })(this));
     };
 
     RemotePeer.prototype.sendOffer = function() {
@@ -714,15 +781,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     RemotePeer.prototype.sdpSender = function(event) {
-      var _this = this;
-      return function(sdp) {
-        sdp = palava.browser.patchSDP(sdp);
-        _this.peerConnection.setLocalDescription(sdp);
-        return _this.distributor.send({
-          event: event,
-          sdp: sdp
-        });
-      };
+      return (function(_this) {
+        return function(sdp) {
+          sdp = palava.browser.patchSDP(sdp);
+          _this.peerConnection.setLocalDescription(sdp);
+          return _this.distributor.send({
+            event: event,
+            sdp: sdp
+          });
+        };
+      })(this);
     };
 
     RemotePeer.prototype.oaError = function(error) {
@@ -730,22 +798,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     RemotePeer.prototype.mozillaCheckAddStream = function() {
-      var timeouts,
-        _this = this;
+      var timeouts;
       if (palava.browser.isMozilla()) {
-        return timeouts = $([100, 200, 400, 1000, 2000, 4000, 8000, 12000, 16000]).map(function(_, n) {
-          return setTimeout((function() {
-            var remoteTrack;
-            if (remoteTrack = (_this.peerConnection.remoteStreams && _this.peerConnection.remoteStreams[0]) || (_this.peerConnection.getRemoteStreams() && _this.peerConnection.getRemoteStreams()[0])) {
-              timeouts.each(function(_, t) {
-                return clearTimeout(t);
-              });
-              return _this.peerConnection.onaddstream({
-                stream: remoteTrack
-              });
-            }
-          }), n);
-        });
+        return timeouts = $([100, 200, 400, 1000, 2000, 4000, 8000, 12000, 16000]).map((function(_this) {
+          return function(_, n) {
+            return setTimeout((function() {
+              var remoteTrack;
+              if (remoteTrack = (_this.peerConnection.remoteStreams && _this.peerConnection.remoteStreams[0]) || (_this.peerConnection.getRemoteStreams() && _this.peerConnection.getRemoteStreams()[0])) {
+                timeouts.each(function(_, t) {
+                  return clearTimeout(t);
+                });
+                return _this.peerConnection.onaddstream({
+                  stream: remoteTrack
+                });
+              }
+            }), n);
+          };
+        })(this));
       }
     };
 
@@ -791,29 +860,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
 
     Room.prototype.setupUserMedia = function() {
-      var _this = this;
-      this.userMedia.on('stream_ready', function(event) {
-        return _this.emit('local_stream_ready', event.stream);
-      });
-      this.userMedia.on('stream_error', function(event) {
-        return _this.emit('local_stream_error', event.stream);
-      });
-      return this.userMedia.on('stream_released', function() {
-        return _this.emit('local_stream_removed');
-      });
+      this.userMedia.on('stream_ready', (function(_this) {
+        return function(event) {
+          return _this.emit('local_stream_ready', event.stream);
+        };
+      })(this));
+      this.userMedia.on('stream_error', (function(_this) {
+        return function(event) {
+          return _this.emit('local_stream_error', event.stream);
+        };
+      })(this));
+      return this.userMedia.on('stream_released', (function(_this) {
+        return function() {
+          return _this.emit('local_stream_removed');
+        };
+      })(this));
     };
 
     Room.prototype.setupChannel = function() {
-      var _this = this;
-      this.channel.on('not_reachable', function(e) {
-        return _this.emit('signaling_not_reachable', e);
-      });
-      this.channel.on('error', function(e) {
-        return _this.emit('signaling_error', e);
-      });
-      return this.channel.on('close', function(e) {
-        return _this.emit('signaling_close', e);
-      });
+      this.channel.on('not_reachable', (function(_this) {
+        return function(e) {
+          return _this.emit('signaling_not_reachable', e);
+        };
+      })(this));
+      this.channel.on('error', (function(_this) {
+        return function(e) {
+          return _this.emit('signaling_error', e);
+        };
+      })(this));
+      return this.channel.on('close', (function(_this) {
+        return function(e) {
+          return _this.emit('signaling_close', e);
+        };
+      })(this));
     };
 
     Room.prototype.setupOptions = function() {
@@ -823,48 +902,56 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     Room.prototype.setupDistributor = function() {
-      var _this = this;
       this.distributor = new palava.Distributor(this.channel);
-      this.distributor.on('joined_room', function(msg) {
-        var newPeer, peer, _i, _len, _ref;
-        clearTimeout(_this.joinCheckTimeout);
-        new palava.LocalPeer(msg.own_id, _this.options.ownStatus, _this);
-        _ref = msg.peers;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          peer = _ref[_i];
-          newPeer = new palava.RemotePeer(peer.peer_id, peer.status, _this);
-          if (!palava.browser.isChrome()) {
+      this.distributor.on('joined_room', (function(_this) {
+        return function(msg) {
+          var newPeer, peer, _i, _len, _ref;
+          clearTimeout(_this.joinCheckTimeout);
+          new palava.LocalPeer(msg.own_id, _this.options.ownStatus, _this);
+          _ref = msg.peers;
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            peer = _ref[_i];
+            newPeer = new palava.RemotePeer(peer.peer_id, peer.status, _this);
+            if (!palava.browser.isChrome()) {
+              newPeer.sendOffer();
+            }
+          }
+          return _this.emit("joined", _this);
+        };
+      })(this));
+      this.distributor.on('new_peer', (function(_this) {
+        return function(msg) {
+          var newPeer;
+          newPeer = new palava.RemotePeer(msg.peer_id, msg.status, _this);
+          if (msg.status.user_agent === 'chrome') {
             newPeer.sendOffer();
           }
-        }
-        return _this.emit("joined", _this);
-      });
-      this.distributor.on('new_peer', function(msg) {
-        var newPeer;
-        newPeer = new palava.RemotePeer(msg.peer_id, msg.status, _this);
-        if (msg.status.user_agent === 'chrome') {
-          newPeer.sendOffer();
-        }
-        return _this.emit('peer_joined', newPeer);
-      });
-      this.distributor.on('error', function(msg) {
-        return _this.emit('signaling_error', msg.message);
-      });
-      return this.distributor.on('shutdown', function(msg) {
-        return _this.emit('signaling_shutdown', msg.seconds);
-      });
+          return _this.emit('peer_joined', newPeer);
+        };
+      })(this));
+      this.distributor.on('error', (function(_this) {
+        return function(msg) {
+          return _this.emit('signaling_error', msg.message);
+        };
+      })(this));
+      return this.distributor.on('shutdown', (function(_this) {
+        return function(msg) {
+          return _this.emit('signaling_shutdown', msg.seconds);
+        };
+      })(this));
     };
 
     Room.prototype.join = function(status) {
-      var key, _base, _i, _len,
-        _this = this;
+      var key, _base, _i, _len;
       if (status == null) {
         status = {};
       }
-      this.joinCheckTimeout = setTimeout((function() {
-        _this.emit('join_error', 'Not able to join room');
-        return _this.leave();
-      }), this.options.joinTimeout);
+      this.joinCheckTimeout = setTimeout(((function(_this) {
+        return function() {
+          _this.emit('join_error', 'Not able to join room');
+          return _this.leave();
+        };
+      })(this)), this.options.joinTimeout);
       for (_i = 0, _len = status.length; _i < _len; _i++) {
         key = status[_i];
         this.options.ownStatus[key] = status[key];
@@ -932,32 +1019,38 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.send_or_retry = __bind(this.send_or_retry, this);
       this.send = __bind(this.send, this);
       this.setupEvents = __bind(this.setupEvents, this);
-      var _this = this;
       this.reached = false;
       this.socket = new WebSocket(address);
-      this.socket.onopen = function(handshake) {
-        _this.setupEvents();
-        return _this.emit('open', handshake);
-      };
+      this.socket.onopen = (function(_this) {
+        return function(handshake) {
+          _this.setupEvents();
+          return _this.emit('open', handshake);
+        };
+      })(this);
     }
 
     WebSocketChannel.prototype.setupEvents = function() {
-      var _this = this;
-      this.socket.onmessage = function(msg) {
-        var SyntaxError;
-        try {
-          return _this.emit('message', JSON.parse(msg.data));
-        } catch (_error) {
-          SyntaxError = _error;
-          return _this.emit('error_invalid_json', msg);
-        }
-      };
-      this.socket.onerror = function(msg) {
-        return _this.emit('error', msg);
-      };
-      return this.socket.onclose = function() {
-        return _this.emit('close');
-      };
+      this.socket.onmessage = (function(_this) {
+        return function(msg) {
+          var SyntaxError;
+          try {
+            return _this.emit('message', JSON.parse(msg.data));
+          } catch (_error) {
+            SyntaxError = _error;
+            return _this.emit('error_invalid_json', msg);
+          }
+        };
+      })(this);
+      this.socket.onerror = (function(_this) {
+        return function(msg) {
+          return _this.emit('error', msg);
+        };
+      })(this);
+      return this.socket.onclose = (function(_this) {
+        return function() {
+          return _this.emit('close');
+        };
+      })(this);
     };
 
     WebSocketChannel.prototype.send = function(data) {
@@ -965,16 +1058,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     WebSocketChannel.prototype.send_or_retry = function(data, retries) {
-      var _this = this;
       if (retries === 0) {
         return this.emit('not_reachable', this.serverAddress);
       } else if (this.reached || this.socket.readyState === 1) {
         this.reached = true;
         return this.socket.send(JSON.stringify(data));
       } else {
-        return setTimeout((function() {
-          return _this.send_or_retry(data, retries - 1);
-        }), 400);
+        return setTimeout(((function(_this) {
+          return function() {
+            return _this.send_or_retry(data, retries - 1);
+          };
+        })(this)), 400);
       }
     };
 
@@ -1081,62 +1175,97 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     Session.prototype.setupRoom = function() {
-      var _this = this;
       this.room = new palava.Room(this.roomId, this.channel, this.userMedia, this.roomOptions);
-      this.room.on('local_stream_ready', function(s) {
-        return _this.emit('local_stream_ready', s);
-      });
-      this.room.on('local_stream_error', function(s) {
-        return _this.emit('local_stream_error');
-      });
-      this.room.on('local_stream_removed', function() {
-        return _this.emit('local_stream_removed');
-      });
-      this.room.on('join_error', function(e) {
-        return _this.emit('room_join_error', _this.room, e);
-      });
-      this.room.on('full', function() {
-        return _this.emit('room_full', _this.room);
-      });
-      this.room.on('joined', function() {
-        return _this.emit('room_joined', _this.room);
-      });
-      this.room.on('peer_joined', function(p) {
-        return _this.emit('peer_joined', p);
-      });
-      this.room.on('peer_offer', function(p) {
-        return _this.emit('peer_offer', p);
-      });
-      this.room.on('peer_answer', function(p) {
-        return _this.emit('peer_answer', p);
-      });
-      this.room.on('peer_update', function(p) {
-        return _this.emit('peer_update', p);
-      });
-      this.room.on('peer_stream_ready', function(p) {
-        return _this.emit('peer_stream_ready', p);
-      });
-      this.room.on('peer_stream_error', function(p) {
-        return _this.emit('peer_stream_error', p);
-      });
-      this.room.on('peer_stream_removed', function(p) {
-        return _this.emit('peer_stream_removed', p);
-      });
-      this.room.on('peer_left', function(p) {
-        return _this.emit('peer_left', p);
-      });
-      this.room.on('signaling_shutdown', function(p) {
-        return _this.emit('signaling_shutdown', p);
-      });
-      this.room.on('signaling_close', function(p) {
-        return _this.emit('signaling_close', p);
-      });
-      this.room.on('signaling_error', function(p) {
-        return _this.emit('signaling_error', p);
-      });
-      this.room.on('signaling_not_reachable', function(p) {
-        return _this.emit('signaling_not_reachable', p);
-      });
+      this.room.on('local_stream_ready', (function(_this) {
+        return function(s) {
+          return _this.emit('local_stream_ready', s);
+        };
+      })(this));
+      this.room.on('local_stream_error', (function(_this) {
+        return function(s) {
+          return _this.emit('local_stream_error');
+        };
+      })(this));
+      this.room.on('local_stream_removed', (function(_this) {
+        return function() {
+          return _this.emit('local_stream_removed');
+        };
+      })(this));
+      this.room.on('join_error', (function(_this) {
+        return function(e) {
+          return _this.emit('room_join_error', _this.room, e);
+        };
+      })(this));
+      this.room.on('full', (function(_this) {
+        return function() {
+          return _this.emit('room_full', _this.room);
+        };
+      })(this));
+      this.room.on('joined', (function(_this) {
+        return function() {
+          return _this.emit('room_joined', _this.room);
+        };
+      })(this));
+      this.room.on('peer_joined', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_joined', p);
+        };
+      })(this));
+      this.room.on('peer_offer', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_offer', p);
+        };
+      })(this));
+      this.room.on('peer_answer', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_answer', p);
+        };
+      })(this));
+      this.room.on('peer_update', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_update', p);
+        };
+      })(this));
+      this.room.on('peer_stream_ready', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_stream_ready', p);
+        };
+      })(this));
+      this.room.on('peer_stream_error', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_stream_error', p);
+        };
+      })(this));
+      this.room.on('peer_stream_removed', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_stream_removed', p);
+        };
+      })(this));
+      this.room.on('peer_left', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_left', p);
+        };
+      })(this));
+      this.room.on('signaling_shutdown', (function(_this) {
+        return function(p) {
+          return _this.emit('signaling_shutdown', p);
+        };
+      })(this));
+      this.room.on('signaling_close', (function(_this) {
+        return function(p) {
+          return _this.emit('signaling_close', p);
+        };
+      })(this));
+      this.room.on('signaling_error', (function(_this) {
+        return function(p) {
+          return _this.emit('signaling_error', p);
+        };
+      })(this));
+      this.room.on('signaling_not_reachable', (function(_this) {
+        return function(p) {
+          return _this.emit('signaling_not_reachable', p);
+        };
+      })(this));
       return true;
     };
 
