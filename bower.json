@@ -14,7 +14,7 @@
     }
   ],
   "dependencies": {
-    "eventEmitter": "~4.2.3"
+    "eventEmitter": "~4.2.9"
   },
   "devDependencies": {
   },

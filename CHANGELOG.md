@@ -3,6 +3,7 @@
 
 * Be compatible with CommonJS, improve npm/bower packaging
 * Make clear that jQuery is a dependency
+* Bump EventEmitter dependency
 
 
 ## 1.1.0
