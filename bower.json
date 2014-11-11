@@ -9,15 +9,15 @@
   },
   "licenses": [
     {
-    "type": "LPGLv3",
-    "url": "https://raw.github.com/palavatv/palava-client/master/COPYING.LESSER"
+      "type": "LPGLv3",
+      "url": "https://raw.github.com/palavatv/palava-client/master/COPYING.LESSER"
     }
   ],
   "dependencies": {
-    "eventEmitter": "~4.2.9"
+    "eventEmitter": "~4.2.9",
+    "jquery": "~2.1.1"
   },
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "main": [
     "./palava.js"
   ],
