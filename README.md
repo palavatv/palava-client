@@ -42,6 +42,11 @@ For a complex example using AngularJS see `the palava-portal` code:
 - https://github.com/palavatv/palava-portal/blob/master/source/assets/js/app/controllers/palava_controller.coffee.erb#L11
 
 
+## Issues
+
+Please report issues to the [palava Repository](https://github.com/palavatv/palava/issues).
+
+
 ## Credits
 
 LGPLv3. Part of the [palava project](https://palava.tv).
