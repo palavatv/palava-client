@@ -4,6 +4,7 @@
 * Be compatible with CommonJS, improve npm/bower packaging
 * Make clear that jQuery is a dependency
 * Bump EventEmitter dependency
+* Add palava.RemotePeer.sendMessage() for custom signaling messages
 
 
 ## 1.1.0
