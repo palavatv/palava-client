@@ -133,6 +133,10 @@ class palava.RemotePeer extends palava.Peer
     @distributor.on 'peer_updated_status', (msg) =>
       @status = msg.status
       @emit 'update'
+
+    @distributor.on 'message', (msg) =>
+      @emit 'message', msg.data
+
     @distributor
 
   # Forward events to the room
@@ -165,6 +169,11 @@ class palava.RemotePeer extends palava.Peer
   sendAnswer: =>
     @peerConnection.createAnswer @sdpSender('answer'), @oaError, palava.browser.getConstraints()
     @mozillaCheckAddStream()
+
+  sendMessage: (data) =>
+    @distributor.send
+      event: 'message'
+      data: data
 
   # Helper for sending sdp
   #
