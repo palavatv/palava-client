@@ -10,9 +10,16 @@ class palava.WebSocketChannel extends @EventEmitter
   constructor: (address) ->
     @reached      = false
     @socket       = new WebSocket(address)#, [palava.protocol_identifier()])
+    @messagesToDeliverOnConnect = []
     @socket.onopen = (handshake) =>
       @setupEvents()
+      @sendMessages()
       @emit 'open', handshake
+
+  sendMessages: =>
+    for msg in @messagesToDeliverOnConnect
+      @socket.send(msg)
+    @messagesToDeliverOnConnect = []
 
   # Connects websocket events with the events of this object
   #
@@ -34,24 +41,19 @@ class palava.WebSocketChannel extends @EventEmitter
   # @param data [Object] Object to send through the channel
   #
   send: (data) =>
-    @send_or_retry(data, 3)
-
-  # Sends given data, if connection is established
-  # Otherwise retry 'retries' times and emit a not_reachable error in the end
-  #
-  # @param data [Object] Object to send through the channel
-  # @param retries [Integer] Number of retries
-  #
-  send_or_retry: (data, retries) =>
-    if retries == 0
-      @emit 'not_reachable', @serverAddress
-    else if @reached || @socket.readyState == 1
-      @reached = true
+    if @socket.readyState == 1 # reached
+      if @messagesToDeliverOnConnect.length != 0
+        @sendMessages()
       @socket.send JSON.stringify(data)
-    else
-      setTimeout (=>
-        @send_or_retry(data, retries - 1)
-      ), 400
+    else if @socket.readyState > 1 # closing or closed
+      @emit 'not_reachable', @serverAddress
+    else # connecting ...
+      if @messagesToDeliverOnConnect.length == 0
+        setTimeout (=>
+          @close()
+          @emit 'not_reachable', @serverAddress if @socket.readyState != 1
+        ), 5000
+      @messagesToDeliverOnConnect.push(JSON.stringify(data))
 
   # Closes the websocket
   #
