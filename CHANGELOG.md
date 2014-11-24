@@ -6,6 +6,7 @@
 * Bump EventEmitter dependency
 * Add palava.RemotePeer.sendMessage() for custom signaling messages
 * Support DataChannels
+* Enforce right order of messages sent before the opening of the web socket
 
 
 ## 1.1.0
