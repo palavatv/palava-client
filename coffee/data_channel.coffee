@@ -6,38 +6,37 @@ class palava.DataChannel extends EventEmitter
     @channel.onmessage = (event) => @emit 'message', event.data
     @channel.onclose = () => @emit 'close'
     @channel.onerror = (e) => @emit 'error', e
-    @send_buffer = []
+    @sendBuffer = []
 
   send: (data, cb) ->
-    @send_buffer.push([data, cb])
+    @sendBuffer.push [data, cb]
 
-    if @send_buffer.length == 1
-      actual_send = () =>
-        if @channel.readyState != 'open'
-          console.log "Not sending when not open!"
-          return
+    if @sendBuffer.length == 1
+      @actualSend()
 
-        while @send_buffer.length
-          if @channel.bufferedAmount > @MAX_BUFFER
-            setTimeout(actual_send, 1)
-            return
+  actualSend = =>
+    if @channel.readyState != 'open'
+      console.log "Not sending when not open!"
+      return
 
-          [data, cb] = @send_buffer[0]
+    while @sendBuffer.length
+      if @channel.bufferedAmount > @MAX_BUFFER
+        setTimeout(@actualSend, 1)
+        return
 
-          try
-            @channel.send(data)
-          catch e
-            setTimeout(actual_send, 1)
-            return
+      [data, cb] = @sendBuffer[0]
 
-          try
-            cb?()
-          catch e
-            # TODO: find a better way to tell the user ...
-            console.log 'Exception in write callback:', e
+      try
+        @channel.send(data)
+      catch e
+        setTimeout(@actualSend, 1)
+        return
 
-          @send_buffer.shift()
+      try
+        cb?()
+      catch e
+        # TODO: find a better way to tell the user ...
+        console.log 'Exception in write callback:', e
 
-      actual_send()
-
+      @sendBuffer.shift()
 
