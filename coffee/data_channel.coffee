@@ -1,4 +1,6 @@
-class palava.DataChannel extends EventEmitter
+palava = @palava
+
+class palava.DataChannel extends @EventEmitter
 
   MAX_BUFFER: 1024 * 1024
 
