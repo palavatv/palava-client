@@ -14,14 +14,14 @@ class palava.DataChannel extends EventEmitter
     if @sendBuffer.length == 1
       @actualSend()
 
-  actualSend = =>
+  actualSend: ->
     if @channel.readyState != 'open'
       console.log "Not sending when not open!"
       return
 
     while @sendBuffer.length
       if @channel.bufferedAmount > @MAX_BUFFER
-        setTimeout(@actualSend, 1)
+        setTimeout(@actualSend.bind(@), 1)
         return
 
       [data, cb] = @sendBuffer[0]
@@ -29,7 +29,7 @@ class palava.DataChannel extends EventEmitter
       try
         @channel.send(data)
       catch e
-        setTimeout(@actualSend, 1)
+        setTimeout(@actualSend.bind(@), 1)
         return
 
       try
