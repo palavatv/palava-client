@@ -50,8 +50,9 @@ class palava.WebSocketChannel extends @EventEmitter
     else # connecting ...
       if @messagesToDeliverOnConnect.length == 0
         setTimeout (=>
-          @close()
-          @emit 'not_reachable', @serverAddress if @socket.readyState != 1
+          if @socket.readyState != 1
+            @close()
+            @emit 'not_reachable', @serverAddress
         ), 5000
       @messagesToDeliverOnConnect.push(JSON.stringify(data))
 
