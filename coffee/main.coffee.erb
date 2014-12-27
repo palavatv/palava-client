@@ -6,10 +6,15 @@
 #= require ./room
 #= require ./session
 
+<% require 'json' %>
+
 palava = @palava
 
 palava.PROTOCOL_NAME = 'palava'
 palava.PROTOCOL_VERSION = '1.0.0'
+
+palava.LIB_VERSION = '<%= JSON.parse(File.read('package.json'))['version'] %>'
+palava.LIB_COMMIT = '<%= `git describe --long --dirty --abbrev=10 --tags` %>'
 
 palava.protocol_identifier = ->
   # palava.PROTOCOL_NAME + '.' + parseFloat(exports.PROTOCOL_VERSION)
