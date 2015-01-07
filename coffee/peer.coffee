@@ -24,7 +24,7 @@ class palava.Peer extends @EventEmitter
     if palava.browser.checkForPartialSupport()
       return true
     else
-      return @getStream?().getAudioTracks?().length > 0
+      return @getStream?()?.getAudioTracks?()?.length > 0
 
   # Checks whether the participant is muted
   #
