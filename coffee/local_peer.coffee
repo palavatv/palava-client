@@ -67,12 +67,6 @@ class palava.LocalPeer extends palava.Peer
       status: @status
     @status
 
-  hasAudio: =>
-    if stream = @getStream()
-      stream.getAudioTracks().length > 0
-    else
-      false
-
   toggleMute: =>
     # TODO: to be tested
     @userMedia.changeConfig

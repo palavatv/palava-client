@@ -20,7 +20,11 @@ class palava.Peer extends @EventEmitter
   #
   # @return [Boolean] `true` if participant is sending audio
   #
-  hasAudio: => palava.browser.checkForPartialSupport() || @getStream() && @getStream().getAudioTracks().length # TODO is the || really correct? Should this be the same for local and remote?
+  hasAudio: =>
+    if palava.browser.checkForPartialSupport()
+      return true
+    else
+      return @getStream?().getAudioTracks?().length > 0
 
   # Checks whether the participant is muted
   #
