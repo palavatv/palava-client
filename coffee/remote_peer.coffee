@@ -40,13 +40,6 @@ class palava.RemotePeer extends palava.Peer
   getStream: =>
     @remoteStream
 
-  # Check whether the participant is sending audio
-  #
-  # @return [Boolean] `true` if the peer is sending audio
-  #
-  hasAudio: =>
-    @remoteStream && ( palava.browser.checkForPartialSupport() || @remoteStream.getAudioTracks().length ) # TODO is the || really correct?
-
   # Toggle the mute state of the peer
   #
   toggleMute: =>
