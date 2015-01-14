@@ -73,9 +73,6 @@ class palava.Session extends @EventEmitter
     if e = palava.browser.checkForWebrtcError()
       @emit 'webrtc_no_support', 'WebRTC is not supported by your browser', e
       return false
-    if palava.browser.checkForPartialSupport()
-      @emit 'webrtc_partial_support'
-      return true
     true
 
   # Get the channel of the session

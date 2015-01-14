@@ -57,12 +57,6 @@ palava.browser.chromeVersion = ->
   else
     false
 
-# Check whether the browser is only partially supported by palava
-#
-# @return [Boolean] `true` if there are no known bugs for the used browser
-palava.browser.checkForPartialSupport = ->
-  palava.browser.isChrome() && palava.browser.chromeVersion() < 26
-
 # Get WebRTC constraints argument
 #
 # @return [Object] Appropriate constraints for WebRTC
