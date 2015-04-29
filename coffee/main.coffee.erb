@@ -7,13 +7,14 @@
 #= require ./session
 
 <% require 'json' %>
+<% Dir.chdir(File.dirname(__FILE__) + "/../") %>
 
 palava = @palava
 
 palava.PROTOCOL_NAME = 'palava'
 palava.PROTOCOL_VERSION = '1.0.0'
 
-palava.LIB_VERSION = '<%= JSON.parse(File.read(File.dirname(__FILE__) + '/../package.json'))['version'] %>'
+palava.LIB_VERSION = '<%= JSON.parse(File.read('package.json'))['version'] %>'
 palava.LIB_COMMIT = '<%= `git describe --long --dirty --abbrev=10 --tags` %>'
 
 palava.protocol_identifier = ->
