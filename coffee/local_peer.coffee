@@ -69,9 +69,15 @@ class palava.LocalPeer extends palava.Peer
 
   toggleMute: =>
     # TODO: to be tested
-    @userMedia.changeConfig
-      video: @userMedia.config.video
-      audio: !@userMedia.config.audio
+    tracks = @getStream.getAudioTracks()
+
+    if track.length == 0
+      return
+
+    muted = not tracks[0].enabled
+
+    for track in tracks
+      track.enabled = muted
 
   # Leave the room
   leave: =>
