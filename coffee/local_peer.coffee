@@ -71,7 +71,7 @@ class palava.LocalPeer extends palava.Peer
     # TODO: to be tested
     tracks = @getStream.getAudioTracks()
 
-    if track.length == 0
+    if tracks.length == 0
       return
 
     muted = not tracks[0].enabled
