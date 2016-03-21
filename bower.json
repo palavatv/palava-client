@@ -1,7 +1,7 @@
 {
   "name": "palava",
   "description": "CoffeeScript library for WebRTC",
-  "version": "1.2.0-pre",
+  "version": "1.2.1.pre",
   "author": {
     "name": "palava e. V.",
     "email": "contact@palava.tv",

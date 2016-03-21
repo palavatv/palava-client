@@ -87,20 +87,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   };
 
   palava.browser.checkForWebrtcError = function() {
-    var e;
+    var e, error;
     try {
       new palava.browser.PeerConnection({
         iceServers: []
       });
-    } catch (_error) {
-      e = _error;
+    } catch (error) {
+      e = error;
       return e;
     }
     return !(palava.browser.PeerConnection && palava.browser.IceCandidate && palava.browser.SessionDescription && palava.browser.getUserMedia);
   };
 
   palava.browser.chromeVersion = function() {
-    var matches, version, _;
+    var _, matches, version;
     matches = /Chrome\/(\d+)/i.exec(navigator.userAgent);
     if (matches) {
       _ = matches[0], version = matches[1];
@@ -108,10 +108,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     } else {
       return false;
     }
-  };
-
-  palava.browser.checkForPartialSupport = function() {
-    return palava.browser.isChrome() && palava.browser.chromeVersion() < 26;
   };
 
   palava.browser.getConstraints = function() {
@@ -141,23 +137,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   };
 
   palava.browser.patchSDP = function(sdp) {
-    var chars, crypto, i, key, _i, _j, _k, _results, _results1;
+    var chars, crypto, i, j, k, key, l, results, results1;
     if (palava.browser.isChrome() && palava.browser.chromeVersion() >= 31) {
       return sdp;
     }
     chars = (function() {
-      _results1 = [];
-      for (_j = 33; _j <= 58; _j++){ _results1.push(_j); }
-      return _results1;
+      results1 = [];
+      for (k = 33; k <= 58; k++){ results1.push(k); }
+      return results1;
     }).apply(this).concat((function() {
-      _results = [];
-      for (_i = 60; _i <= 126; _i++){ _results.push(_i); }
-      return _results;
+      results = [];
+      for (j = 60; j <= 126; j++){ results.push(j); }
+      return results;
     }).apply(this)).map(function(a) {
       return String.fromCharCode(a);
     });
     key = '';
-    for (i = _k = 0; _k < 40; i = ++_k) {
+    for (i = l = 0; l < 40; i = ++l) {
       key += chars[Math.floor(Math.random() * chars.length)];
     }
     crypto = 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + key + '\r\nc=IN';
@@ -239,21 +235,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }).call(this);
 (function() {
   var palava,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   palava = this.palava;
 
-  palava.Gum = (function(_super) {
-    __extends(Gum, _super);
+  palava.Gum = (function(superClass) {
+    extend(Gum, superClass);
 
     function Gum(config) {
-      this.releaseStream = __bind(this.releaseStream, this);
-      this.getStream = __bind(this.getStream, this);
-      this.requestStream = __bind(this.requestStream, this);
-      this.detectMedia = __bind(this.detectMedia, this);
-      this.changeConfig = __bind(this.changeConfig, this);
+      this.releaseStream = bind(this.releaseStream, this);
+      this.getStream = bind(this.getStream, this);
+      this.requestStream = bind(this.requestStream, this);
+      this.detectMedia = bind(this.detectMedia, this);
+      this.changeConfig = bind(this.changeConfig, this);
       this.config = config || {
         video: true,
         audio: true
@@ -317,14 +313,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }).call(this);
 (function() {
   var palava,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   palava = this.palava;
 
   palava.Identity = (function() {
     function Identity(o) {
-      this.getStatus = __bind(this.getStatus, this);
-      this.getName = __bind(this.getName, this);
+      this.getStatus = bind(this.getStatus, this);
+      this.getName = bind(this.getName, this);
       this.userMediaConfig = o.userMediaConfig;
       this.status = o.status || {};
       this.status.name = o.name;
@@ -349,29 +345,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }).call(this);
 (function() {
   var palava,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   palava = this.palava;
 
-  palava.Peer = (function(_super) {
-    __extends(Peer, _super);
+  palava.Peer = (function(superClass) {
+    extend(Peer, superClass);
 
     function Peer(id, status) {
-      this.isLocal = __bind(this.isLocal, this);
-      this.isReady = __bind(this.isReady, this);
-      this.isMuted = __bind(this.isMuted, this);
-      this.hasAudio = __bind(this.hasAudio, this);
-      var _base;
+      this.isLocal = bind(this.isLocal, this);
+      this.isReady = bind(this.isReady, this);
+      this.isMuted = bind(this.isMuted, this);
+      this.hasAudio = bind(this.hasAudio, this);
+      var base;
       this.id = id;
       this.status = status || {};
-      (_base = this.status).user_agent || (_base.user_agent = palava.browser.getUserAgent());
+      (base = this.status).user_agent || (base.user_agent = palava.browser.getUserAgent());
       this.joinTime = (new Date()).getTime();
     }
 
     Peer.prototype.hasAudio = function() {
-      return palava.browser.checkForPartialSupport() || this.getStream() && this.getStream().getAudioTracks().length;
+      var ref, ref1;
+      return ((ref = this.getStream()) != null ? (ref1 = ref.getAudioTracks()) != null ? ref1.length : void 0 : void 0) > 0;
     };
 
     Peer.prototype.isMuted = function() {
@@ -405,23 +402,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }).call(this);
 (function() {
   var palava,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   palava = this.palava;
 
-  palava.LocalPeer = (function(_super) {
-    __extends(LocalPeer, _super);
+  palava.LocalPeer = (function(superClass) {
+    extend(LocalPeer, superClass);
 
     function LocalPeer(id, status, room) {
-      this.leave = __bind(this.leave, this);
-      this.toggleMute = __bind(this.toggleMute, this);
-      this.hasAudio = __bind(this.hasAudio, this);
-      this.updateStatus = __bind(this.updateStatus, this);
-      this.getStream = __bind(this.getStream, this);
-      this.setupRoom = __bind(this.setupRoom, this);
-      this.setupUserMedia = __bind(this.setupUserMedia, this);
+      this.leave = bind(this.leave, this);
+      this.toggleMute = bind(this.toggleMute, this);
+      this.updateStatus = bind(this.updateStatus, this);
+      this.getStream = bind(this.getStream, this);
+      this.setupRoom = bind(this.setupRoom, this);
+      this.setupUserMedia = bind(this.setupUserMedia, this);
       this.muted = true;
       this.local = true;
       LocalPeer.__super__.constructor.call(this, id, status);
@@ -479,14 +475,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     LocalPeer.prototype.updateStatus = function(status) {
-      var key, _base;
+      var base, key;
       if (!status || !(status instanceof Object) || Object.keys(status).length === 0) {
         return status;
       }
       for (key in status) {
         this.status[key] = status[key];
       }
-      (_base = this.status).user_agent || (_base.user_agent = palava.browser.getUserAgent());
+      (base = this.status).user_agent || (base.user_agent = palava.browser.getUserAgent());
       this.room.channel.send({
         event: 'update_status',
         status: this.status
@@ -494,20 +490,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       return this.status;
     };
 
-    LocalPeer.prototype.hasAudio = function() {
-      var stream;
-      if (stream = this.getStream()) {
-        return stream.getAudioTracks().length > 0;
-      } else {
-        return false;
-      }
-    };
-
     LocalPeer.prototype.toggleMute = function() {
-      return this.userMedia.changeConfig({
-        video: this.userMedia.config.video,
-        audio: !this.userMedia.config.audio
-      });
+      var i, len, muted, results, track, tracks;
+      tracks = this.getStream.getAudioTracks();
+      if (tracks.length === 0) {
+        return;
+      }
+      muted = !tracks[0].enabled;
+      results = [];
+      for (i = 0, len = tracks.length; i < len; i++) {
+        track = tracks[i];
+        results.push(track.enabled = muted);
+      }
+      return results;
     };
 
     LocalPeer.prototype.leave = function() {
@@ -522,7 +517,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }).call(this);
 (function() {
   var palava,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   palava = this.palava;
 
@@ -531,8 +526,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       if (peerId == null) {
         peerId = null;
       }
-      this.send = __bind(this.send, this);
-      this.on = __bind(this.on, this);
+      this.send = bind(this.send, this);
+      this.on = bind(this.on, this);
       this.channel = channel;
       this.peerId = peerId;
     }
@@ -574,13 +569,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }).call(this);
 (function() {
   var palava,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   palava = this.palava;
 
-  palava.DataChannel = (function(_super) {
-    __extends(DataChannel, _super);
+  palava.DataChannel = (function(superClass) {
+    extend(DataChannel, superClass);
 
     DataChannel.prototype.MAX_BUFFER = 1024 * 1024;
 
@@ -612,7 +607,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     DataChannel.prototype.actualSend = function() {
-      var cb, data, e, _ref;
+      var cb, data, e, error, error1, ref;
       if (this.channel.readyState !== 'open') {
         console.log("Not sending when not open!");
         return;
@@ -622,11 +617,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           setTimeout(this.actualSend.bind(this), 1);
           return;
         }
-        _ref = this.sendBuffer[0], data = _ref[0], cb = _ref[1];
+        ref = this.sendBuffer[0], data = ref[0], cb = ref[1];
         try {
           this.channel.send(data);
-        } catch (_error) {
-          e = _error;
+        } catch (error) {
+          e = error;
           setTimeout(this.actualSend.bind(this), 1);
           return;
         }
@@ -634,8 +629,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           if (typeof cb === "function") {
             cb();
           }
-        } catch (_error) {
-          e = _error;
+        } catch (error1) {
+          e = error1;
           console.log('Exception in write callback:', e);
         }
         this.sendBuffer.shift();
@@ -649,31 +644,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }).call(this);
 (function() {
   var $, palava,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   palava = this.palava;
 
   $ = this.$;
 
-  palava.RemotePeer = (function(_super) {
-    __extends(RemotePeer, _super);
+  palava.RemotePeer = (function(superClass) {
+    extend(RemotePeer, superClass);
 
     function RemotePeer(id, status, room, offers) {
-      this.mozillaCheckAddStream = __bind(this.mozillaCheckAddStream, this);
-      this.oaError = __bind(this.oaError, this);
-      this.sdpSender = __bind(this.sdpSender, this);
-      this.sendMessage = __bind(this.sendMessage, this);
-      this.sendAnswer = __bind(this.sendAnswer, this);
-      this.sendOffer = __bind(this.sendOffer, this);
-      this.setupRoom = __bind(this.setupRoom, this);
-      this.setupDistributor = __bind(this.setupDistributor, this);
-      this.setupPeerConnection = __bind(this.setupPeerConnection, this);
-      this.generateIceOptions = __bind(this.generateIceOptions, this);
-      this.toggleMute = __bind(this.toggleMute, this);
-      this.hasAudio = __bind(this.hasAudio, this);
-      this.getStream = __bind(this.getStream, this);
+      this.mozillaCheckAddStream = bind(this.mozillaCheckAddStream, this);
+      this.oaError = bind(this.oaError, this);
+      this.sdpSender = bind(this.sdpSender, this);
+      this.sendMessage = bind(this.sendMessage, this);
+      this.sendAnswer = bind(this.sendAnswer, this);
+      this.sendOffer = bind(this.sendOffer, this);
+      this.setupRoom = bind(this.setupRoom, this);
+      this.setupDistributor = bind(this.setupDistributor, this);
+      this.setupPeerConnection = bind(this.setupPeerConnection, this);
+      this.generateIceOptions = bind(this.generateIceOptions, this);
+      this.toggleMute = bind(this.toggleMute, this);
+      this.getStream = bind(this.getStream, this);
       this.muted = false;
       this.local = false;
       RemotePeer.__super__.constructor.call(this, id, status);
@@ -690,10 +684,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     RemotePeer.prototype.getStream = function() {
       return this.remoteStream;
-    };
-
-    RemotePeer.prototype.hasAudio = function() {
-      return this.remoteStream && (palava.browser.checkForPartialSupport() || this.remoteStream.getAudioTracks().length);
     };
 
     RemotePeer.prototype.toggleMute = function() {
@@ -721,7 +711,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     RemotePeer.prototype.setupPeerConnection = function(offers) {
-      var channel, label, options, registerChannel, _ref;
+      var channel, label, options, ref, registerChannel;
       this.peerConnection = new palava.browser.PeerConnection(this.generateIceOptions(), palava.browser.getPeerConnectionOptions());
       this.peerConnection.onicecandidate = (function(_this) {
         return function(event) {
@@ -774,9 +764,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           };
         })(this);
         if (offers) {
-          _ref = this.room.options.dataChannels;
-          for (label in _ref) {
-            options = _ref[label];
+          ref = this.room.options.dataChannels;
+          for (label in ref) {
+            options = ref[label];
             channel = this.peerConnection.createDataChannel(label, options);
             channel.onopen = function() {
               return registerChannel(this);
@@ -956,29 +946,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }).call(this);
 (function() {
   var palava,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   palava = this.palava;
 
-  palava.Room = (function(_super) {
-    __extends(Room, _super);
+  palava.Room = (function(superClass) {
+    extend(Room, superClass);
 
     function Room(roomId, channel, userMedia, options) {
       if (options == null) {
         options = {};
       }
-      this.getAllPeers = __bind(this.getAllPeers, this);
-      this.getRemotePeers = __bind(this.getRemotePeers, this);
-      this.getLocalPeer = __bind(this.getLocalPeer, this);
-      this.getPeerById = __bind(this.getPeerById, this);
-      this.leave = __bind(this.leave, this);
-      this.join = __bind(this.join, this);
-      this.setupDistributor = __bind(this.setupDistributor, this);
-      this.setupOptions = __bind(this.setupOptions, this);
-      this.setupChannel = __bind(this.setupChannel, this);
-      this.setupUserMedia = __bind(this.setupUserMedia, this);
+      this.getAllPeers = bind(this.getAllPeers, this);
+      this.getRemotePeers = bind(this.getRemotePeers, this);
+      this.getLocalPeer = bind(this.getLocalPeer, this);
+      this.getPeerById = bind(this.getPeerById, this);
+      this.leave = bind(this.leave, this);
+      this.join = bind(this.join, this);
+      this.setupDistributor = bind(this.setupDistributor, this);
+      this.setupOptions = bind(this.setupOptions, this);
+      this.setupChannel = bind(this.setupChannel, this);
+      this.setupUserMedia = bind(this.setupUserMedia, this);
       this.id = roomId;
       this.userMedia = userMedia;
       this.channel = channel;
@@ -1027,21 +1017,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     Room.prototype.setupOptions = function() {
-      var _base, _base1;
-      (_base = this.options).joinTimeout || (_base.joinTimeout = 1000);
-      return (_base1 = this.options).ownStatus || (_base1.ownStatus = {});
+      var base, base1;
+      (base = this.options).joinTimeout || (base.joinTimeout = 1000);
+      return (base1 = this.options).ownStatus || (base1.ownStatus = {});
     };
 
     Room.prototype.setupDistributor = function() {
       this.distributor = new palava.Distributor(this.channel);
       this.distributor.on('joined_room', (function(_this) {
         return function(msg) {
-          var newPeer, offers, peer, _i, _len, _ref;
+          var i, len, newPeer, offers, peer, ref;
           clearTimeout(_this.joinCheckTimeout);
           new palava.LocalPeer(msg.own_id, _this.options.ownStatus, _this);
-          _ref = msg.peers;
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            peer = _ref[_i];
+          ref = msg.peers;
+          for (i = 0, len = ref.length; i < len; i++) {
+            peer = ref[i];
             offers = !palava.browser.isChrome();
             newPeer = new palava.RemotePeer(peer.peer_id, peer.status, _this, offers);
           }
@@ -1069,7 +1059,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     Room.prototype.join = function(status) {
-      var key, _base, _i, _len;
+      var base, i, key, len;
       if (status == null) {
         status = {};
       }
@@ -1079,11 +1069,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           return _this.leave();
         };
       })(this)), this.options.joinTimeout);
-      for (_i = 0, _len = status.length; _i < _len; _i++) {
-        key = status[_i];
+      for (i = 0, len = status.length; i < len; i++) {
+        key = status[i];
         this.options.ownStatus[key] = status[key];
       }
-      (_base = this.options.ownStatus).user_agent || (_base.user_agent = palava.browser.getUserAgent());
+      (base = this.options.ownStatus).user_agent || (base.user_agent = palava.browser.getUserAgent());
       return this.distributor.send({
         event: 'join_room',
         room_id: this.id,
@@ -1110,14 +1100,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     Room.prototype.getAllPeers = function(allowLocal) {
-      var id, peer, peers, _ref;
+      var id, peer, peers, ref;
       if (allowLocal == null) {
         allowLocal = true;
       }
       peers = [];
-      _ref = this.peers;
-      for (id in _ref) {
-        peer = _ref[id];
+      ref = this.peers;
+      for (id in ref) {
+        peer = ref[id];
         if (allowLocal || !peer.local) {
           peers.push(peer);
         }
@@ -1132,26 +1122,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }).call(this);
 (function() {
   var palava,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   palava = this.palava;
 
-  palava.WebSocketChannel = (function(_super) {
-    __extends(WebSocketChannel, _super);
+  palava.WebSocketChannel = (function(superClass) {
+    extend(WebSocketChannel, superClass);
 
     function WebSocketChannel(address) {
-      this.close = __bind(this.close, this);
-      this.send = __bind(this.send, this);
-      this.setupEvents = __bind(this.setupEvents, this);
-      this.sendMessages = __bind(this.sendMessages, this);
+      this.close = bind(this.close, this);
+      this.send = bind(this.send, this);
+      this.setupEvents = bind(this.setupEvents, this);
+      this.sendMessages = bind(this.sendMessages, this);
       this.reached = false;
       this.socket = new WebSocket(address);
       this.messagesToDeliverOnConnect = [];
+      this.setupEvents();
       this.socket.onopen = (function(_this) {
         return function(handshake) {
-          _this.setupEvents();
           _this.sendMessages();
           return _this.emit('open', handshake);
         };
@@ -1159,10 +1149,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
 
     WebSocketChannel.prototype.sendMessages = function() {
-      var msg, _i, _len, _ref;
-      _ref = this.messagesToDeliverOnConnect;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        msg = _ref[_i];
+      var i, len, msg, ref;
+      ref = this.messagesToDeliverOnConnect;
+      for (i = 0, len = ref.length; i < len; i++) {
+        msg = ref[i];
         this.socket.send(msg);
       }
       return this.messagesToDeliverOnConnect = [];
@@ -1171,11 +1161,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     WebSocketChannel.prototype.setupEvents = function() {
       this.socket.onmessage = (function(_this) {
         return function(msg) {
-          var SyntaxError;
+          var SyntaxError, error;
           try {
             return _this.emit('message', JSON.parse(msg.data));
-          } catch (_error) {
-            SyntaxError = _error;
+          } catch (error) {
+            SyntaxError = error;
             return _this.emit('error_invalid_json', msg);
           }
         };
@@ -1226,24 +1216,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 }).call(this);
 (function() {
   var palava,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+    bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   palava = this.palava;
 
-  palava.Session = (function(_super) {
-    __extends(Session, _super);
+  palava.Session = (function(superClass) {
+    extend(Session, superClass);
 
     function Session(o) {
-      this.destroy = __bind(this.destroy, this);
-      this.setupRoom = __bind(this.setupRoom, this);
-      this.getRoom = __bind(this.getRoom, this);
-      this.getUserMedia = __bind(this.getUserMedia, this);
-      this.getChannel = __bind(this.getChannel, this);
-      this.checkRequirements = __bind(this.checkRequirements, this);
-      this.assignOptions = __bind(this.assignOptions, this);
-      this.init = __bind(this.init, this);
+      this.destroy = bind(this.destroy, this);
+      this.setupRoom = bind(this.setupRoom, this);
+      this.getRoom = bind(this.getRoom, this);
+      this.getUserMedia = bind(this.getUserMedia, this);
+      this.getChannel = bind(this.getChannel, this);
+      this.checkRequirements = bind(this.checkRequirements, this);
+      this.assignOptions = bind(this.assignOptions, this);
+      this.init = bind(this.init, this);
       this.channel = null;
       this.userMedia = null;
       this.roomId = null;
@@ -1302,10 +1292,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       if (e = palava.browser.checkForWebrtcError()) {
         this.emit('webrtc_no_support', 'WebRTC is not supported by your browser', e);
         return false;
-      }
-      if (palava.browser.checkForPartialSupport()) {
-        this.emit('webrtc_partial_support');
-        return true;
       }
       return true;
     };
@@ -1443,6 +1429,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   palava.PROTOCOL_NAME = 'palava';
 
   palava.PROTOCOL_VERSION = '1.0.0';
+
+  palava.LIB_VERSION = '1.2.0-pre';
+
+  palava.LIB_COMMIT = 'v1.2.0-13-g740ba29e9d-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
