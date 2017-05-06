@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.4.0 (next)
+
+* Support updated API for releasing user media
+
 ## 1.3.0
 
 * Add version constants to palava library

@@ -35,7 +35,8 @@ class palava.Gum extends @EventEmitter
 
   releaseStream: =>
     if @stream
-      @stream.stop()
+      @stream.getAudioTracks().forEach( (track) => track.stop() )
+      @stream.getVideoTracks().forEach( (track) => track.stop() )
       @stream = null
       @emit 'stream_released', @
       true
