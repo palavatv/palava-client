@@ -1,5 +1,14 @@
 # Change Log
-## 1.2.0 (master)
+
+## 1.3.0
+
+* Add version constants to palava library
+* Peer audio stream fixes
+* Remove partial support (Chrome <26)
+* websocket: Fix setup of events to be able to detect initiation errors
+
+
+## 1.2.0
 
 * Be compatible with CommonJS, improve npm/bower packaging
 * Make clear that jQuery is a dependency

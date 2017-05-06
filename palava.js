@@ -87,7 +87,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   };
 
   palava.browser.checkForWebrtcError = function() {
-    var e, error;
+    var e;
     try {
       new palava.browser.PeerConnection({
         iceServers: []
@@ -607,7 +607,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     DataChannel.prototype.actualSend = function() {
-      var cb, data, e, error, error1, ref;
+      var cb, data, e, ref;
       if (this.channel.readyState !== 'open') {
         console.log("Not sending when not open!");
         return;
@@ -629,8 +629,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           if (typeof cb === "function") {
             cb();
           }
-        } catch (error1) {
-          e = error1;
+        } catch (error) {
+          e = error;
           console.log('Exception in write callback:', e);
         }
         this.sendBuffer.shift();
@@ -1161,7 +1161,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     WebSocketChannel.prototype.setupEvents = function() {
       this.socket.onmessage = (function(_this) {
         return function(msg) {
-          var SyntaxError, error;
+          var SyntaxError;
           try {
             return _this.emit('message', JSON.parse(msg.data));
           } catch (error) {
@@ -1430,9 +1430,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.2.0-pre';
+  palava.LIB_VERSION = '1.3.0';
 
-  palava.LIB_COMMIT = 'v1.2.0-13-g740ba29e9d-dirty';
+  palava.LIB_COMMIT = 'v1.2.0-15-g2784083089-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
