@@ -144,7 +144,7 @@ if palava.browser.isMozilla()
 else if palava.browser.isChrome()
   palava.browser.attachMediaStream = (element, stream) ->
     if stream
-      $(element).prop 'src',  webkitURL.createObjectURL stream
+      $(element).prop 'src',  URL.createObjectURL stream
     else
       $(element).each (key, el) -> el.pause()
       $(element).prop 'src', null

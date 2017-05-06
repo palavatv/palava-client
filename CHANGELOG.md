@@ -3,6 +3,7 @@
 ## 1.4.0 (next)
 
 * Support updated API for releasing user media
+* Use URL instead of webkitURL for Chrome (fixes deprecation warning)
 
 ## 1.3.0
 
