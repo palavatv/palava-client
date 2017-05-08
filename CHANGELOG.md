@@ -4,7 +4,7 @@
 
 * Support updated API for releasing user media
 * Use URL instead of webkitURL for Chrome (fixes deprecation warning)
-* Remove old WebRTC workarounds
+* Remove old WebRTC workarounds (palava.browser.patchSDP and palava.browser.fixAudio)
 
 ## 1.3.0
 

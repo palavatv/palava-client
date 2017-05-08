@@ -83,6 +83,9 @@ palava.browser.registerFullscreen = (element, eventName) ->
   else if(element[0].webkitRequestFullscreen)
     element.on eventName, -> this.webkitRequestFullscreen()
 
+palava.browser.fixAudio = (videoWrapper) ->
+  console.warn('calling palava.browser.fixAudio is no longer needed and deprecated')
+
 # TODO move this if out of the way here
 if palava.browser.isMozilla()
   palava.browser.attachMediaStream = (element, stream) ->
@@ -110,9 +113,6 @@ if palava.browser.isMozilla()
   #     doIt()
   #     waiter = now + 2000
 
-  palava.browser.fixAudio = (videoWrapper) ->
-    # nothing
-
 else if palava.browser.isChrome()
   palava.browser.attachMediaStream = (element, stream) ->
     if stream
@@ -128,14 +128,6 @@ else if palava.browser.isChrome()
   #     palava.browser.fixAudio $(from).parents('.plv-video-wrapper')
   #   else
   #     $(to).hide()
-
-  palava.browser.fixAudio = (videoWrapper) ->
-    if videoWrapper.attr('data-peer-muted') != 'true'
-      $([200, 400, 1000, 2000, 4000, 8000, 16000]).each (_, n) -> # chrome bug
-        setTimeout ( ->
-          videoWrapper.find('.plv-video-mute').click()
-          videoWrapper.find('.plv-video-mute').click()
-        ), n
 
 palava.browser.attachPeer = (element, peer) ->
   attach = () ->
