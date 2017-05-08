@@ -4,6 +4,7 @@
 
 * Support updated API for releasing user media
 * Use URL instead of webkitURL for Chrome (fixes deprecation warning)
+* Remove old WebRTC workarounds
 
 ## 1.3.0
 

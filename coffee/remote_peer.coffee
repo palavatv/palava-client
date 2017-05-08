@@ -200,7 +200,6 @@ class palava.RemotePeer extends palava.Peer
   #
   sdpSender: (event) =>
     (sdp) =>
-      sdp = palava.browser.patchSDP(sdp)
       @peerConnection.setLocalDescription(sdp)
       @distributor.send
         event: event

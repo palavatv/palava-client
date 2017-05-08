@@ -45,18 +45,6 @@ palava.browser.checkForWebrtcError = ->
 
   !( palava.browser.PeerConnection && palava.browser.IceCandidate && palava.browser.SessionDescription && palava.browser.getUserMedia)
 
-# Check which version of Chrome is present
-#
-# @return [Integer] Chrome version number
-#
-palava.browser.chromeVersion = ->
-  matches =  /Chrome\/(\d+)/i.exec(navigator.userAgent)
-  if matches
-    [_, version] = matches
-    parseInt(version)
-  else
-    false
-
 # Get WebRTC constraints argument
 #
 # @return [Object] Appropriate constraints for WebRTC
@@ -78,22 +66,6 @@ palava.browser.getPeerConnectionOptions = () ->
     {"optional": [{"DtlsSrtpKeyAgreement": true}]}
   else
     {}
-
-# Patch given SDP
-#
-# @return [String] Adjusted SDP fixing bugs and compability issues
-#
-palava.browser.patchSDP = (sdp) ->
-  return sdp if palava.browser.isChrome() && palava.browser.chromeVersion() >= 31
-  chars = [33..58].concat([60..126]).map (a) ->
-    String.fromCharCode(a)
-  key = ''
-  for i in [0...40]
-    key += chars[Math.floor(Math.random() * chars.length)]
-  crypto = 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + key + '\r\nc=IN'
-  if sdp.sdp.indexOf('a=crypto') == -1
-    sdp.sdp = sdp.sdp.replace(/c=IN/g, crypto)
-  sdp
 
 ## DOM
 
