@@ -95,24 +95,6 @@ if palava.browser.isMozilla()
       $(element).each (key, el) -> el.pause()
       $(element).prop 'mozSrcObject', null
 
-  # waiter = 0
-  # palava.browser.cloneMediaStream = (to, from) ->
-  #   # TODO: this is a very hacky way to avoid the connecting streams from colliding
-  #   now = new Date().getTime()
-  #   doIt = ->
-  #     if $(from).prop("tagName") == 'VIDEO'
-  #       $(to).prop 'mozSrcObject', from.mozSrcObject
-  #       $(to).show()
-  #       $(to)[0].play()
-  #     else
-  #       $(to).hide()
-  #   if waiter > now
-  #     setTimeout(doIt, waiter - now)
-  #     waiter = Math.max(now, waiter) + 2000
-  #   else
-  #     doIt()
-  #     waiter = now + 2000
-
 else if palava.browser.isChrome()
   palava.browser.attachMediaStream = (element, stream) ->
     if stream
@@ -120,14 +102,6 @@ else if palava.browser.isChrome()
     else
       $(element).each (key, el) -> el.pause()
       $(element).prop 'src', null
-
-  # palava.browser.cloneMediaStream = (to, from) ->
-  #   if $(from).prop("tagName") == 'VIDEO'
-  #     $(to).prop 'src', $(from).prop('src')
-  #     $(to).show()
-  #     palava.browser.fixAudio $(from).parents('.plv-video-wrapper')
-  #   else
-  #     $(to).hide()
 
 palava.browser.attachPeer = (element, peer) ->
   attach = () ->
