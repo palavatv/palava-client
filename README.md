@@ -51,10 +51,11 @@ Please report issues to the [palava Repository](https://github.com/palavatv/pala
 
 LGPLv3. Part of the [palava project](https://palava.tv).
 
-    Copyright (C) 2013 Jan Lelis       jan@signaling.io
-    Copyright (C) 2013 Marius Melzer   marius@signaling.io
-    Copyright (C) 2013 Stephan Thamm   thammi@chaossource.net
-    Copyright (C) 2013 Kilian Ulbrich  kilian@innovailable.eu
+    Copyright (C) 2013 Jan Lelis          mail@janlelis.de
+    Copyright (C) 2013 Marius Melzer      marius@rasumi.net
+    Copyright (C) 2013 Stephan Thamm      stephan@innovailable.eu
+    Copyright (C) 2013 Kilian Ulbrich     kilian@innovailable.eu
+    Copyright (C) 2014-2017 palava e. V.  contact@palava.tv
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
