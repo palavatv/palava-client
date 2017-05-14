@@ -1,11 +1,12 @@
 
 /*
-palava v1.2.0-pre | LGPL | https://github.com/palavatv/palava-client
+palava v1.4.0 | LGPL | https://github.com/palavatv/palava-client
 
-Copyright (C) 2013 Jan Lelis       jan@signaling.io
-Copyright (C) 2013 Marius Melzer   marius@signaling.io
-Copyright (C) 2013 Stephan Thamm   thammi@chaossource.net
-Copyright (C) 2013 Kilian Ulbrich  kilian@innovailable.eu
+Copyright (C) 2013 Jan Lelis          mail@janlelis.de
+Copyright (C) 2013 Marius Melzer      marius@rasumi.net
+Copyright (C) 2013 Stephan Thamm      stephan@innovailable.eu
+Copyright (C) 2013 Kilian Ulbrich     kilian@innovailable.eu
+Copyright (C) 2014-2017 palava e. V.  contact@palava.tv
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -99,17 +100,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     return !(palava.browser.PeerConnection && palava.browser.IceCandidate && palava.browser.SessionDescription && palava.browser.getUserMedia);
   };
 
-  palava.browser.chromeVersion = function() {
-    var _, matches, version;
-    matches = /Chrome\/(\d+)/i.exec(navigator.userAgent);
-    if (matches) {
-      _ = matches[0], version = matches[1];
-      return parseInt(version);
-    } else {
-      return false;
-    }
-  };
-
   palava.browser.getConstraints = function() {
     var constraints;
     constraints = {
@@ -136,33 +126,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
   };
 
-  palava.browser.patchSDP = function(sdp) {
-    var chars, crypto, i, j, k, key, l, results, results1;
-    if (palava.browser.isChrome() && palava.browser.chromeVersion() >= 31) {
-      return sdp;
-    }
-    chars = (function() {
-      results1 = [];
-      for (k = 33; k <= 58; k++){ results1.push(k); }
-      return results1;
-    }).apply(this).concat((function() {
-      results = [];
-      for (j = 60; j <= 126; j++){ results.push(j); }
-      return results;
-    }).apply(this)).map(function(a) {
-      return String.fromCharCode(a);
-    });
-    key = '';
-    for (i = l = 0; l < 40; i = ++l) {
-      key += chars[Math.floor(Math.random() * chars.length)];
-    }
-    crypto = 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:' + key + '\r\nc=IN';
-    if (sdp.sdp.indexOf('a=crypto') === -1) {
-      sdp.sdp = sdp.sdp.replace(/c=IN/g, crypto);
-    }
-    return sdp;
-  };
-
   palava.browser.registerFullscreen = function(element, eventName) {
     if (element[0].requestFullscreen) {
       return element.on(eventName, function() {
@@ -179,6 +142,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
   };
 
+  palava.browser.fixAudio = function(videoWrapper) {
+    return console.warn('calling palava.browser.fixAudio is no longer needed and deprecated');
+  };
+
   if (palava.browser.isMozilla()) {
     palava.browser.attachMediaStream = function(element, stream) {
       if (stream) {
@@ -190,26 +157,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         return $(element).prop('mozSrcObject', null);
       }
     };
-    palava.browser.fixAudio = function(videoWrapper) {};
   } else if (palava.browser.isChrome()) {
     palava.browser.attachMediaStream = function(element, stream) {
       if (stream) {
-        return $(element).prop('src', webkitURL.createObjectURL(stream));
+        return $(element).prop('src', URL.createObjectURL(stream));
       } else {
         $(element).each(function(key, el) {
           return el.pause();
         });
         return $(element).prop('src', null);
-      }
-    };
-    palava.browser.fixAudio = function(videoWrapper) {
-      if (videoWrapper.attr('data-peer-muted') !== 'true') {
-        return $([200, 400, 1000, 2000, 4000, 8000, 16000]).each(function(_, n) {
-          return setTimeout((function() {
-            videoWrapper.find('.plv-video-mute').click();
-            return videoWrapper.find('.plv-video-mute').click();
-          }), n);
-        });
       }
     };
   }
@@ -297,7 +253,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Gum.prototype.releaseStream = function() {
       if (this.stream) {
-        this.stream.stop();
+        this.stream.getAudioTracks().forEach((function(_this) {
+          return function(track) {
+            return track.stop();
+          };
+        })(this));
+        this.stream.getVideoTracks().forEach((function(_this) {
+          return function(track) {
+            return track.stop();
+          };
+        })(this));
         this.stream = null;
         this.emit('stream_released', this);
         return true;
@@ -904,7 +869,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     RemotePeer.prototype.sdpSender = function(event) {
       return (function(_this) {
         return function(sdp) {
-          sdp = palava.browser.patchSDP(sdp);
           _this.peerConnection.setLocalDescription(sdp);
           return _this.distributor.send({
             event: event,
@@ -1430,9 +1394,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.3.0';
+  palava.LIB_VERSION = '1.4.0';
 
-  palava.LIB_COMMIT = 'v1.2.0-15-g2784083089-dirty';
+  palava.LIB_COMMIT = 'v1.4.0-0-g040ad25068';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
