@@ -82,9 +82,6 @@ palava.browser.registerFullscreen = (element, eventName) ->
   else if(element[0].webkitRequestFullscreen)
     element.on eventName, -> this.webkitRequestFullscreen()
 
-palava.browser.fixAudio = (videoWrapper) ->
-  console.warn('calling palava.browser.fixAudio is no longer needed and deprecated')
-
 palava.browser.attachMediaStream = (element, stream) ->
   if stream
     $(element).prop 'srcObject',  stream
