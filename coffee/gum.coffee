@@ -18,14 +18,15 @@ class palava.Gum extends @EventEmitter
     @config.audio = true if @stream && @stream.getAudioTracks().length > 0
 
   requestStream: =>
-    palava.browser.getUserMedia.call(
-      navigator
-      , @config
-      , (stream) => # success
+    navigator.mediaDevices.getUserMedia(
+      @config
+    ).then(
+      (stream) =>
         @stream = stream
         @detectMedia()
         @emit 'stream_ready', @
-      , => # error
+    ).catch(
+      () =>
         @emit 'stream_error', @
     )
     true

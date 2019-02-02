@@ -1,5 +1,9 @@
 # Change Log
 
+## Next
+
+* Use navigator.mediaDevices
+
 ## 1.4.0
 
 * Support updated API for releasing user media

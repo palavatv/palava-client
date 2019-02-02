@@ -4,7 +4,6 @@ $ = @$
 palava.browser.PeerConnection     = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection
 palava.browser.IceCandidate       = window.mozRTCIceCandidate || window.RTCIceCandidate
 palava.browser.SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription
-palava.browser.getUserMedia       = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia
 
 # Checks whether the browser is a Firefox
 #
@@ -43,7 +42,7 @@ palava.browser.checkForWebrtcError = ->
   catch e
     return e
 
-  !( palava.browser.PeerConnection && palava.browser.IceCandidate && palava.browser.SessionDescription && palava.browser.getUserMedia)
+  !( palava.browser.PeerConnection && palava.browser.IceCandidate && palava.browser.SessionDescription && navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
 
 # Get WebRTC constraints argument
 #
@@ -86,22 +85,12 @@ palava.browser.registerFullscreen = (element, eventName) ->
 palava.browser.fixAudio = (videoWrapper) ->
   console.warn('calling palava.browser.fixAudio is no longer needed and deprecated')
 
-# TODO move this if out of the way here
-if palava.browser.isMozilla()
-  palava.browser.attachMediaStream = (element, stream) ->
-    if stream
-      $(element).prop 'srcObject',  stream
-    else
-      $(element).each (key, el) -> el.pause()
-      $(element).prop 'srcObject', null
-
-else if palava.browser.isChrome()
-  palava.browser.attachMediaStream = (element, stream) ->
-    if stream
-      $(element).prop 'src',  URL.createObjectURL stream
-    else
-      $(element).each (key, el) -> el.pause()
-      $(element).prop 'src', null
+palava.browser.attachMediaStream = (element, stream) ->
+  if stream
+    $(element).prop 'srcObject',  stream
+  else
+    $(element).each (key, el) -> el.pause()
+    $(element).prop 'srcObject', null
 
 palava.browser.attachPeer = (element, peer) ->
   attach = () ->
