@@ -14,8 +14,9 @@
         }
     ],
     "dependencies": {
-        "wolfy87-eventemitter": "~4.2.9",
-        "jquery": "~2.1.1"
+        "jquery": "~2.1.1",
+        "webrtc-adapter": "^7.2.0",
+        "wolfy87-eventemitter": "~4.2.9"
     },
     "browser": "./palava.js",
     "keywords": [
@@ -25,7 +26,7 @@
         "datachannel"
     ],
     "repository": {
-        "type" : "git",
-        "url" : "https://github.com/palavatv/palava-client.git"
+        "type": "git",
+        "url": "https://github.com/palavatv/palava-client.git"
     }
 }

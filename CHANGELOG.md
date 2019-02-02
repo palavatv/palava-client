@@ -3,6 +3,7 @@
 ## Next
 
 * Use navigator.mediaDevices
+* Remove ffshim; add adapter.js
 
 ## 1.4.0
 

@@ -10,11 +10,11 @@ This is palava's client-side WebRTC library for the browser. It enables you to c
 
 palava is written in [CoffeeScript](http://coffeescript.org/). However, if you want to only use it (not hack on it), just use option 1 or 2 to include the compiled JavaScript version:
 
-### 1) bower
+### 1) npm
 
-    $ bower install palava
+    $ npm install palava
 
-This will install palava and its dependencies into a sub directory. Include all (palava, jQuery, eventEmitter) into your source file. For more information on bower, see [bower.io](http://bower.io/).
+This will install palava and its dependencies into a sub directory. You'll need to include all dependencies (palava, jQuery, eventEmitter, adapter.js) into your source file. 
 
 ### 2) JS bundle file
 
@@ -22,14 +22,9 @@ Include a direct link to the source file into your HTML:
 
     <script src="https://path/to/palava.bundle.js" type="text/javascript"></script>
 
-### 3) Browserify
+### 3) Sprockets/Middleman
 
-See http://browserify.org
-
-### 4) Sprockets/Middleman
-
-Alternatively, you can directly include the coffee files into your project. See the [palava portal](https://github.com/palavatv/palava-portal) for how it is done.
-
+Alternatively, you can directly include the coffee files into your project. See the [palava portal](https://github.com/palavatv/palava-portal) for an example how to do so.
 
 ## Documentation
 
@@ -40,7 +35,6 @@ A [minimal example](https://gist.github.com/thammi/9005857) using JQuery is
 available to illustrate the basic workflow.
 
 You can also take a look at the [portal](https://github.com/palavatv/palava-portal) web application to get an example of how you can use this library.
-
 
 ## Credits
 
