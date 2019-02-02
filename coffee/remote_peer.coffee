@@ -65,7 +65,7 @@ class palava.RemotePeer extends palava.Peer
   # @nodoc
   #
   setupPeerConnection: (offers) =>
-    @peerConnection = new palava.browser.PeerConnection(@generateIceOptions(), palava.browser.getPeerConnectionOptions())
+    @peerConnection = new RTCPeerConnection(@generateIceOptions(), palava.browser.getPeerConnectionOptions())
 
     @peerConnection.onicecandidate = (event) =>
       if event.candidate
@@ -136,16 +136,16 @@ class palava.RemotePeer extends palava.Peer
       @emit 'left'
 
     @distributor.on 'ice_candidate', (msg) =>
-      candidate = new palava.browser.IceCandidate({candidate: msg.candidate, sdpMLineIndex: msg.sdpmlineindex, sdpMid: msg.sdpmid})
+      candidate = new RTCIceCandidate({candidate: msg.candidate, sdpMLineIndex: msg.sdpmlineindex, sdpMid: msg.sdpmid})
       @peerConnection.addIceCandidate(candidate)
 
     @distributor.on 'offer', (msg) =>
-      @peerConnection.setRemoteDescription(new palava.browser.SessionDescription(msg.sdp))
+      @peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
       @emit 'offer' # ignored so far
       @sendAnswer()
 
     @distributor.on 'answer', (msg) =>
-      @peerConnection.setRemoteDescription(new palava.browser.SessionDescription(msg.sdp))
+      @peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
       @emit 'answer' # ignored so far
 
     @distributor.on 'peer_updated_status', (msg) =>

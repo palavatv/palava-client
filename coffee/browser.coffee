@@ -1,10 +1,6 @@
 palava = @palava
 $ = @$
 
-palava.browser.PeerConnection     = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection
-palava.browser.IceCandidate       = window.mozRTCIceCandidate || window.RTCIceCandidate
-palava.browser.SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription
-
 # Checks whether the browser is a Firefox
 #
 # @return [Boolean] `true` if Firefox
@@ -38,11 +34,11 @@ palava.browser.getUserAgent = ->
 #
 palava.browser.checkForWebrtcError = ->
   try
-    new palava.browser.PeerConnection({iceServers: []})
+    new window.RTCPeerConnection({iceServers: []})
   catch e
     return e
 
-  !( palava.browser.PeerConnection && palava.browser.IceCandidate && palava.browser.SessionDescription && navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
+  !( window.RTCPeerConnection && window.RTCIceCandidate && window.RTCSessionDescription && navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
 
 # Get WebRTC constraints argument
 #

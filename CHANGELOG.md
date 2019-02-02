@@ -3,7 +3,7 @@
 ## Next
 
 * Use navigator.mediaDevices
-* Remove ffshim; add adapter.js
+* Add adapter.js and let it handle shims
 
 ## 1.4.0
 
