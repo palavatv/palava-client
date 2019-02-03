@@ -57,14 +57,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   $ = this.$;
 
-  palava.browser.PeerConnection = window.PeerConnection || window.webkitPeerConnection00 || window.webkitRTCPeerConnection || window.mozRTCPeerConnection;
-
-  palava.browser.IceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
-
-  palava.browser.SessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
-
-  palava.browser.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-
   palava.browser.isMozilla = function() {
     if (window.mozRTCPeerConnection) {
       return true;
@@ -90,14 +82,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   palava.browser.checkForWebrtcError = function() {
     var e;
     try {
-      new palava.browser.PeerConnection({
+      new window.RTCPeerConnection({
         iceServers: []
       });
     } catch (error) {
       e = error;
       return e;
     }
-    return !(palava.browser.PeerConnection && palava.browser.IceCandidate && palava.browser.SessionDescription && palava.browser.getUserMedia);
+    return !(window.RTCPeerConnection && window.RTCIceCandidate && window.RTCSessionDescription && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
   };
 
   palava.browser.getConstraints = function() {
@@ -142,33 +134,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     }
   };
 
-  palava.browser.fixAudio = function(videoWrapper) {
-    return console.warn('calling palava.browser.fixAudio is no longer needed and deprecated');
+  palava.browser.attachMediaStream = function(element, stream) {
+    if (stream) {
+      return $(element).prop('srcObject', stream);
+    } else {
+      $(element).each(function(key, el) {
+        return el.pause();
+      });
+      return $(element).prop('srcObject', null);
+    }
   };
-
-  if (palava.browser.isMozilla()) {
-    palava.browser.attachMediaStream = function(element, stream) {
-      if (stream) {
-        return $(element).prop('mozSrcObject', stream);
-      } else {
-        $(element).each(function(key, el) {
-          return el.pause();
-        });
-        return $(element).prop('mozSrcObject', null);
-      }
-    };
-  } else if (palava.browser.isChrome()) {
-    palava.browser.attachMediaStream = function(element, stream) {
-      if (stream) {
-        return $(element).prop('src', URL.createObjectURL(stream));
-      } else {
-        $(element).each(function(key, el) {
-          return el.pause();
-        });
-        return $(element).prop('src', null);
-      }
-    };
-  }
 
   palava.browser.attachPeer = function(element, peer) {
     var attach;
@@ -233,13 +208,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     Gum.prototype.requestStream = function() {
-      palava.browser.getUserMedia.call(navigator, this.config, (function(_this) {
+      navigator.mediaDevices.getUserMedia(this.config).then((function(_this) {
         return function(stream) {
           _this.stream = stream;
           _this.detectMedia();
           return _this.emit('stream_ready', _this);
         };
-      })(this), (function(_this) {
+      })(this))["catch"]((function(_this) {
         return function() {
           return _this.emit('stream_error', _this);
         };
@@ -677,7 +652,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     RemotePeer.prototype.setupPeerConnection = function(offers) {
       var channel, label, options, ref, registerChannel;
-      this.peerConnection = new palava.browser.PeerConnection(this.generateIceOptions(), palava.browser.getPeerConnectionOptions());
+      this.peerConnection = new RTCPeerConnection(this.generateIceOptions(), palava.browser.getPeerConnectionOptions());
       this.peerConnection.onicecandidate = (function(_this) {
         return function(event) {
           if (event.candidate) {
@@ -764,7 +739,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.distributor.on('ice_candidate', (function(_this) {
         return function(msg) {
           var candidate;
-          candidate = new palava.browser.IceCandidate({
+          candidate = new RTCIceCandidate({
             candidate: msg.candidate,
             sdpMLineIndex: msg.sdpmlineindex,
             sdpMid: msg.sdpmid
@@ -774,14 +749,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       })(this));
       this.distributor.on('offer', (function(_this) {
         return function(msg) {
-          _this.peerConnection.setRemoteDescription(new palava.browser.SessionDescription(msg.sdp));
+          _this.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp));
           _this.emit('offer');
           return _this.sendAnswer();
         };
       })(this));
       this.distributor.on('answer', (function(_this) {
         return function(msg) {
-          _this.peerConnection.setRemoteDescription(new palava.browser.SessionDescription(msg.sdp));
+          _this.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp));
           return _this.emit('answer');
         };
       })(this));
@@ -1396,7 +1371,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.LIB_VERSION = '1.4.0';
 
-  palava.LIB_COMMIT = 'v1.4.0-0-g040ad25068';
+  palava.LIB_COMMIT = 'v1.4.0-6-g912e5d77e1';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
