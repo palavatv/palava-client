@@ -1369,9 +1369,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.4.0';
+  palava.LIB_VERSION = '1.5.0';
 
-  palava.LIB_COMMIT = 'v1.4.0-6-g912e5d77e1';
+  palava.LIB_COMMIT = 'v1.4.0-7-g7417131d09-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";

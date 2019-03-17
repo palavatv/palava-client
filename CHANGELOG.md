@@ -1,9 +1,10 @@
 # Change Log
 
-## Next
+## 1.5.0
 
 * Use navigator.mediaDevices
 * Add adapter.js and let it handle shims
+* Update jQuery to latest 2.x (plan is to remove it)
 
 ## 1.4.0
 

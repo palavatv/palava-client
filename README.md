@@ -14,7 +14,7 @@ palava is written in [CoffeeScript](http://coffeescript.org/). However, if you w
 
     $ npm install palava
 
-This will install palava and its dependencies into a sub directory. You'll need to include all dependencies (palava, jQuery, eventEmitter, adapter.js) into your source file. 
+This will install palava and its dependencies into a sub directory. You'll need to include all dependencies (palava, jQuery, eventEmitter, adapter.js) into your source file.
 
 ### 2) JS bundle file
 
@@ -40,11 +40,11 @@ You can also take a look at the [portal](https://github.com/palavatv/palava-port
 
 LGPLv3. Part of the [palava project](https://palava.tv).
 
+    Copyright (C) 2014-2019 palava e. V.  contact@palava.tv
     Copyright (C) 2013 Jan Lelis          mail@janlelis.de
     Copyright (C) 2013 Marius Melzer      marius@rasumi.net
     Copyright (C) 2013 Stephan Thamm      stephan@innovailable.eu
     Copyright (C) 2013 Kilian Ulbrich     kilian@innovailable.eu
-    Copyright (C) 2014-2017 palava e. V.  contact@palava.tv
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by

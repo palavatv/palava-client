@@ -1,7 +1,7 @@
 {
     "name": "palava-client",
     "description": "CoffeeScript library for WebRTC",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "author": {
         "name": "palava e. V.",
         "email": "contact@palava.tv",
@@ -14,7 +14,7 @@
         }
     ],
     "dependencies": {
-        "jquery": "~2.1.1",
+        "jquery": "~2.2.4",
         "webrtc-adapter": "^7.2.0",
         "wolfy87-eventemitter": "~4.2.9"
     },
