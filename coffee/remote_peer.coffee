@@ -52,10 +52,10 @@ class palava.RemotePeer extends palava.Peer
   generateIceOptions: =>
     options = []
     if @room.options.stun
-      options.push({url: @room.options.stun})
+      options.push({urls: [@room.options.stun]})
     if @room.options.turn
       options.push
-        url: @room.options.turn.url
+        urls: [@room.options.turn.url]
         username: @room.options.turn.username
         credential: @room.options.turn.password
     {iceServers: options}

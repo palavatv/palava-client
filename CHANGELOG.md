@@ -1,5 +1,9 @@
 # Change Log
 
+## Next
+
+* Fix ice url deprecation warning
+
 ## 1.5.0
 
 * Use navigator.mediaDevices
