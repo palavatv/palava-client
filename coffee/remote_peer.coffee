@@ -181,13 +181,11 @@ class palava.RemotePeer extends palava.Peer
   #
   sendOffer: =>
     @peerConnection.createOffer  @sdpSender('offer'),  @oaError, palava.browser.getConstraints()
-    @mozillaCheckAddStream()
 
   # Sends the answer to create a peer connection
   #
   sendAnswer: =>
     @peerConnection.createAnswer @sdpSender('answer'), @oaError, palava.browser.getConstraints()
-    @mozillaCheckAddStream()
 
   sendMessage: (data) =>
     @distributor.send
@@ -211,17 +209,3 @@ class palava.RemotePeer extends palava.Peer
   #
   oaError: (error) =>
     @emit 'oaerror', error
-
-  # Workaround for a Firefox bug
-  #
-  # @nodoc
-  #
-  mozillaCheckAddStream: =>
-    if palava.browser.isMozilla() # TODO research remove / bug ticket
-      timeouts = $([100, 200, 400, 1000, 2000, 4000, 8000, 12000, 16000]).map (_, n) =>
-        setTimeout ( =>
-          if remoteTrack = ( @peerConnection.remoteStreams && @peerConnection.remoteStreams[0] ) ||
-                           ( @peerConnection.getRemoteStreams() && @peerConnection.getRemoteStreams()[0] )
-            timeouts.each (_, t) => clearTimeout(t)
-            @peerConnection.onaddstream({stream: remoteTrack})
-        ), n
