@@ -596,7 +596,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     extend(RemotePeer, superClass);
 
     function RemotePeer(id, status, room, offers) {
-      this.mozillaCheckAddStream = bind(this.mozillaCheckAddStream, this);
       this.oaError = bind(this.oaError, this);
       this.sdpSender = bind(this.sdpSender, this);
       this.sendMessage = bind(this.sendMessage, this);
@@ -635,12 +634,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       options = [];
       if (this.room.options.stun) {
         options.push({
-          url: this.room.options.stun
+          urls: [this.room.options.stun]
         });
       }
       if (this.room.options.turn) {
         options.push({
-          url: this.room.options.turn.url,
+          urls: [this.room.options.turn.url],
           username: this.room.options.turn.username,
           credential: this.room.options.turn.password
         });
@@ -665,9 +664,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           }
         };
       })(this);
-      this.peerConnection.onaddstream = (function(_this) {
+      this.peerConnection.ontrack = (function(_this) {
         return function(event) {
-          _this.remoteStream = event.stream;
+          _this.remoteStream = event.streams[0];
           _this.ready = true;
           return _this.emit('stream_ready');
         };
@@ -739,6 +738,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.distributor.on('ice_candidate', (function(_this) {
         return function(msg) {
           var candidate;
+          if (msg.candidate === "") {
+            return;
+          }
           candidate = new RTCIceCandidate({
             candidate: msg.candidate,
             sdpMLineIndex: msg.sdpmlineindex,
@@ -825,13 +827,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     RemotePeer.prototype.sendOffer = function() {
-      this.peerConnection.createOffer(this.sdpSender('offer'), this.oaError, palava.browser.getConstraints());
-      return this.mozillaCheckAddStream();
+      return this.peerConnection.createOffer(this.sdpSender('offer'), this.oaError, palava.browser.getConstraints());
     };
 
     RemotePeer.prototype.sendAnswer = function() {
-      this.peerConnection.createAnswer(this.sdpSender('answer'), this.oaError, palava.browser.getConstraints());
-      return this.mozillaCheckAddStream();
+      return this.peerConnection.createAnswer(this.sdpSender('answer'), this.oaError, palava.browser.getConstraints());
     };
 
     RemotePeer.prototype.sendMessage = function(data) {
@@ -855,27 +855,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     RemotePeer.prototype.oaError = function(error) {
       return this.emit('oaerror', error);
-    };
-
-    RemotePeer.prototype.mozillaCheckAddStream = function() {
-      var timeouts;
-      if (palava.browser.isMozilla()) {
-        return timeouts = $([100, 200, 400, 1000, 2000, 4000, 8000, 12000, 16000]).map((function(_this) {
-          return function(_, n) {
-            return setTimeout((function() {
-              var remoteTrack;
-              if (remoteTrack = (_this.peerConnection.remoteStreams && _this.peerConnection.remoteStreams[0]) || (_this.peerConnection.getRemoteStreams() && _this.peerConnection.getRemoteStreams()[0])) {
-                timeouts.each(function(_, t) {
-                  return clearTimeout(t);
-                });
-                return _this.peerConnection.onaddstream({
-                  stream: remoteTrack
-                });
-              }
-            }), n);
-          };
-        })(this));
-      }
     };
 
     return RemotePeer;
@@ -1369,9 +1348,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.5.0';
+  palava.LIB_VERSION = '1.6.0';
 
-  palava.LIB_COMMIT = 'v1.4.0-7-g7417131d09-dirty';
+  palava.LIB_COMMIT = 'v1.5.0-7-gbf2ca79e39-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";

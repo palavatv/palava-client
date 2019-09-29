@@ -1,6 +1,6 @@
 # Change Log
 
-## Next
+## 1.6.0
 
 * Remove old firefox hack
 * Update internal webrtc api:
