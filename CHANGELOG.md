@@ -2,7 +2,11 @@
 
 ## Next
 
-* Fix ice url deprecation warning
+* Remove old firefox hack
+* Update internal webrtc api:
+  * Fix ice url deprecation warning
+  * Replace onaddstream api with new ontrack api
+  * Drop empty ice candidates
 
 ## 1.5.0
 
