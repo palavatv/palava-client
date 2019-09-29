@@ -75,8 +75,8 @@ class palava.RemotePeer extends palava.Peer
           sdpmid: event.candidate.sdpMid
           candidate: event.candidate.candidate
 
-    @peerConnection.onaddstream = (event) =>
-      @remoteStream = event.stream
+    @peerConnection.ontrack = (event) =>
+      @remoteStream = event.streams[0]
       @ready = true
       @emit 'stream_ready'
 
