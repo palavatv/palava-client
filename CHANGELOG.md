@@ -7,6 +7,7 @@
   * Fix ice url deprecation warning
   * Replace onaddstream api with new ontrack api
   * Drop empty ice candidates
+  * Update jQuery to 3.x
 
 ## 1.5.0
 
