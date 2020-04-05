@@ -1,5 +1,9 @@
 # Change Log
 
+## Next
+
+* Replace peer's stream_error event with ice connection_* events
+
 ## 1.6.0
 
 * Remove old firefox hack

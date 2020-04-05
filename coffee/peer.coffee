@@ -15,6 +15,8 @@ class palava.Peer extends @EventEmitter
     @status = status || {}
     @status.user_agent ||= palava.browser.getUserAgent()
     @joinTime = (new Date()).getTime()
+    @ready  = false
+    @error  = null
 
   # Checks whether the participant is sending audio
   #

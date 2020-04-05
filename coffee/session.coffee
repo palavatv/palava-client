@@ -110,8 +110,12 @@ class palava.Session extends @EventEmitter
     @room.on 'peer_answer',             (p) => @emit 'peer_answer', p
     @room.on 'peer_update',             (p) => @emit 'peer_update', p
     @room.on 'peer_stream_ready',       (p) => @emit 'peer_stream_ready', p
-    @room.on 'peer_stream_error',       (p) => @emit 'peer_stream_error', p
     @room.on 'peer_stream_removed',     (p) => @emit 'peer_stream_removed', p
+    @room.on 'peer_connection_pending',      (p) => @emit 'peer_connection_pending', p
+    @room.on 'peer_connection_established',  (p) => @emit 'peer_connection_established', p
+    @room.on 'peer_connection_failed',       (p) => @emit 'peer_connection_failed', p
+    @room.on 'peer_connection_disconnected', (p) => @emit 'peer_connection_disconnected', p
+    @room.on 'peer_connection_closed',       (p) => @emit 'peer_connection_closed', p
     @room.on 'peer_left',               (p) => @emit 'peer_left', p
     @room.on 'peer_channel_ready',      (p, n, c) => @emit 'peer_channel_ready', p, n, c
     @room.on 'signaling_shutdown',      (p) => @emit 'signaling_shutdown', p

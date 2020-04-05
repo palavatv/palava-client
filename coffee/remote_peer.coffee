@@ -87,8 +87,24 @@ class palava.RemotePeer extends palava.Peer
 
     @peerConnection.oniceconnectionstatechange = (event) =>
       connectionState = event.target.iceConnectionState
-      if connectionState == 'failed'
-        @emit 'stream_error'
+
+      switch connectionState
+        when 'connecting'
+          @emit 'connection_pending'
+        when 'connected'
+          @emit 'connection_established'
+        when 'failed'
+          @ready = false
+          @error = "connection_failed"
+          @emit 'connection_failed'
+        when 'disconnected'
+          @ready = false
+          @error = "connection_disconnected"
+          @emit 'connection_disconnected'
+        when 'closed'
+          @error = "connection_closed"
+          @ready = false
+          @emit 'connection_closed'
 
     # TODO onsignalingstatechange
 
@@ -172,8 +188,12 @@ class palava.RemotePeer extends palava.Peer
     @on 'answer',         => @room.emit('peer_answer', @)
     @on 'update',         => @room.emit('peer_update', @)
     @on 'stream_ready',   => @room.emit('peer_stream_ready', @)
-    @on 'stream_error',   => @room.emit('peer_stream_error', @)
     @on 'stream_removed', => @room.emit('peer_stream_removed', @)
+    @on 'connection_pending',      => @room.emit('peer_connection_pending', @)
+    @on 'connection_established',  => @room.emit('peer_connection_established', @)
+    @on 'connection_failed',       => @room.emit('peer_connection_failed', @)
+    @on 'connection_disconnected', => @room.emit('peer_connection_disconnected', @)
+    @on 'connection_closed',       => @room.emit('peer_connection_closed', @)
     @on 'oaerror',    (e) => @room.emit('peer_oaerror', @, e)
     @on 'channel_ready', (n, c) => @room.emit('peer_channel_ready', @, n, c)
 
