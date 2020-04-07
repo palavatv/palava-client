@@ -14,7 +14,6 @@
         }
     ],
     "dependencies": {
-        "jquery": "~3.4.1",
         "webrtc-adapter": "^7.2.0",
         "wolfy87-eventemitter": "~4.2.9"
     },

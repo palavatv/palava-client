@@ -4,7 +4,6 @@
 #= require ./data_channel
 
 palava = @palava
-$ = @$
 
 # TODO pack 'peer left' into 'send_to_peer' on server side
 

@@ -14,7 +14,7 @@ Choose any of the following options
 
     $ npm install palava-client
 
-This will install palava and its dependencies into a sub directory. You'll need to include all dependencies (palava, jQuery, eventEmitter, adapter.js) into your source file.
+This will install palava and its dependencies into a sub directory. You'll need to include all dependencies (palava, eventEmitter, adapter.js) into your source file.
 
 ### 2) JS bundle file
 
@@ -34,8 +34,9 @@ Alternatively, you can directly include the coffee files into your project. See 
 
 LGPLv3. Part of the [palava project](https://palava.tv).
 
-    Copyright (C) 2014-2019 palava e. V.  contact@palava.tv
-    Copyright (C) 2013 Jan Lelis          mail@janlelis.de
+    Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
+
+    Copyright (C) 2013 Jan Lelis          hi@ruby.consulting
     Copyright (C) 2013 Marius Melzer      marius@rasumi.net
     Copyright (C) 2013 Stephan Thamm      stephan@innovailable.eu
     Copyright (C) 2013 Kilian Ulbrich     kilian@innovailable.eu

@@ -3,6 +3,7 @@
 ## Next
 
 * Replace peer's stream_error event with ice connection_* events
+* Remove jQuery
 
 ## 1.6.0
 

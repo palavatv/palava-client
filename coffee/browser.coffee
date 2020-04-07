@@ -1,5 +1,4 @@
 palava = @palava
-$ = @$
 
 # Checks whether the browser is a Firefox
 #
@@ -66,33 +65,32 @@ palava.browser.getPeerConnectionOptions = () ->
 
 # Activates fullscreen on the given event
 #
-# @param element [JQuery Elements] Element to put into fullscreen
+# @param element [DOM Elements] Element to put into fullscreen
 # @param eventName [String] Event name on which to activate fullscreen
 #
 palava.browser.registerFullscreen = (element, eventName) ->
-  # TODO: provide only function to activate fullscreen to reduce complexity and widen use cases of helper?
-  if(element[0].requestFullscreen)
-    element.on eventName, -> this.requestFullscreen()
-  else if(element[0].mozRequestFullScreen)
-    element.on eventName, -> this.mozRequestFullScreen()
-  else if(element[0].webkitRequestFullscreen)
-    element.on eventName, -> this.webkitRequestFullscreen()
+  if(element.requestFullscreen)
+    element.addEventListener eventName, -> this.requestFullscreen()
+  else if(element.mozRequestFullScreen)
+    element.addEventListener eventName, -> this.mozRequestFullScreen()
+  else if(element.webkitRequestFullscreen)
+    element.addEventListener eventName, -> this.webkitRequestFullscreen()
 
 palava.browser.attachMediaStream = (element, stream) ->
   if stream
-    $(element).prop 'srcObject',  stream
+    element.srcObject = stream
   else
-    $(element).each (key, el) -> el.pause()
-    $(element).prop 'srcObject', null
+    element.pause()
+    element.srcObject = null
 
 palava.browser.attachPeer = (element, peer) ->
   attach = () ->
     palava.browser.attachMediaStream(element, peer.getStream())
 
     if peer.isLocal()
-      element.attr('muted', true)
+      element.setAttribute('muted', true)
 
-    element[0].play()
+    element.play()
 
   if peer.getStream()
     attach()
