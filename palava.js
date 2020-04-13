@@ -1,6 +1,6 @@
 
 /*
-palava v1.4.0 | LGPL | https://github.com/palavatv/palava-client
+palava v1.7.1 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 
@@ -42,12 +42,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     this.EventEmitter = require('wolfy87-eventemitter');
   } else {
     this.EventEmitter = EventEmitter;
-  }
-
-  if (typeof $ !== "object" && typeof require === "function") {
-    this.$ = require('jquery');
-  } else {
-    this.$ = $;
   }
 
 }).call(this);
@@ -1400,9 +1394,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.7.0';
+  palava.LIB_VERSION = '1.7.1';
 
-  palava.LIB_COMMIT = '1.6.0-7-g300d719a22-dirty';
+  palava.LIB_COMMIT = 'v1.7.0-2-gf4bf1c9244-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
