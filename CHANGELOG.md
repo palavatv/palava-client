@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.7.1
+
+* Also bump dependencies for... bower
+
 ## 1.7.0
 
 * Replace peer's stream_error event with ice connection_\* events

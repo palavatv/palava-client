@@ -14,9 +14,8 @@
     }
   ],
   "dependencies": {
-    "eventEmitter": "~4.2.9",
-    "webrtc-adapter": "^7.2.0",
-    "jquery": "~2.1.1"
+    "eventEmitter": "~5.2.9",
+    "webrtc-adapter": "^7.5.1"
   },
   "devDependencies": {},
   "main": [
