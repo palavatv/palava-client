@@ -29,7 +29,6 @@ namespace :build do
     sh 'npm install'
     FileUtils.rm 'palava.bundle.js'
     %w[
-      node_modules/jquery/dist/jquery.min.js
       node_modules/webrtc-adapter/out/adapter.js
       node_modules/wolfy87-eventemitter/EventEmitter.min.js
       palava.min.js

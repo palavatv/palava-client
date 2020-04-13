@@ -1,6 +1,6 @@
 # Change Log
 
-## Next
+## 1.7.0
 
 * Replace peer's stream_error event with ice connection_\* events
 * Dependency bumps: webrtc-adapter to 7.5.1 and wolfy's eventemitter to 5.2.9

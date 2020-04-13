@@ -2,11 +2,12 @@
 /*
 palava v1.4.0 | LGPL | https://github.com/palavatv/palava-client
 
-Copyright (C) 2013 Jan Lelis          mail@janlelis.de
+Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
+
+Copyright (C) 2013 Jan Lelis          hi@ruby.consulting
 Copyright (C) 2013 Marius Melzer      marius@rasumi.net
 Copyright (C) 2013 Stephan Thamm      stephan@innovailable.eu
 Copyright (C) 2013 Kilian Ulbrich     kilian@innovailable.eu
-Copyright (C) 2014-2017 palava e. V.  contact@palava.tv
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -51,11 +52,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 }).call(this);
 (function() {
-  var $, palava;
+  var palava;
 
   palava = this.palava;
-
-  $ = this.$;
 
   palava.browser.isMozilla = function() {
     if (window.mozRTCPeerConnection) {
@@ -119,16 +118,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   };
 
   palava.browser.registerFullscreen = function(element, eventName) {
-    if (element[0].requestFullscreen) {
-      return element.on(eventName, function() {
+    if (element.requestFullscreen) {
+      return element.addEventListener(eventName, function() {
         return this.requestFullscreen();
       });
-    } else if (element[0].mozRequestFullScreen) {
-      return element.on(eventName, function() {
+    } else if (element.mozRequestFullScreen) {
+      return element.addEventListener(eventName, function() {
         return this.mozRequestFullScreen();
       });
-    } else if (element[0].webkitRequestFullscreen) {
-      return element.on(eventName, function() {
+    } else if (element.webkitRequestFullscreen) {
+      return element.addEventListener(eventName, function() {
         return this.webkitRequestFullscreen();
       });
     }
@@ -136,12 +135,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.browser.attachMediaStream = function(element, stream) {
     if (stream) {
-      return $(element).prop('srcObject', stream);
+      return element.srcObject = stream;
     } else {
-      $(element).each(function(key, el) {
-        return el.pause();
-      });
-      return $(element).prop('srcObject', null);
+      element.pause();
+      return element.srcObject = null;
     }
   };
 
@@ -150,9 +147,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     attach = function() {
       palava.browser.attachMediaStream(element, peer.getStream());
       if (peer.isLocal()) {
-        element.attr('muted', true);
+        element.setAttribute('muted', true);
       }
-      return element[0].play();
+      return element.play();
     };
     if (peer.getStream()) {
       return attach();
@@ -304,6 +301,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.status = status || {};
       (base = this.status).user_agent || (base.user_agent = palava.browser.getUserAgent());
       this.joinTime = (new Date()).getTime();
+      this.ready = false;
+      this.error = null;
     }
 
     Peer.prototype.hasAudio = function() {
@@ -583,14 +582,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 }).call(this);
 (function() {
-  var $, palava,
+  var palava,
     bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     hasProp = {}.hasOwnProperty;
 
   palava = this.palava;
-
-  $ = this.$;
 
   palava.RemotePeer = (function(superClass) {
     extend(RemotePeer, superClass);
@@ -682,8 +679,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         return function(event) {
           var connectionState;
           connectionState = event.target.iceConnectionState;
-          if (connectionState === 'failed') {
-            return _this.emit('stream_error');
+          switch (connectionState) {
+            case 'connecting':
+              return _this.emit('connection_pending');
+            case 'connected':
+              return _this.emit('connection_established');
+            case 'failed':
+              _this.ready = false;
+              _this.error = "connection_failed";
+              return _this.emit('connection_failed');
+            case 'disconnected':
+              _this.ready = false;
+              _this.error = "connection_disconnected";
+              return _this.emit('connection_disconnected');
+            case 'closed':
+              _this.error = "connection_closed";
+              _this.ready = false;
+              return _this.emit('connection_closed');
           }
         };
       })(this);
@@ -804,14 +816,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           return _this.room.emit('peer_stream_ready', _this);
         };
       })(this));
-      this.on('stream_error', (function(_this) {
-        return function() {
-          return _this.room.emit('peer_stream_error', _this);
-        };
-      })(this));
       this.on('stream_removed', (function(_this) {
         return function() {
           return _this.room.emit('peer_stream_removed', _this);
+        };
+      })(this));
+      this.on('connection_pending', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_connection_pending', _this);
+        };
+      })(this));
+      this.on('connection_established', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_connection_established', _this);
+        };
+      })(this));
+      this.on('connection_failed', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_connection_failed', _this);
+        };
+      })(this));
+      this.on('connection_disconnected', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_connection_disconnected', _this);
+        };
+      })(this));
+      this.on('connection_closed', (function(_this) {
+        return function() {
+          return _this.room.emit('peer_connection_closed', _this);
         };
       })(this));
       this.on('oaerror', (function(_this) {
@@ -1283,14 +1315,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           return _this.emit('peer_stream_ready', p);
         };
       })(this));
-      this.room.on('peer_stream_error', (function(_this) {
-        return function(p) {
-          return _this.emit('peer_stream_error', p);
-        };
-      })(this));
       this.room.on('peer_stream_removed', (function(_this) {
         return function(p) {
           return _this.emit('peer_stream_removed', p);
+        };
+      })(this));
+      this.room.on('peer_connection_pending', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_connection_pending', p);
+        };
+      })(this));
+      this.room.on('peer_connection_established', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_connection_established', p);
+        };
+      })(this));
+      this.room.on('peer_connection_failed', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_connection_failed', p);
+        };
+      })(this));
+      this.room.on('peer_connection_disconnected', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_connection_disconnected', p);
+        };
+      })(this));
+      this.room.on('peer_connection_closed', (function(_this) {
+        return function(p) {
+          return _this.emit('peer_connection_closed', p);
         };
       })(this));
       this.room.on('peer_left', (function(_this) {
@@ -1348,9 +1400,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.6.0';
+  palava.LIB_VERSION = '1.7.0';
 
-  palava.LIB_COMMIT = 'v1.5.0-7-gbf2ca79e39-dirty';
+  palava.LIB_COMMIT = '1.6.0-7-g300d719a22-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
