@@ -1,10 +1,8 @@
 # palava | client
 
-[palava.tv](https://palava.tv) is simplistic video communication with your friends and colleagues from within your web browser. It is build on top of the [WebRTC](https://webrtc.org/) technology. No registration or browser plugin required.
+[palava](https://github.com/palavatv/palava) is a simplistic video chat website. It allows you to talk to your friends and colleagues from within your web browser. It is build on top of the [WebRTC](https://webrtc.org/) technology. No registration or browser plugin is required.
 
-Please see the [palava repository](https://github.com/palavatv/palava) for an overview of palava and report issues there.
-
-This is palava's client-side WebRTC library for the browser. It enables you to create PeerConnections to other browsers. Under the hood [adapter.js](https://github.com/webrtchacks/adapter) is used for low-level functionality. It uses the palava protocol to works together with the [SignalTower](https://github.com/farao/signaltower/) or the [PalavaMachine](https://github.com/palavatv/palava-machine) signaling server. The [portal](https://github.com/palavatv/palava-portal) is a React web application that makes use of this library.
+This repository contains the WebRTC client-side library of [palava.tv](https://palava.tv). It enables you to create PeerConnections to other browsers. Under the hood [adapter.js](https://github.com/webrtchacks/adapter) is used for the low-level functionality. The library implements the palava protocol to function together with the [SignalTower](https://github.com/farao/signaltower/) or the [PalavaMachine](https://github.com/palavatv/palava-machine) signaling servers. The [portal](https://github.com/palavatv/palava-portal) is a React web application that makes use of this library.
 
 ## Setup
 
