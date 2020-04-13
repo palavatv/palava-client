@@ -3,6 +3,7 @@
 ## 1.7.1
 
 * Also bump dependencies for... bower
+* Remove another occurrence of jQuery
 
 ## 1.7.0
 

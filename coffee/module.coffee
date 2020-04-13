@@ -6,8 +6,3 @@ if typeof EventEmitter != "object" and typeof require == "function"
   @EventEmitter = require('wolfy87-eventemitter')
 else
   @EventEmitter = EventEmitter
-
-if typeof $ != "object" and typeof require == "function"
-  @$ = require('jquery')
-else
-  @$ = $
