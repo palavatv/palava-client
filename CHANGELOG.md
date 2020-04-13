@@ -2,7 +2,8 @@
 
 ## Next
 
-* Replace peer's stream_error event with ice connection_* events
+* Replace peer's stream_error event with ice connection_\* events
+* Dependency bumps: webrtc-adapter to 7.5.1 and wolfy's eventemitter to 5.2.9
 * Remove jQuery
 
 ## 1.6.0

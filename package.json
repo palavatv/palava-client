@@ -14,8 +14,8 @@
         }
     ],
     "dependencies": {
-        "webrtc-adapter": "^7.2.0",
-        "wolfy87-eventemitter": "~4.2.9"
+        "webrtc-adapter": "^7.5.1",
+        "wolfy87-eventemitter": "~5.2.9"
     },
     "browser": "./palava.js",
     "keywords": [
