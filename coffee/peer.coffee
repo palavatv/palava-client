@@ -25,6 +25,13 @@ class palava.Peer extends @EventEmitter
   hasAudio: =>
     return @getStream()?.getAudioTracks()?.length > 0
 
+  # Checks whether the participant is sending audio
+  #
+  # @return [Boolean] `true` if participant is sending audio
+  #
+  hasVideo: =>
+    return @getStream()?.getVideoTracks()?.length > 0
+
   # Checks whether the participant is muted
   #
   # @return [Boolean] `true` if participant is muted

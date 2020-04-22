@@ -1,5 +1,9 @@
 # Change Log
 
+## Next
+
+* Add new method Peer.hasVideo() to check if video streams are available
+
 ## 1.7.1
 
 * Also bump dependencies for... bower
