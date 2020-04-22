@@ -3,6 +3,7 @@
 ## Next
 
 * Add new method Peer.hasVideo() to check if video streams are available
+* Add new methods Peer.hasError() and Peer.getError() to check for peer's connection errors
 * Deprecate: palava.browser.registerFullscreen()
 
 ## 1.7.1

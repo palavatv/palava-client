@@ -32,17 +32,27 @@ class palava.Peer extends @EventEmitter
   hasVideo: =>
     return @getStream()?.getVideoTracks()?.length > 0
 
+  # Checks whether the peer connection is somewhat erroneous
+  #
+  # @return [Boolean] `true` if participant connection has an error
+  #
+  hasError: => if @error  then true else false
+
+  # Returns the error message of the peer
+  #
+  # @return [String] error message
+  #
+  getError: => @error
+
   # Checks whether the participant is muted
   #
   # @return [Boolean] `true` if participant is muted
   #
   isMuted:  => if @muted  then true else false
 
-  # TODO: what is ready?
-
   # Checks whether the peer is ready
   #
-  # @return [Boolean] `true` if participant is ready
+  # @return [Boolean] `true` if participant is ready, that they have a stream
   #
   isReady:  => if @ready  then true else false
 
