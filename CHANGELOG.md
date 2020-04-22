@@ -3,6 +3,7 @@
 ## Next
 
 * Add new method Peer.hasVideo() to check if video streams are available
+* Deprecate: palava.browser.registerFullscreen()
 
 ## 1.7.1
 

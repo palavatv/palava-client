@@ -69,6 +69,7 @@ palava.browser.getPeerConnectionOptions = () ->
 # @param eventName [String] Event name on which to activate fullscreen
 #
 palava.browser.registerFullscreen = (element, eventName) ->
+  console.log("DEPRECATED: palava.browser.registerFullscreen will be removed from the palava library in early 2021")
   if(element.requestFullscreen)
     element.addEventListener eventName, -> this.requestFullscreen()
   else if(element.mozRequestFullScreen)
