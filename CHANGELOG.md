@@ -1,6 +1,6 @@
 # Change Log
 
-## Next
+## 1.8.0
 
 * Add new method Peer.hasVideo() to check if video streams are available
 * Add new methods Peer.hasError() and Peer.getError() to check for peer's connection errors

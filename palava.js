@@ -1,6 +1,6 @@
 
 /*
-palava v1.7.1 | LGPL | https://github.com/palavatv/palava-client
+palava v1.8.0 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 
@@ -112,6 +112,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   };
 
   palava.browser.registerFullscreen = function(element, eventName) {
+    console.log("DEPRECATED: palava.browser.registerFullscreen will be removed from the palava library in early 2021");
     if (element.requestFullscreen) {
       return element.addEventListener(eventName, function() {
         return this.requestFullscreen();
@@ -289,6 +290,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.isLocal = bind(this.isLocal, this);
       this.isReady = bind(this.isReady, this);
       this.isMuted = bind(this.isMuted, this);
+      this.getError = bind(this.getError, this);
+      this.hasError = bind(this.hasError, this);
+      this.hasVideo = bind(this.hasVideo, this);
       this.hasAudio = bind(this.hasAudio, this);
       var base;
       this.id = id;
@@ -302,6 +306,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Peer.prototype.hasAudio = function() {
       var ref, ref1;
       return ((ref = this.getStream()) != null ? (ref1 = ref.getAudioTracks()) != null ? ref1.length : void 0 : void 0) > 0;
+    };
+
+    Peer.prototype.hasVideo = function() {
+      var ref, ref1;
+      return ((ref = this.getStream()) != null ? (ref1 = ref.getVideoTracks()) != null ? ref1.length : void 0 : void 0) > 0;
+    };
+
+    Peer.prototype.hasError = function() {
+      if (this.error) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+    Peer.prototype.getError = function() {
+      return this.error;
     };
 
     Peer.prototype.isMuted = function() {
@@ -1394,9 +1415,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.7.1';
+  palava.LIB_VERSION = '1.8.0';
 
-  palava.LIB_COMMIT = 'v1.7.0-2-gf4bf1c9244-dirty';
+  palava.LIB_COMMIT = 'v1.7.1-3-g78ba122f96-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
