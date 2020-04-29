@@ -1,5 +1,9 @@
 # Change Log
 
+## Next
+
+* Also add Peer.isRemote() convenience method
+
 ## 1.8.0
 
 * Add new method Peer.hasVideo() to check if video streams are available

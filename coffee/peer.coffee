@@ -61,3 +61,9 @@ class palava.Peer extends @EventEmitter
   # @return [Boolean] `true` if participant is the local peer
   #
   isLocal:  => if @local  then true else false
+
+  # Checks whether the participant is remote
+  #
+  # @return [Boolean] `true` if participant is the remote peer
+  #
+  isRemote:  => if @local  then false else true
