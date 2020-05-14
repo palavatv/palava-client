@@ -1,6 +1,6 @@
 
 /*
-palava v1.8.0 | LGPL | https://github.com/palavatv/palava-client
+palava v1.9.0 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 
@@ -287,6 +287,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     extend(Peer, superClass);
 
     function Peer(id, status) {
+      this.isRemote = bind(this.isRemote, this);
       this.isLocal = bind(this.isLocal, this);
       this.isReady = bind(this.isReady, this);
       this.isMuted = bind(this.isMuted, this);
@@ -346,6 +347,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         return true;
       } else {
         return false;
+      }
+    };
+
+    Peer.prototype.isRemote = function() {
+      if (this.local) {
+        return false;
+      } else {
+        return true;
       }
     };
 
@@ -696,20 +705,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           connectionState = event.target.iceConnectionState;
           switch (connectionState) {
             case 'connecting':
+              _this.error = null;
               return _this.emit('connection_pending');
             case 'connected':
+              _this.error = null;
               return _this.emit('connection_established');
             case 'failed':
-              _this.ready = false;
               _this.error = "connection_failed";
               return _this.emit('connection_failed');
             case 'disconnected':
-              _this.ready = false;
               _this.error = "connection_disconnected";
               return _this.emit('connection_disconnected');
             case 'closed':
               _this.error = "connection_closed";
-              _this.ready = false;
               return _this.emit('connection_closed');
           }
         };
@@ -1415,9 +1423,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.8.0';
+  palava.LIB_VERSION = '1.9.0';
 
-  palava.LIB_COMMIT = 'v1.7.1-3-g78ba122f96-dirty';
+  palava.LIB_COMMIT = 'v1.6.0-17-g3c002c33e1-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";

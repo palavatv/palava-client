@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.9.0 (unreleased)
+## 1.9.0
 
 * Reset peer errors when connection state changes, but do not change ready-state
 * Also add Peer.isRemote() convenience method
