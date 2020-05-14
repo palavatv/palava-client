@@ -89,20 +89,19 @@ class palava.RemotePeer extends palava.Peer
 
       switch connectionState
         when 'connecting'
+          @error = null
           @emit 'connection_pending'
         when 'connected'
+          @error = null
           @emit 'connection_established'
         when 'failed'
-          @ready = false
           @error = "connection_failed"
           @emit 'connection_failed'
         when 'disconnected'
-          @ready = false
           @error = "connection_disconnected"
           @emit 'connection_disconnected'
         when 'closed'
           @error = "connection_closed"
-          @ready = false
           @emit 'connection_closed'
 
     # TODO onsignalingstatechange
