@@ -10,13 +10,9 @@ class palava.WebSocketChannel extends @EventEmitter
   constructor: (address) ->
     @address      = address
     @reached      = false
-    @socket       = new WebSocket(address)#, [palava.protocol_identifier()])
     @connectionRetries = 2
     @messagesToDeliverOnConnect = []
-    @setupEvents()
-    @socket.onopen = (handshake) =>
-      @sendMessages()
-      @emit 'open', handshake
+    @setupWebsocket()
 
   sendMessages: =>
     for msg in @messagesToDeliverOnConnect
@@ -27,7 +23,11 @@ class palava.WebSocketChannel extends @EventEmitter
   #
   # @nodoc
   #
-  setupEvents: =>
+  setupWebsocket: =>
+    @socket = new WebSocket(@address)
+    @socket.onopen = (handshake) =>
+      @sendMessages()
+      @emit 'open', handshake
     @socket.onmessage = (msg) =>
       try
         @emit 'message', JSON.parse(msg.data)
@@ -36,7 +36,7 @@ class palava.WebSocketChannel extends @EventEmitter
     @socket.onerror = (msg) =>
       if @connectionRetries > 0
         @connectionRetries -= 1
-        @socket = new WebSocket(@address)
+        @setupWebsocket()
       else
         @emit 'error', msg
     @socket.onclose = =>
