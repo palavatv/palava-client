@@ -9,7 +9,6 @@ class palava.WebSocketChannel extends @EventEmitter
   # @param address [String] Address of the websocket. Should start with `ws://` for web sockets or `wss://` for secure web sockets.
   constructor: (address) ->
     @address      = address
-    @reached      = false
     @connectionRetries = 2
     @messagesToDeliverOnConnect = []
     @setupWebsocket()
