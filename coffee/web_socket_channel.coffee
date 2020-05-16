@@ -8,8 +8,10 @@ class palava.WebSocketChannel extends @EventEmitter
 
   # @param address [String] Address of the websocket. Should start with `ws://` for web sockets or `wss://` for secure web sockets.
   constructor: (address) ->
+    @address      = address
     @reached      = false
     @socket       = new WebSocket(address)#, [palava.protocol_identifier()])
+    @connectionRetries = 2
     @messagesToDeliverOnConnect = []
     @setupEvents()
     @socket.onopen = (handshake) =>
@@ -32,7 +34,11 @@ class palava.WebSocketChannel extends @EventEmitter
       catch SyntaxError
         @emit 'error_invalid_json', msg
     @socket.onerror = (msg) =>
-      @emit 'error', msg
+      if @connectionRetries > 0
+        @connectionRetries -= 1
+        @socket = new WebSocket(@address)
+      else
+        @emit 'error', msg
     @socket.onclose = =>
       @emit 'close'
 
