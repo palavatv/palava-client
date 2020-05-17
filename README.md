@@ -2,13 +2,13 @@
 
 [palava](https://github.com/palavatv/palava) is a simplistic video chat website. It allows you to talk to your friends and colleagues from within your web browser. It is build on top of the [WebRTC](https://webrtc.org/) technology. No registration or browser plugin is required.
 
-This repository contains the WebRTC client-side library of [palava.tv](https://palava.tv). It enables you to create PeerConnections to other browsers. Under the hood [adapter.js](https://github.com/webrtchacks/adapter) is used for the low-level functionality. The library implements the palava protocol to function together with the [SignalTower](https://github.com/farao/signaltower/) or the [PalavaMachine](https://github.com/palavatv/palava-machine) signaling servers. The [portal](https://github.com/palavatv/palava-portal) is a React web application that makes use of this library.
+This repository contains the WebRTC client-side library of [palava.tv](https://palava.tv). It enables you to create PeerConnections to other browsers. [webrtc-adapter](https://github.com/webrtchacks/adapter) is used for the low-level functionality. The library implements the palava protocol to function together with the [signaltower](https://github.com/palavatv/signaltower/) or the [palava-machine](https://github.com/palavatv/palava-machine) signaling servers.
 
 ## Setup
 
 Choose any of the following options
 
-### 1) npm
+### 1) npm / yarn
 
     $ npm install palava-client
 
@@ -16,17 +16,11 @@ This will install palava and its dependencies into a sub directory. You'll need 
 
 ### 2) JS bundle file
 
-Include a direct link to the source file into your HTML:
+Include a direct link to the bundle file (which has all dependencies included) into your HTML:
 
     <script src="https://path/to/palava.bundle.js" type="text/javascript"></script>
 
-You can get it directly from the repository: https://github.com/palavatv/palava-client/blob/master/palava.bundle.js
-
-It has all dependencies included.
-
-### 3) Sprockets/Middleman
-
-Alternatively, you can directly include the coffee files into your project. See the [palava portal](https://github.com/palavatv/palava-portal) for an example how to do so.
+You can get it from here: https://raw.githubusercontent.com/palavatv/palava-client/master/palava.bundle.js
 
 ## Credits
 
