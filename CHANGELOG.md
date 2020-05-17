@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.10.1
+
+* Send leave room event when closing connection
+
 ## 1.10.0
 
 * Add automatic retries for WebSocket channel

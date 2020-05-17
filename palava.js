@@ -1,6 +1,6 @@
 
 /*
-palava v1.10.0 | LGPL | https://github.com/palavatv/palava-client
+palava v1.10.1 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 
@@ -1056,7 +1056,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Room.prototype.leave = function() {
       this.emit('leave');
-      this.channel && this.channel.close();
+      if (this.channel) {
+        this.distributor.send({
+          event: 'leave_room'
+        });
+        this.channel.close();
+      }
       return this.localPeer && this.localPeer.stream && this.localPeer.stream.close();
     };
 
@@ -1432,9 +1437,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.10.0';
+  palava.LIB_VERSION = '1.10.1';
 
-  palava.LIB_COMMIT = 'v1.9.0-6-g392dc776a4-dirty';
+  palava.LIB_COMMIT = 'v1.10.0-1-gd9d9148e85-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
