@@ -1,5 +1,9 @@
 # Change Log
 
+## 1.10.0 (unreleased)
+
+* Add automatic retries for WebSocket channel
+
 ## 1.9.0
 
 * Reset peer errors when connection state changes, but do not change ready-state
