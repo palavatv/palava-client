@@ -1,6 +1,6 @@
 
 /*
-palava v1.9.0 | LGPL | https://github.com/palavatv/palava-client
+palava v1.10.0 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 
@@ -1104,21 +1104,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   palava.WebSocketChannel = (function(superClass) {
     extend(WebSocketChannel, superClass);
 
-    function WebSocketChannel(address) {
+    function WebSocketChannel(address, retries) {
+      if (retries == null) {
+        retries = 2;
+      }
       this.close = bind(this.close, this);
       this.send = bind(this.send, this);
-      this.setupEvents = bind(this.setupEvents, this);
+      this.setupWebsocket = bind(this.setupWebsocket, this);
       this.sendMessages = bind(this.sendMessages, this);
-      this.reached = false;
-      this.socket = new WebSocket(address);
+      this.address = address;
+      this.retries = retries;
       this.messagesToDeliverOnConnect = [];
-      this.setupEvents();
-      this.socket.onopen = (function(_this) {
-        return function(handshake) {
-          _this.sendMessages();
-          return _this.emit('open', handshake);
-        };
-      })(this);
+      this.setupWebsocket();
     }
 
     WebSocketChannel.prototype.sendMessages = function() {
@@ -1131,7 +1128,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       return this.messagesToDeliverOnConnect = [];
     };
 
-    WebSocketChannel.prototype.setupEvents = function() {
+    WebSocketChannel.prototype.setupWebsocket = function() {
+      this.socket = new WebSocket(this.address);
+      this.socket.onopen = (function(_this) {
+        return function(handshake) {
+          _this.sendMessages();
+          return _this.emit('open', handshake);
+        };
+      })(this);
       this.socket.onmessage = (function(_this) {
         return function(msg) {
           var SyntaxError;
@@ -1145,7 +1149,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       })(this);
       this.socket.onerror = (function(_this) {
         return function(msg) {
-          return _this.emit('error', msg);
+          if (_this.retries > 0) {
+            _this.retries -= 1;
+            return _this.setupWebsocket();
+          } else {
+            return _this.emit('error', msg);
+          }
         };
       })(this);
       return this.socket.onclose = (function(_this) {
@@ -1423,9 +1432,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.9.0';
+  palava.LIB_VERSION = '1.10.0';
 
-  palava.LIB_COMMIT = 'v1.6.0-17-g3c002c33e1-dirty';
+  palava.LIB_COMMIT = 'v1.9.0-6-g392dc776a4-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";

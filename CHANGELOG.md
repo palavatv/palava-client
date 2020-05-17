@@ -1,6 +1,6 @@
 # Change Log
 
-## 1.10.0 (unreleased)
+## 1.10.0
 
 * Add automatic retries for WebSocket channel
 * Update webrtc-adapter to 7.6.0

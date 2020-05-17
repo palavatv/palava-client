@@ -1,7 +1,7 @@
 {
   "name": "palava",
   "description": "CoffeeScript library for WebRTC",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "author": {
     "name": "palava e. V.",
     "email": "contact@palava.tv",
@@ -12,8 +12,8 @@
     "url": "https://raw.github.com/palavatv/palava-client/master/COPYING.LESSER"
   },
   "dependencies": {
-    "eventEmitter": "~5.2.9",
-    "webrtc-adapter": "^7.6.0"
+    "webrtc-adapter": "^7.6.0",
+    "eventEmitter": "~5.2.9"
   },
   "main": [
     "./palava.js"
