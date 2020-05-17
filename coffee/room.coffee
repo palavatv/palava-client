@@ -100,7 +100,10 @@ class palava.Room extends @EventEmitter
   #
   leave: =>
     @emit 'leave'
-    @channel && @channel.close()
+    if @channel
+      @distributor.send
+        event: 'leave_room'
+      @channel.close()
     @localPeer && @localPeer.stream && @localPeer.stream.close()
 
   # Find peer with the given id
