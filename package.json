@@ -12,7 +12,7 @@
     "url": "https://raw.github.com/palavatv/palava-client/master/COPYING.LESSER"
   },
   "dependencies": {
-    "webrtc-adapter": "^7.5.1",
+    "webrtc-adapter": "^7.6.0",
     "wolfy87-eventemitter": "~5.2.9"
   },
   "browser": "./palava.js",

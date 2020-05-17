@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "eventEmitter": "~5.2.9",
-    "webrtc-adapter": "^7.5.1"
+    "webrtc-adapter": "^7.6.0"
   },
   "main": [
     "./palava.js"

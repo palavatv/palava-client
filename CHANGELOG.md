@@ -3,6 +3,7 @@
 ## 1.10.0 (unreleased)
 
 * Add automatic retries for WebSocket channel
+* Update webrtc-adapter to 7.6.0
 
 ## 1.9.0
 
