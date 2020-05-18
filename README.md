@@ -6,21 +6,23 @@ This repository contains the WebRTC client-side library of [palava.tv](https://p
 
 ## Setup
 
-Choose any of the following options
-
-### 1) npm / yarn
+### npm / yarn
 
     $ npm install palava-client
 
-This will install palava and its dependencies into a sub directory. You'll need to include all dependencies (palava, eventEmitter, adapter.js) into your source file.
+This will install palava and its dependencies into the node_modules folder. You'll need to include all dependencies (palava, eventEmitter, adapter.js) into your source file.
 
-### 2) JS bundle file
+### JS bundle file
 
 Include a direct link to the bundle file (which has all dependencies included) into your HTML:
 
     <script src="https://path/to/palava.bundle.js" type="text/javascript"></script>
 
 You can get it from here: https://raw.githubusercontent.com/palavatv/palava-client/master/palava.bundle.js
+
+## API Docs
+
+https://palavatv.github.io/palava-client/
 
 ## Credits
 
