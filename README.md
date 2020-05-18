@@ -1,8 +1,12 @@
 # palava | client
 
-[palava](https://github.com/palavatv/palava) is a simplistic video chat website. It allows you to talk to your friends and colleagues from within your web browser. It is build on top of the [WebRTC](https://webrtc.org/) technology. No registration or browser plugin is required.
+[palava.tv](https://palava.tv) is a cost-free, simple to use, secure, and open source platform for video calls, built on top of the [WebRTC](https://webrtc.org/) technology.
 
-This repository contains the WebRTC client-side library of [palava.tv](https://palava.tv). It enables you to create PeerConnections to other browsers. [webrtc-adapter](https://github.com/webrtchacks/adapter) is used for the low-level functionality. The library implements the palava protocol to function together with the [signaltower](https://github.com/palavatv/signaltower/) or the [palava-machine](https://github.com/palavatv/palava-machine) signaling servers.
+This repository contains the WebRTC client-side library of palava.tv. There is an overview of all parts of palava.tv at [palavatv/palava](https://github.com/palavatv/palava).
+
+## Description
+
+This JavaScript library implements the palava protocol to function together with the [signaltower](https://github.com/palavatv/signaltower/) or the [palava-machine](https://github.com/palavatv/palava-machine) signaling servers. It allows you to create PeerConnections to other browser. It includes the [webrtc-adapter](https://github.com/webrtchacks/adapter) project for better WebRTC compatiblity.
 
 ## Setup
 
