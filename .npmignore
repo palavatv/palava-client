@@ -1,2 +1,6 @@
 *.tgz
-coffee
+*.swp
+/node_modules
+/package-lock.json
+/coffee
+/docs
