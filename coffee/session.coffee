@@ -13,11 +13,19 @@ class palava.Session extends @EventEmitter
   # @option o options [Object] TODO
   #
   constructor: (o) ->
+    resetOptions(o)
+
+  # Reset all options to default parameters
+  #
+  # @param o [Object] See constructor for details
+  #
+  resetOptions: (o) =>
     @channel     = null
     @userMedia   = null
     @roomId      = null
     @roomOptions = {}
     @assignOptions(o)
+    @initOptions = o
 
   # Initializes the session
   #
@@ -25,6 +33,7 @@ class palava.Session extends @EventEmitter
   #
   init: (o) =>
     @assignOptions(o)
+    @initOptions = Object.assign(@initOptions, o)
     return unless @checkRequirements()
     @setupRoom()
     @userMedia.requestStream()
@@ -124,12 +133,18 @@ class palava.Session extends @EventEmitter
     @room.on 'signaling_not_reachable', (p) => @emit 'signaling_not_reachable', p
     true
 
+  # Reconnect the session
+  #
+  reconnect: =>
+    @destroy(false)
+    @resetOptions(@initOptions)
+    @init({})
+
   # Destroys the session
   #
-  destroy: =>
-    @emit 'session_before_destroy'
-    # @removeListeners() # TODO do we want to remove all listeners? not working
+  destroy: (emit_events = true) =>
+    @emit 'session_before_destroy' if emit_events
     @room      && @room.leave()
     @channel   && @channel.close()
     @userMedia && @userMedia.releaseStream()
-    @emit 'session_after_destroy'
+    @emit 'session_after_destroy' if emit_events
