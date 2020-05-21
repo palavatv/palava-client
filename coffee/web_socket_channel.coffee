@@ -25,6 +25,7 @@ class palava.WebSocketChannel extends @EventEmitter
   setupWebsocket: =>
     @socket = new WebSocket(@address)
     @socket.onopen = (handshake) =>
+      @retries = 0
       @sendMessages()
       @emit 'open', handshake
     @socket.onmessage = (msg) =>
