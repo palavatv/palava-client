@@ -29,7 +29,7 @@ namespace :build do
     sh 'npm install'
     FileUtils.rm 'palava.bundle.js'
     %w[
-      node_modules/webrtc-adapter/out/adapter.js
+      node_modules/webrtc-adapter/out/adapter_no_edge.js
       node_modules/wolfy87-eventemitter/EventEmitter.min.js
       palava.min.js
     ].each{ |input_file|
