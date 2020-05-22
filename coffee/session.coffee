@@ -13,21 +13,32 @@ class palava.Session extends @EventEmitter
   # @option o options [Object] TODO
   #
   constructor: (o) ->
+    @resetOptions(o, false)
+
+  # Reset all options to default parameters
+  #
+  # @param o          [Object]  See constructor for details
+  # @param reconnect  [Boolean] Is part of a reconnect?
+  #
+  resetOptions: (o, reconnect = false) =>
     @channel     = null
-    @userMedia   = null
+    @userMedia   = null unless reconnect
     @roomId      = null
     @roomOptions = {}
     @assignOptions(o)
+    @initOptions = o
 
   # Initializes the session
   #
   # @param o [Object] See constructor for details
+  # @param reconnect  [Boolean] Is part of a reconnect?
   #
-  init: (o) =>
+  init: (o, reconnect = false) =>
     @assignOptions(o)
+    Object.assign(@initOptions, o)
     return unless @checkRequirements()
     @setupRoom()
-    @userMedia.requestStream()
+    @userMedia.requestStream() unless reconnect
 
   # Moves options into inner state
   #
@@ -124,12 +135,21 @@ class palava.Session extends @EventEmitter
     @room.on 'signaling_not_reachable', (p) => @emit 'signaling_not_reachable', p
     true
 
+  # Reconnect the session
+  #
+  reconnect: =>
+    @emit 'session_reconnect'
+    @destroy(true)
+    @resetOptions(@initOptions, true)
+    @init({}, true)
+
   # Destroys the session
   #
-  destroy: =>
-    @emit 'session_before_destroy'
-    # @removeListeners() # TODO do we want to remove all listeners? not working
+  # @param reconnect  [Boolean] Is part of a reconnect?
+  #
+  destroy: (reconnect = false) =>
+    @emit 'session_before_destroy' unless reconnect
     @room      && @room.leave()
     @channel   && @channel.close()
-    @userMedia && @userMedia.releaseStream()
-    @emit 'session_after_destroy'
+    @userMedia && @userMedia.releaseStream() unless reconnect
+    @emit 'session_after_destroy' unless reconnect
