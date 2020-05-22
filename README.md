@@ -28,6 +28,20 @@ You can get it from here: https://raw.githubusercontent.com/palavatv/palava-clie
 
 https://palavatv.github.io/palava-client/
 
+## Local Development
+
+Use the [yarn link](https://classic.yarnpkg.com/en/docs/cli/link/) feature:
+
+- Clone this repository and run `$ yarn link` inside the project folder
+- Navigate to [palava-web](https://github.com/palavatv/palava-web/) and run `$ yarn link palava-client`
+- Done, everything is properly symlinked now
+
+### Compile latest source
+
+- Make sure you have Ruby and Bundler installed (and have run `$ bundle install` once)
+- `$ rake build:bundle`
+- (rebuild palava-web)
+
 ## Credits
 
 LGPLv3. Part of the [palava project](https://palava.tv).
