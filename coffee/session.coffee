@@ -47,10 +47,8 @@ class palava.Session extends @EventEmitter
   assignOptions: (o) =>
     @roomId = o.roomId || @roomId
 
-    if o.channel
-      @channel = o.channel
-    else if o.web_socket_channel
-      @channel = new palava.WebSocketChannel(o.web_socket_channel)
+    if o.web_socket_address
+      @channel = new palava.WebSocketChannel(o.web_socket_address)
 
     if o.identity
       @userMedia = o.identity.newUserMedia()
