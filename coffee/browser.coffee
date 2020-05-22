@@ -1,31 +1,33 @@
 palava = @palava
+adapter = @adapter
 
 # Checks whether the browser is a Firefox
 #
 # @return [Boolean] `true` if Firefox
 #
 palava.browser.isMozilla = ->
-  if window.mozRTCPeerConnection then true
-  else false
+  adapter.browserDetails.browser == 'firefox'
 
 # Checks whether the browser is a Chrome/Chromium
 #
 # @return [Boolean] `true` if Chrome
 #
 palava.browser.isChrome = ->
-  /Chrome/i.test(navigator.userAgent)
+  adapter.browserDetails.browser == 'chrome'
 
 # Checks which browser is used
 #
-# @return [String] A well defined id of the browser (firefox, chrome or unknown)
+# @return [String] A well defined id of the browser (firefox, chrome, safari, or unknown)
 #
 palava.browser.getUserAgent = ->
-  if palava.browser.isMozilla()
-    'firefox'
-  else if palava.browser.isChrome()
-    'chrome'
-  else
-    'unknown'
+  adapter.browserDetails.browser
+
+# Checks which browser is used
+#
+# @return [Integer] The user agent version
+#
+palava.browser.getUserAgentVersion = ->
+  adapter.browserDetails.version
 
 # Checks whether the WebRTC support of the browser should be compatible with palava
 #

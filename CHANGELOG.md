@@ -5,6 +5,7 @@
 * Add session reconnect functionality
 * Restrict connection retries to new connections
 * Require adapter directly in palava-client and switch to _no_edge version
+* Use adapter.js for browser detection + add browser.getUserAgentVersion
 
 ## 1.10.1
 
