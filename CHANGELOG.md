@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.11.0 (unreleased)
+
+* Add session reconnect functionality
+* Restrict connection retries to new connections
+* Require adapter directly in palava-client and switch to _no_edge version
+
 ## 1.10.1
 
 * Send leave room event when closing connection
