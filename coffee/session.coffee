@@ -13,15 +13,16 @@ class palava.Session extends @EventEmitter
   # @option o options [Object] TODO
   #
   constructor: (o) ->
-    resetOptions(o)
+    @resetOptions(o, false)
 
   # Reset all options to default parameters
   #
-  # @param o [Object] See constructor for details
+  # @param o          [Object]  See constructor for details
+  # @param reconnect  [Boolean] Is part of a reconnect?
   #
-  resetOptions: (o) =>
+  resetOptions: (o, reconnect = false) =>
     @channel     = null
-    @userMedia   = null
+    @userMedia   = null unless reconnect
     @roomId      = null
     @roomOptions = {}
     @assignOptions(o)
@@ -30,13 +31,14 @@ class palava.Session extends @EventEmitter
   # Initializes the session
   #
   # @param o [Object] See constructor for details
+  # @param reconnect  [Boolean] Is part of a reconnect?
   #
-  init: (o) =>
+  init: (o, reconnect = false) =>
     @assignOptions(o)
-    @initOptions = Object.assign(@initOptions, o)
+    Object.assign(@initOptions, o)
     return unless @checkRequirements()
     @setupRoom()
-    @userMedia.requestStream()
+    @userMedia.requestStream() unless reconnect
 
   # Moves options into inner state
   #
@@ -136,15 +138,18 @@ class palava.Session extends @EventEmitter
   # Reconnect the session
   #
   reconnect: =>
-    @destroy(false)
-    @resetOptions(@initOptions)
-    @init({})
+    @emit 'session_reconnect'
+    @destroy(true)
+    @resetOptions(@initOptions, true)
+    @init({}, true)
 
   # Destroys the session
   #
-  destroy: (emit_events = true) =>
-    @emit 'session_before_destroy' if emit_events
+  # @param reconnect  [Boolean] Is part of a reconnect?
+  #
+  destroy: (reconnect = false) =>
+    @emit 'session_before_destroy' unless reconnect
     @room      && @room.leave()
     @channel   && @channel.close()
-    @userMedia && @userMedia.releaseStream()
-    @emit 'session_after_destroy' if emit_events
+    @userMedia && @userMedia.releaseStream() unless reconnect
+    @emit 'session_after_destroy' unless reconnect
