@@ -109,7 +109,7 @@ class palava.Session extends @EventEmitter
   setupRoom: => # TODO move some more stuff away from the room? eg signaling
     @room = new palava.Room @roomId, @channel, @userMedia, @roomOptions
     @room.on 'local_stream_ready',      (s) => @emit 'local_stream_ready', s
-    @room.on 'local_stream_error',      (s) => @emit 'local_stream_error'
+    @room.on 'local_stream_error',      (e) => @emit 'local_stream_error', e
     @room.on 'local_stream_removed',        => @emit 'local_stream_removed'
     @room.on 'join_error',              (e) => @emit 'room_join_error', @room, e
     @room.on 'full',                        => @emit 'room_full',       @room

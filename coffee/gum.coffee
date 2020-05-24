@@ -24,10 +24,10 @@ class palava.Gum extends @EventEmitter
       (stream) =>
         @stream = stream
         @detectMedia()
-        @emit 'stream_ready', @
+        @emit 'stream_ready', stream
     ).catch(
-      () =>
-        @emit 'stream_error', @
+      (error) =>
+        @emit 'stream_error', error
     )
     true
 
