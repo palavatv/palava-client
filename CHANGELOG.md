@@ -1,11 +1,18 @@
 # Change Log
 
-## 1.11.0 (unreleased)
+## Next (unreleased)
+
+### Breaking Changes
+
+* Remove session option for custom channel and rename `web_socket_channel` to `web_socket_address`
+* Require adapter directly in palava-client and switch to `_no_edge` version
+
+### Other
 
 * Add session reconnect functionality
 * Restrict connection retries to new connections
-* Require adapter directly in palava-client and switch to _no_edge version
 * Use adapter.js for browser detection + add browser.getUserAgentVersion
+* Pass local stream error objects to session wrapper
 
 ## 1.10.1
 
