@@ -36,7 +36,7 @@ class palava.Session extends @EventEmitter
   init: (o, reconnect = false) =>
     @assignOptions(o)
     Object.assign(@initOptions, o)
-    return unless @checkRequirements()
+    return unless @checkRequirements() unless reconnect
     @setupRoom()
     @userMedia.requestStream() unless reconnect
 
