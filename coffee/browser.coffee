@@ -31,6 +31,8 @@ palava.browser.getUserAgentVersion = ->
 
 # Checks whether the WebRTC support of the browser should be compatible with palava
 #
+# Please note: The test requires network connectivity
+#
 # @return [Boolean] `true` if the browser is supported by palava
 #
 palava.browser.checkForWebrtcError = ->

@@ -79,8 +79,8 @@ class palava.Session extends @EventEmitter
     unless @roomOptions.stun
       @emit 'argument_error', 'no stun server given'
       return false
-    unless @roomOptions.stun
-      @emit 'argument_error', 'no stun server given'
+    unless navigator.onLine
+      @emit 'signaling_not_reachable'
       return false
     if e = palava.browser.checkForWebrtcError()
       @emit 'webrtc_no_support', 'WebRTC is not supported by your browser', e
