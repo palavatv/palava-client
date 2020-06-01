@@ -132,7 +132,7 @@ class palava.Session extends @EventEmitter
     @room.on 'peer_channel_ready',      (p, n, c) => @emit 'peer_channel_ready', p, n, c
     @room.on 'signaling_shutdown',      (p) => @emit 'signaling_shutdown', p
     @room.on 'signaling_close',         (p) => @emit 'signaling_close', p
-    @room.on 'signaling_error',         (p) => @emit 'signaling_error', p
+    @room.on 'signaling_error',      (t, e) => @emit 'signaling_error', t, e
     @room.on 'signaling_not_reachable',     => @emit 'signaling_not_reachable'
     true
 

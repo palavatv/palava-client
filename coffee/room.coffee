@@ -43,7 +43,7 @@ class palava.Room extends @EventEmitter
   #
   setupChannel: => # TODO move to session?
     @channel.on 'not_reachable',     => @emit 'signaling_not_reachable'
-    @channel.on 'error',         (e) => @emit 'signaling_error', e
+    @channel.on 'error',         (e) => @emit 'signaling_error', 'socket', e
     @channel.on 'close',         (e) => @emit 'signaling_close', e
 
   # Set default options
@@ -74,7 +74,7 @@ class palava.Room extends @EventEmitter
       newPeer = new palava.RemotePeer(msg.peer_id, msg.status, @, offers)
       @emit 'peer_joined', newPeer
 
-    @distributor.on 'error',    (msg) => @emit 'signaling_error',    msg.message
+    @distributor.on 'error',    (msg) => @emit 'signaling_error', 'server', msg.message
 
     @distributor.on 'shutdown', (msg) => @emit 'signaling_shutdown', msg.seconds
 
