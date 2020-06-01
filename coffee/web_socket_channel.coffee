@@ -32,13 +32,13 @@ class palava.WebSocketChannel extends @EventEmitter
       try
         @emit 'message', JSON.parse(msg.data)
       catch SyntaxError
-        @emit 'error_invalid_json', msg
+        @emit 'error', 'invalid_json', msg
     @socket.onerror = (msg) =>
       if @retries > 0
         @retries -= 1
         @setupWebsocket()
       else
-        @emit 'error', msg
+        @emit 'error', 'socket', msg
     @socket.onclose = =>
       @emit 'close'
 
