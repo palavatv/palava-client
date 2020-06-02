@@ -43,7 +43,7 @@ class palava.Room extends @EventEmitter
   #
   setupChannel: => # TODO move to session?
     @channel.on 'not_reachable',     => @emit 'signaling_not_reachable'
-    @channel.on 'error',         (e) => @emit 'signaling_error', 'socket', e
+    @channel.on 'error',         (e) => @emit 'signaling_error', e
     @channel.on 'close',         (e) => @emit 'signaling_close', e
 
   # Set default options
