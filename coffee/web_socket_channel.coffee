@@ -12,6 +12,7 @@ class palava.WebSocketChannel extends @EventEmitter
     @retries = retries
     @messagesToDeliverOnConnect = []
     @setupWebsocket()
+    @startClientPings()
 
   sendMessages: =>
     for msg in @messagesToDeliverOnConnect
@@ -30,17 +31,36 @@ class palava.WebSocketChannel extends @EventEmitter
       @emit 'open', handshake
     @socket.onmessage = (msg) =>
       try
-        @emit 'message', JSON.parse(msg.data)
+        parsedMsg = JSON.parse(msg.data)
+        if parsedMsg == {event: "pong"}
+          @outstandingPongs = 0
+        else
+          @emit 'message', parsedMsg
       catch SyntaxError
         @emit 'error', 'invalid_json', msg
     @socket.onerror = (msg) =>
+      clearInterval(@pingInterval)
       if @retries > 0
         @retries -= 1
         @setupWebsocket()
+        @startClientPings()
       else
         @emit 'error', 'socket', msg
     @socket.onclose = =>
+      clearInterval(@pingInterval)
       @emit 'close'
+
+  startClientPings: =>
+    @outstandingPongs = 0
+    @pingInterval = setInterval( () =>
+      if @outstandingPongs >= 6
+        clearInterval(@pingInterval)
+        @socket.close()
+        @emit 'error', "missing_pongs"
+
+      @socket.send(JSON.stringify({event: "ping"}))
+      @outstandingPongs += 1
+    , 5000)
 
   # Sends the given data through the websocket
   #
