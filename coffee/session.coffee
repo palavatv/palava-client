@@ -5,70 +5,91 @@ palava = @palava
 
 # Session is a wrapper around a concrete room, channel and userMedia
 class palava.Session extends @EventEmitter
-
-  # @param o [Object] Options for the session
-  # @option o channel [palava.Channel] A channel Object which will be used for communication
-  # @option o web_socket_channel [WebSocket] A websocket from which a channel will be created
-  # @option o identity [palava.Identity] TODO
-  # @option o options [Object] TODO
+  # Creates the session object
+  #
+  # @param o [Object] See Session#connect for available options
   #
   constructor: (o) ->
-    @resetOptions(o, false)
-
-  # Reset all options to default parameters
-  #
-  # @param o          [Object]  See constructor for details
-  # @param reconnect  [Boolean] Is part of a reconnect?
-  #
-  resetOptions: (o, reconnect = false) =>
-    @channel     = null
-    @userMedia   = null unless reconnect
-    @roomId      = null
     @roomOptions = {}
     @assignOptions(o)
-    @initOptions = o
 
-  # Initializes the session
+  # Initializes the websocket channel, retrieves user media and joins room when stream ready
   #
-  # @param o [Object] See constructor for details
-  # @param reconnect  [Boolean] Is part of a reconnect?
+  # @param o [Object] Options for the session
+  # @option o webSocketAddress [WebSocket] The websocket endpoint to connect to
+  # @option o userMediaConfig [Object] getUserMedia constraints
+  # @option o stun [String] Address of stun server
+  # @option o turn [String] Turn address and credentials
+  # @option o joinTimeout [Integer] Milliseconds till joining is canceled by throwing
+  #           the "join_error" event
   #
-  init: (o, reconnect = false) =>
+  connect: (o) =>
     @assignOptions(o)
-    Object.assign(@initOptions, o)
-    return unless @checkRequirements() unless reconnect
-    @setupRoom()
-    @userMedia.requestStream() unless reconnect
+    return unless @checkRequirements()
+
+    @createChannel()
+    @createRoom()
+
+    if @userMedia.stream
+      @room.join()
+    else
+      @userMedia.requestStream().then =>
+        @room.join()
+
+  # Reconnect the session
+  #
+  reconnect: =>
+    @emit 'session_reconnect'
+    @clearConnection()
+    @createChannel()
+    @createRoom()
+    @room.join()
+
+  # Reset channel and room
+  #
+  clearConnection: =>
+    @room?.leave()
+    @room = null
+    @channel?.close()
+    @channel = null
 
   # Moves options into inner state
   #
   # @nodoc
   #
   assignOptions: (o) =>
-    @roomId = o.roomId || @roomId
+    if o.roomId
+      @roomId = o.roomId
 
-    if o.web_socket_address
-      @channel = new palava.WebSocketChannel(o.web_socket_address)
+    if o.webSocketAddress
+      @webSocketAddress = o.webSocketAddress
 
     if o.identity
       @userMedia = o.identity.newUserMedia()
       @roomOptions.ownStatus = o.identity.getStatus()
 
+    if o.userMediaConfig
+      @userMedia = new palava.Gum(@userMediaConfig)
+
     if o.dataChannels
       @roomOptions.dataChannels = o.dataChannels
 
-    if o.options
-      @roomOptions.stun        = o.options.stun        || @roomOptions.stun
-      @roomOptions.turn        = o.options.turn        || @roomOptions.turn
-      @roomOptions.joinTimeout = o.options.joinTimeout || @roomOptions.joinTimeout
+    if o.stun
+      @roomOptions.stun = o.stun
+
+    if o.turn
+      @roomOptions.turn = o.turn
+
+    if o.joinTimeout
+      @roomOptions.joinTimeout = o.joinTimeout
 
   # Checks whether the inner state of the session is valid. Emits events otherwise
   #
   # @return [Boolean] `true` if options are correct and webrtc support is given
   #
   checkRequirements: =>
-    unless @channel
-      @emit 'argument_error', 'no channel given'
+    unless @webSocketAddress
+      @emit 'argument_error', 'no web socket address given'
       return false
     unless @userMedia
       @emit 'argument_error', 'no user media given'
@@ -105,11 +126,18 @@ class palava.Session extends @EventEmitter
   #
   getRoom:      => @room
 
+  # Build connection to websocket endpont
+  #
+  # @return [palava.Room] Room of the session
+  #
+  createChannel: =>
+    @channel = new palava.WebSocketChannel(@webSocketAddress)
+
   # Maps signals from room to session signals
   #
   # @nodoc
   #
-  setupRoom: => # TODO move some more stuff away from the room? eg signaling
+  createRoom: => # TODO move some more stuff away from the room? eg signaling
     @room = new palava.Room @roomId, @channel, @userMedia, @roomOptions
     @room.on 'local_stream_ready',      (s) => @emit 'local_stream_ready', s
     @room.on 'local_stream_error',      (e) => @emit 'local_stream_error', e
@@ -136,21 +164,10 @@ class palava.Session extends @EventEmitter
     @room.on 'signaling_not_reachable',     => @emit 'signaling_not_reachable'
     true
 
-  # Reconnect the session
-  #
-  reconnect: =>
-    @emit 'session_reconnect'
-    @destroy(true)
-    @resetOptions(@initOptions, true)
-    @init({}, true)
-
   # Destroys the session
-  #
-  # @param reconnect  [Boolean] Is part of a reconnect?
-  #
-  destroy: (reconnect = false) =>
-    @emit 'session_before_destroy' unless reconnect
+  destroy: =>
+    @emit 'session_before_destroy'
     @room      && @room.leave()
     @channel   && @channel.close()
-    @userMedia && @userMedia.releaseStream() unless reconnect
-    @emit 'session_after_destroy' unless reconnect
+    @userMedia && @userMedia.releaseStream()
+    @emit 'session_after_destroy'
