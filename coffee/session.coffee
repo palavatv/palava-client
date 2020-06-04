@@ -142,9 +142,10 @@ class palava.Session extends @EventEmitter
     @room.on 'local_stream_ready',      (s) => @emit 'local_stream_ready', s
     @room.on 'local_stream_error',      (e) => @emit 'local_stream_error', e
     @room.on 'local_stream_removed',        => @emit 'local_stream_removed'
-    @room.on 'join_error',              (e) => @emit 'room_join_error', @room, e
+    @room.on 'join_error',                  => @emit 'room_join_error', @room
     @room.on 'full',                        => @emit 'room_full',       @room
     @room.on 'joined',                      => @emit 'room_joined',     @room
+    @room.on 'left',                        => @emit 'room_left',       @room
     @room.on 'peer_joined',             (p) => @emit 'peer_joined', p
     @room.on 'peer_offer',              (p) => @emit 'peer_offer', p
     @room.on 'peer_answer',             (p) => @emit 'peer_answer', p

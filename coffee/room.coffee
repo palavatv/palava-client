@@ -84,8 +84,8 @@ class palava.Room extends @EventEmitter
   #
   join: (status = {}) =>
     @joinCheckTimeout = setTimeout ( =>
-      @emit 'join_error', 'Not able to join room'
-      @leave() # TODO ?
+      @emit 'join_error'
+      @leave()
     ), @options.joinTimeout
 
     @options.ownStatus[key] = status[key] for key in status
@@ -99,12 +99,10 @@ class palava.Room extends @EventEmitter
   # Leave the room
   #
   leave: =>
-    @emit 'leave'
     if @channel
       @distributor.send
         event: 'leave_room'
-      @channel.close()
-    @localPeer && @localPeer.stream && @localPeer.stream.close()
+    @emit 'left'
 
   # Find peer with the given id
   #
