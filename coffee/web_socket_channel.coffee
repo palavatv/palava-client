@@ -32,7 +32,7 @@ class palava.WebSocketChannel extends @EventEmitter
     @socket.onmessage = (msg) =>
       try
         parsedMsg = JSON.parse(msg.data)
-        if parsedMsg == {event: "pong"}
+        if parsedMsg.event == "pong"
           @outstandingPongs = 0
         else
           @emit 'message', parsedMsg
