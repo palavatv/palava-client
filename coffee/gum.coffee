@@ -29,7 +29,6 @@ class palava.Gum extends @EventEmitter
       (error) =>
         @emit 'stream_error', error
     )
-    true
 
   getStream: =>
     @stream
