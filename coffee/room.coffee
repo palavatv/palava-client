@@ -65,7 +65,7 @@ class palava.Room extends @EventEmitter
       newPeer = new palava.RemotePeer(msg.peer_id, msg.status, @, offers)
       @emit 'peer_joined', newPeer
 
-    @distributor.on 'error',    (msg) => @emit 'signaling_error', 'server', msg.message
+    @distributor.on 'error',    (msg) => @emit 'signaling_error', 'server', msg.description
 
     @distributor.on 'shutdown', (msg) => @emit 'signaling_shutdown', msg.seconds
 
