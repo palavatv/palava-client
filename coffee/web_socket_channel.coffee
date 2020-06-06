@@ -18,7 +18,7 @@ class palava.WebSocketChannel extends @EventEmitter
   isConnected: =>
     @socket?.readyState == 1
 
-  sendMessages: =>
+  sendDeliverOnConnectMessages: =>
     for msg in @messagesToDeliverOnConnect
       @socket.send(msg)
     @messagesToDeliverOnConnect = []
@@ -31,7 +31,7 @@ class palava.WebSocketChannel extends @EventEmitter
     @socket = new WebSocket(@address)
     @socket.onopen = (handshake) =>
       @retries = 0
-      @sendMessages()
+      @sendDeliverOnConnectMessages()
       @emit 'open', handshake
     @socket.onmessage = (msg) =>
       try
@@ -71,19 +71,13 @@ class palava.WebSocketChannel extends @EventEmitter
   # @param data [Object] Object to send through the channel
   #
   send: (data) =>
-    if @socket.readyState == 1 # reached
+    if @socket.readyState == 1 # successful connection
       if @messagesToDeliverOnConnect.length != 0
-        @sendMessages()
+        @sendDeliverOnConnectMessages()
       @socket.send JSON.stringify(data)
-    else if @socket.readyState > 1 # closing or closed
+    else if @socket.readyState > 1 # connection closing or closed
       @emit 'not_reachable'
-    else # connecting ...
-      if @messagesToDeliverOnConnect.length == 0
-        setTimeout (=>
-          if @socket.readyState != 1
-            @close()
-            @emit 'not_reachable'
-        ), 5000
+    else # connection still to be established
       @messagesToDeliverOnConnect.push(JSON.stringify(data))
 
   # Closes the websocket
