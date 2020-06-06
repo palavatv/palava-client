@@ -40,6 +40,7 @@ class palava.Session extends @EventEmitter
   #
   reconnect: =>
     @emit 'session_reconnect'
+    @closeAllPeerConnections()
     @clearConnection()
     @createChannel()
     @createRoom()
@@ -53,6 +54,12 @@ class palava.Session extends @EventEmitter
       @channel.close()
     @channel = null
     @room = null
+
+  # End all peer connections
+  #
+  closeAllPeerConnections: =>
+    @room.getRemotePeers().forEach (peer) =>
+      peer.closePeerConnection()
 
   # Moves options into inner state
   #
@@ -173,5 +180,6 @@ class palava.Session extends @EventEmitter
     @emit 'session_before_destroy'
     @room      && @room.leave()
     @channel   && @channel.close()
+    @closeAllPeerConnections()
     @userMedia && @userMedia.releaseStream()
     @emit 'session_after_destroy'
