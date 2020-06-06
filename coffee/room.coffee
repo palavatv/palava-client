@@ -24,7 +24,6 @@ class palava.Room extends @EventEmitter
     @options   = options
 
     @setupUserMedia()
-    @setupChannel()
     @setupDistributor()
     @setupOptions()
 
@@ -37,14 +36,6 @@ class palava.Room extends @EventEmitter
     @userMedia.on 'stream_error', (error)  => @emit 'local_stream_error', error
     @userMedia.on 'stream_released',       => @emit 'local_stream_removed'
 
-  # Bind channel events to room events
-  #
-  # @nodoc
-  #
-  setupChannel: => # TODO move to session?
-    @channel.on 'not_reachable',     => @emit 'signaling_not_reachable'
-    @channel.on 'error',         (e) => @emit 'signaling_error', e
-    @channel.on 'close',         (e) => @emit 'signaling_close', e
 
   # Set default options
   #

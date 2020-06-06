@@ -133,6 +133,10 @@ class palava.Session extends @EventEmitter
   #
   createChannel: =>
     @channel = new palava.WebSocketChannel(@webSocketAddress)
+    @channel.on 'open',              => @emit 'signaling_open'
+    @channel.on 'error',      (t, e) => @emit 'signaling_error', t, e
+    @channel.on 'close',         (e) => @emit 'signaling_close', e
+    @channel.on 'not_reachable',     => @emit 'signaling_not_reachable'
 
   # Maps signals from room to session signals
   #
@@ -161,9 +165,7 @@ class palava.Session extends @EventEmitter
     @room.on 'peer_left',               (p) => @emit 'peer_left', p
     @room.on 'peer_channel_ready',      (p, n, c) => @emit 'peer_channel_ready', p, n, c
     @room.on 'signaling_shutdown',      (p) => @emit 'signaling_shutdown', p
-    @room.on 'signaling_close',         (p) => @emit 'signaling_close', p
     @room.on 'signaling_error',      (t, e) => @emit 'signaling_error', t, e
-    @room.on 'signaling_not_reachable',     => @emit 'signaling_not_reachable'
     true
 
   # Destroys the session
