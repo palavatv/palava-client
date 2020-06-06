@@ -48,10 +48,11 @@ class palava.Session extends @EventEmitter
   # Reset channel and room
   #
   clearConnection: =>
-    @room?.leave()
-    @room = null
-    @channel?.close()
+    if @channel?.isConnected()
+      @room?.leave()
+      @channel.close()
     @channel = null
+    @room = null
 
   # Moves options into inner state
   #

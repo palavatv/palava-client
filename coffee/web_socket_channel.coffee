@@ -14,6 +14,10 @@ class palava.WebSocketChannel extends @EventEmitter
     @setupWebsocket()
     @startClientPings()
 
+  # Returns true if socket is in a good state
+  isConnected: =>
+    @socket?.readyState == 1
+
   sendMessages: =>
     for msg in @messagesToDeliverOnConnect
       @socket.send(msg)
