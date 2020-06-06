@@ -87,13 +87,20 @@ class palava.Room extends @EventEmitter
       room_id: @id
       status: @options.ownStatus
 
-  # Leave the room
+  # Send leave room event to server
   #
   leave: =>
     if @channel
       @distributor.send
         event: 'leave_room'
     @emit 'left'
+
+  # Makes sure room is closed by disconnecting all peer connections and clearing all timeouts
+  #
+  destroy: =>
+    @getRemotePeers().forEach (peer) =>
+      peer.closePeerConnection()
+    clearTimeout(@joinCheckTimeout)
 
   # Find peer with the given id
   #
