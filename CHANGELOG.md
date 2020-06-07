@@ -1,18 +1,30 @@
 # Change Log
 
-## Next (unreleased)
+## 2.0.0 (unreleased)
 
 ### Breaking Changes
 
-* Remove session option for custom channel and rename `web_socket_channel` to `web_socket_address`
+* Session#init renamed to Session#connect and will automatically join room when user media ready
+* Session options flattened (no extra options key in options required/allowed)
+* Client sends regular pings to socket server and expects pongs, or the connection will be ended
+* Remove session option for custom channel and rename `web_socket_channel` to `webSocketAddress`
 * Require adapter directly in palava-client and switch to `_no_edge` version
 
 ### Other
 
+* Add userMediaConfig option to session options, so you can use it instead of having to create
+  an identity
 * Add session reconnect functionality
-* Restrict connection retries to new connections
 * Use adapter.js for browser detection + add browser.getUserAgentVersion
-* Pass local stream error objects to session wrapper
+* Restrict automatic WebSocket connection retries to new connections
+* Include more information session events:
+  * local stream error objects
+  * signaling error objects
+  * add signaling_open event
+  * add room_left event
+* Add error types to signaling errors to be able to distinguish
+* Remove old check that after 5 seconds unsuccessful server connection would be closed by client
+* Avoid false positive "no webrtc support" messages when client is offline
 
 ## 1.10.1
 
