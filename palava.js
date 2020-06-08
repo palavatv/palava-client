@@ -1,6 +1,6 @@
 
 /*
-palava v1.10.1 | LGPL | https://github.com/palavatv/palava-client
+palava v2.0.0 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 
@@ -44,32 +44,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     this.EventEmitter = EventEmitter;
   }
 
+  if (typeof adapter !== "object" && typeof require === "function") {
+    this.adapter = require('webrtc-adapter/out/adapter_no_edge');
+  } else {
+    this.adapter = adapter;
+  }
+
 }).call(this);
 (function() {
-  var palava;
+  var adapter, palava;
 
   palava = this.palava;
 
+  adapter = this.adapter;
+
   palava.browser.isMozilla = function() {
-    if (window.mozRTCPeerConnection) {
-      return true;
-    } else {
-      return false;
-    }
+    return adapter.browserDetails.browser === 'firefox';
   };
 
   palava.browser.isChrome = function() {
-    return /Chrome/i.test(navigator.userAgent);
+    return adapter.browserDetails.browser === 'chrome';
   };
 
   palava.browser.getUserAgent = function() {
-    if (palava.browser.isMozilla()) {
-      return 'firefox';
-    } else if (palava.browser.isChrome()) {
-      return 'chrome';
-    } else {
-      return 'unknown';
-    }
+    return adapter.browserDetails.browser;
+  };
+
+  palava.browser.getUserAgentVersion = function() {
+    return adapter.browserDetails.version;
   };
 
   palava.browser.checkForWebrtcError = function() {
@@ -200,18 +202,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     Gum.prototype.requestStream = function() {
-      navigator.mediaDevices.getUserMedia(this.config).then((function(_this) {
+      return navigator.mediaDevices.getUserMedia(this.config).then((function(_this) {
         return function(stream) {
           _this.stream = stream;
           _this.detectMedia();
-          return _this.emit('stream_ready', _this);
+          return _this.emit('stream_ready', stream);
         };
       })(this))["catch"]((function(_this) {
-        return function() {
-          return _this.emit('stream_error', _this);
+        return function(error) {
+          return _this.emit('stream_error', error);
         };
       })(this));
-      return true;
     };
 
     Gum.prototype.getStream = function() {
@@ -617,6 +618,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     extend(RemotePeer, superClass);
 
     function RemotePeer(id, status, room, offers) {
+      this.closePeerConnection = bind(this.closePeerConnection, this);
       this.oaError = bind(this.oaError, this);
       this.sdpSender = bind(this.sdpSender, this);
       this.sendMessage = bind(this.sendMessage, this);
@@ -912,6 +914,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       return this.emit('oaerror', error);
     };
 
+    RemotePeer.prototype.closePeerConnection = function() {
+      var ref;
+      if ((ref = this.peerConnection) != null) {
+        ref.close();
+      }
+      return this.peerConnection = null;
+    };
+
     return RemotePeer;
 
   })(palava.Peer);
@@ -936,11 +946,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.getRemotePeers = bind(this.getRemotePeers, this);
       this.getLocalPeer = bind(this.getLocalPeer, this);
       this.getPeerById = bind(this.getPeerById, this);
+      this.destroy = bind(this.destroy, this);
       this.leave = bind(this.leave, this);
       this.join = bind(this.join, this);
       this.setupDistributor = bind(this.setupDistributor, this);
       this.setupOptions = bind(this.setupOptions, this);
-      this.setupChannel = bind(this.setupChannel, this);
       this.setupUserMedia = bind(this.setupUserMedia, this);
       this.id = roomId;
       this.userMedia = userMedia;
@@ -948,43 +958,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.peers = {};
       this.options = options;
       this.setupUserMedia();
-      this.setupChannel();
       this.setupDistributor();
       this.setupOptions();
     }
 
     Room.prototype.setupUserMedia = function() {
       this.userMedia.on('stream_ready', (function(_this) {
-        return function(event) {
-          return _this.emit('local_stream_ready', event.stream);
+        return function(stream) {
+          return _this.emit('local_stream_ready', stream);
         };
       })(this));
       this.userMedia.on('stream_error', (function(_this) {
-        return function(event) {
-          return _this.emit('local_stream_error', event.stream);
+        return function(error) {
+          return _this.emit('local_stream_error', error);
         };
       })(this));
       return this.userMedia.on('stream_released', (function(_this) {
         return function() {
           return _this.emit('local_stream_removed');
-        };
-      })(this));
-    };
-
-    Room.prototype.setupChannel = function() {
-      this.channel.on('not_reachable', (function(_this) {
-        return function(e) {
-          return _this.emit('signaling_not_reachable', e);
-        };
-      })(this));
-      this.channel.on('error', (function(_this) {
-        return function(e) {
-          return _this.emit('signaling_error', e);
-        };
-      })(this));
-      return this.channel.on('close', (function(_this) {
-        return function(e) {
-          return _this.emit('signaling_close', e);
         };
       })(this));
     };
@@ -1021,7 +1012,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       })(this));
       this.distributor.on('error', (function(_this) {
         return function(msg) {
-          return _this.emit('signaling_error', msg.message);
+          return _this.emit('signaling_error', 'server', msg.description);
         };
       })(this));
       return this.distributor.on('shutdown', (function(_this) {
@@ -1038,8 +1029,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       }
       this.joinCheckTimeout = setTimeout(((function(_this) {
         return function() {
-          _this.emit('join_error', 'Not able to join room');
-          return _this.leave();
+          return _this.emit('join_error');
         };
       })(this)), this.options.joinTimeout);
       for (i = 0, len = status.length; i < len; i++) {
@@ -1055,14 +1045,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     Room.prototype.leave = function() {
-      this.emit('leave');
       if (this.channel) {
         this.distributor.send({
           event: 'leave_room'
         });
-        this.channel.close();
       }
-      return this.localPeer && this.localPeer.stream && this.localPeer.stream.close();
+      return this.emit('left');
+    };
+
+    Room.prototype.destroy = function() {
+      this.getRemotePeers().forEach((function(_this) {
+        return function(peer) {
+          return peer.closePeerConnection();
+        };
+      })(this));
+      return clearTimeout(this.joinCheckTimeout);
     };
 
     Room.prototype.getPeerById = function(id) {
@@ -1115,15 +1112,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       }
       this.close = bind(this.close, this);
       this.send = bind(this.send, this);
+      this.startClientPings = bind(this.startClientPings, this);
       this.setupWebsocket = bind(this.setupWebsocket, this);
-      this.sendMessages = bind(this.sendMessages, this);
+      this.sendDeliverOnConnectMessages = bind(this.sendDeliverOnConnectMessages, this);
+      this.isConnected = bind(this.isConnected, this);
       this.address = address;
       this.retries = retries;
       this.messagesToDeliverOnConnect = [];
       this.setupWebsocket();
+      this.startClientPings();
     }
 
-    WebSocketChannel.prototype.sendMessages = function() {
+    WebSocketChannel.prototype.isConnected = function() {
+      var ref;
+      return ((ref = this.socket) != null ? ref.readyState : void 0) === 1;
+    };
+
+    WebSocketChannel.prototype.sendDeliverOnConnectMessages = function() {
       var i, len, msg, ref;
       ref = this.messagesToDeliverOnConnect;
       for (i = 0, len = ref.length; i < len; i++) {
@@ -1137,57 +1142,72 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.socket = new WebSocket(this.address);
       this.socket.onopen = (function(_this) {
         return function(handshake) {
-          _this.sendMessages();
+          _this.retries = 0;
+          _this.sendDeliverOnConnectMessages();
           return _this.emit('open', handshake);
         };
       })(this);
       this.socket.onmessage = (function(_this) {
         return function(msg) {
-          var SyntaxError;
+          var parsedMsg;
           try {
-            return _this.emit('message', JSON.parse(msg.data));
+            parsedMsg = JSON.parse(msg.data);
+            if (parsedMsg.event === "pong") {
+              return _this.outstandingPongs = 0;
+            } else {
+              return _this.emit('message', parsedMsg);
+            }
           } catch (error) {
-            SyntaxError = error;
-            return _this.emit('error_invalid_json', msg);
+            return _this.emit('error', 'invalid_format', msg.data);
           }
         };
       })(this);
       this.socket.onerror = (function(_this) {
         return function(msg) {
+          clearInterval(_this.pingInterval);
           if (_this.retries > 0) {
             _this.retries -= 1;
-            return _this.setupWebsocket();
+            _this.setupWebsocket();
+            return _this.startClientPings();
           } else {
-            return _this.emit('error', msg);
+            return _this.emit('error', 'socket', msg);
           }
         };
       })(this);
       return this.socket.onclose = (function(_this) {
         return function() {
+          clearInterval(_this.pingInterval);
           return _this.emit('close');
         };
       })(this);
     };
 
+    WebSocketChannel.prototype.startClientPings = function() {
+      this.outstandingPongs = 0;
+      return this.pingInterval = setInterval((function(_this) {
+        return function() {
+          if (_this.outstandingPongs >= 6) {
+            clearInterval(_this.pingInterval);
+            _this.socket.close();
+            _this.emit('error', "missing_pongs");
+          }
+          _this.socket.send(JSON.stringify({
+            event: "ping"
+          }));
+          return _this.outstandingPongs += 1;
+        };
+      })(this), 5000);
+    };
+
     WebSocketChannel.prototype.send = function(data) {
       if (this.socket.readyState === 1) {
         if (this.messagesToDeliverOnConnect.length !== 0) {
-          this.sendMessages();
+          this.sendDeliverOnConnectMessages();
         }
         return this.socket.send(JSON.stringify(data));
       } else if (this.socket.readyState > 1) {
-        return this.emit('not_reachable', this.serverAddress);
+        return this.emit('not_reachable');
       } else {
-        if (this.messagesToDeliverOnConnect.length === 0) {
-          setTimeout(((function(_this) {
-            return function() {
-              if (_this.socket.readyState !== 1) {
-                _this.close();
-                return _this.emit('not_reachable', _this.serverAddress);
-              }
-            };
-          })(this)), 5000);
-        }
         return this.messagesToDeliverOnConnect.push(JSON.stringify(data));
       }
     };
@@ -1214,54 +1234,107 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     function Session(o) {
       this.destroy = bind(this.destroy, this);
-      this.setupRoom = bind(this.setupRoom, this);
+      this.createRoom = bind(this.createRoom, this);
+      this.createChannel = bind(this.createChannel, this);
       this.getRoom = bind(this.getRoom, this);
       this.getUserMedia = bind(this.getUserMedia, this);
       this.getChannel = bind(this.getChannel, this);
       this.checkRequirements = bind(this.checkRequirements, this);
       this.assignOptions = bind(this.assignOptions, this);
-      this.init = bind(this.init, this);
-      this.channel = null;
-      this.userMedia = null;
-      this.roomId = null;
+      this.tearDown = bind(this.tearDown, this);
+      this.reconnect = bind(this.reconnect, this);
+      this.connect = bind(this.connect, this);
       this.roomOptions = {};
       this.assignOptions(o);
     }
 
-    Session.prototype.init = function(o) {
+    Session.prototype.connect = function(o) {
       this.assignOptions(o);
       if (!this.checkRequirements()) {
         return;
       }
-      this.setupRoom();
-      return this.userMedia.requestStream();
+      this.createChannel();
+      this.createRoom();
+      if (this.userMedia.stream) {
+        return this.room.join();
+      } else {
+        return this.userMedia.requestStream().then((function(_this) {
+          return function() {
+            return _this.room.join();
+          };
+        })(this));
+      }
+    };
+
+    Session.prototype.reconnect = function() {
+      this.emit('session_reconnect');
+      this.tearDown();
+      this.createChannel();
+      this.createRoom();
+      return this.room.join();
+    };
+
+    Session.prototype.tearDown = function(resetUserMedia) {
+      var ref, ref1, ref2, ref3, ref4, ref5;
+      if (resetUserMedia == null) {
+        resetUserMedia = false;
+      }
+      if ((ref = this.room) != null) {
+        ref.removeAllListeners();
+      }
+      if ((ref1 = this.channel) != null) {
+        ref1.removeAllListeners();
+      }
+      if ((ref2 = this.channel) != null ? ref2.isConnected() : void 0) {
+        if ((ref3 = this.room) != null) {
+          ref3.leave();
+        }
+      }
+      if ((ref4 = this.channel) != null) {
+        ref4.close();
+      }
+      this.channel = null;
+      if ((ref5 = this.room) != null) {
+        ref5.destroy();
+      }
+      this.room = null;
+      if (resetUserMedia && this.userMedia) {
+        return this.userMedia.releaseStream();
+      }
     };
 
     Session.prototype.assignOptions = function(o) {
-      this.roomId = o.roomId || this.roomId;
-      if (o.channel) {
-        this.channel = o.channel;
-      } else if (o.web_socket_channel) {
-        this.channel = new palava.WebSocketChannel(o.web_socket_channel);
+      if (o.roomId) {
+        this.roomId = o.roomId;
+      }
+      if (o.webSocketAddress) {
+        this.webSocketAddress = o.webSocketAddress;
       }
       if (o.identity) {
         this.userMedia = o.identity.newUserMedia();
         this.roomOptions.ownStatus = o.identity.getStatus();
       }
+      if (o.userMediaConfig) {
+        this.userMedia = new palava.Gum(this.userMediaConfig);
+      }
       if (o.dataChannels) {
         this.roomOptions.dataChannels = o.dataChannels;
       }
-      if (o.options) {
-        this.roomOptions.stun = o.options.stun || this.roomOptions.stun;
-        this.roomOptions.turn = o.options.turn || this.roomOptions.turn;
-        return this.roomOptions.joinTimeout = o.options.joinTimeout || this.roomOptions.joinTimeout;
+      if (o.stun) {
+        this.roomOptions.stun = o.stun;
+      }
+      if (o.turn) {
+        this.roomOptions.turn = o.turn;
+      }
+      if (o.joinTimeout) {
+        return this.roomOptions.joinTimeout = o.joinTimeout;
       }
     };
 
     Session.prototype.checkRequirements = function() {
       var e;
-      if (!this.channel) {
-        this.emit('argument_error', 'no channel given');
+      if (!this.webSocketAddress) {
+        this.emit('argument_error', 'no web socket address given');
         return false;
       }
       if (!this.userMedia) {
@@ -1274,6 +1347,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       }
       if (!this.roomOptions.stun) {
         this.emit('argument_error', 'no stun server given');
+        return false;
+      }
+      if (!navigator.onLine) {
+        this.emit('signaling_not_reachable');
         return false;
       }
       if (e = palava.browser.checkForWebrtcError()) {
@@ -1295,7 +1372,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       return this.room;
     };
 
-    Session.prototype.setupRoom = function() {
+    Session.prototype.createChannel = function() {
+      this.channel = new palava.WebSocketChannel(this.webSocketAddress);
+      this.channel.on('open', (function(_this) {
+        return function() {
+          return _this.emit('signaling_open');
+        };
+      })(this));
+      this.channel.on('error', (function(_this) {
+        return function(t, e) {
+          return _this.emit('signaling_error', t, e);
+        };
+      })(this));
+      this.channel.on('close', (function(_this) {
+        return function(e) {
+          return _this.emit('signaling_close', e);
+        };
+      })(this));
+      return this.channel.on('not_reachable', (function(_this) {
+        return function() {
+          return _this.emit('signaling_not_reachable');
+        };
+      })(this));
+    };
+
+    Session.prototype.createRoom = function() {
       this.room = new palava.Room(this.roomId, this.channel, this.userMedia, this.roomOptions);
       this.room.on('local_stream_ready', (function(_this) {
         return function(s) {
@@ -1303,8 +1404,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         };
       })(this));
       this.room.on('local_stream_error', (function(_this) {
-        return function(s) {
-          return _this.emit('local_stream_error');
+        return function(e) {
+          return _this.emit('local_stream_error', e);
         };
       })(this));
       this.room.on('local_stream_removed', (function(_this) {
@@ -1313,8 +1414,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         };
       })(this));
       this.room.on('join_error', (function(_this) {
-        return function(e) {
-          return _this.emit('room_join_error', _this.room, e);
+        return function() {
+          _this.tearDown(true);
+          return _this.emit('room_join_error', _this.room);
         };
       })(this));
       this.room.on('full', (function(_this) {
@@ -1325,6 +1427,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.room.on('joined', (function(_this) {
         return function() {
           return _this.emit('room_joined', _this.room);
+        };
+      })(this));
+      this.room.on('left', (function(_this) {
+        return function() {
+          return _this.emit('room_left', _this.room);
         };
       })(this));
       this.room.on('peer_joined', (function(_this) {
@@ -1397,19 +1504,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           return _this.emit('signaling_shutdown', p);
         };
       })(this));
-      this.room.on('signaling_close', (function(_this) {
-        return function(p) {
-          return _this.emit('signaling_close', p);
-        };
-      })(this));
       this.room.on('signaling_error', (function(_this) {
-        return function(p) {
-          return _this.emit('signaling_error', p);
-        };
-      })(this));
-      this.room.on('signaling_not_reachable', (function(_this) {
-        return function(p) {
-          return _this.emit('signaling_not_reachable', p);
+        return function(t, e) {
+          return _this.emit('signaling_error', t, e);
         };
       })(this));
       return true;
@@ -1417,9 +1514,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     Session.prototype.destroy = function() {
       this.emit('session_before_destroy');
-      this.room && this.room.leave();
-      this.channel && this.channel.close();
-      this.userMedia && this.userMedia.releaseStream();
+      this.tearDown(true);
       return this.emit('session_after_destroy');
     };
 
@@ -1437,9 +1532,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '1.10.1';
+  palava.LIB_VERSION = '2.0.0';
 
-  palava.LIB_COMMIT = 'v1.10.0-1-gd9d9148e85-dirty';
+  palava.LIB_COMMIT = 'v1.10.1-49-g35c57774a6-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";

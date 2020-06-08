@@ -1,16 +1,13 @@
 {
   "name": "palava-client",
-  "description": "CoffeeScript library for WebRTC",
-  "version": "1.10.1",
+  "description": "Signaling client for WebRTC video-/audio conferencing using the palava protocol",
+  "version": "2.0.0",
   "author": {
     "name": "palava e. V.",
     "email": "contact@palava.tv",
     "homepage": "https://palava.tv"
   },
-  "license": {
-    "type": "LPGLv3",
-    "url": "https://raw.github.com/palavatv/palava-client/master/COPYING.LESSER"
-  },
+  "license": "LGPL-3.0",
   "dependencies": {
     "webrtc-adapter": "^7.6.0",
     "wolfy87-eventemitter": "~5.2.9"
