@@ -50,6 +50,8 @@ class palava.Session extends @EventEmitter
   # @param o [Object] Also release user media
   #
   tearDown: (resetUserMedia = false) =>
+    @room?.removeAllListeners()
+    @channel?.removeAllListeners()
     if @channel?.isConnected()
       @room?.leave()
     @channel.close()
