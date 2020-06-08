@@ -6,7 +6,7 @@ This repository contains the WebRTC client-side library of palava.tv. There is a
 
 ## Description
 
-This JavaScript library implements the palava protocol to function together with the [signaltower](https://github.com/palavatv/signaltower/) or the [palava-machine](https://github.com/palavatv/palava-machine) signaling servers. It allows you to create PeerConnections to other browser. It includes the [webrtc-adapter](https://github.com/webrtchacks/adapter) project for better WebRTC compatiblity.
+This JavaScript library implements the palava protocol to function together with the [signaltower](https://github.com/palavatv/signaltower/) or the [palava-machine](https://github.com/palavatv/palava-machine) signaling server. It allows you to create PeerConnections to other browser. It includes the [webrtc-adapter](https://github.com/webrtchacks/adapter) project for better WebRTC compatibility.
 
 ## Setup
 
@@ -14,7 +14,7 @@ This JavaScript library implements the palava protocol to function together with
 
     $ npm install palava-client
 
-This will install palava and its dependencies into the node_modules folder. You'll need to include all dependencies (palava, eventEmitter, adapter.js) into your source file.
+This will install palava and its dependencies into the node_modules folder.
 
 ### JS bundle file
 
@@ -26,7 +26,7 @@ You can get it from here: https://raw.githubusercontent.com/palavatv/palava-clie
 
 ## API Docs
 
-https://palavatv.github.io/palava-client/
+- See https://palavatv.github.io/palava-client/
 
 ## Local Development
 
