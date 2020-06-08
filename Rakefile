@@ -39,3 +39,8 @@ namespace :build do
     puts Paint["Successfully built palava.bundle.js", :green]
   end
 end
+
+desc 'create codo documentation'
+task :docs do
+  sh 'codo -n "palava-client" -t "palava-client documentation" -o docs'
+end
