@@ -52,7 +52,7 @@ class palava.Session extends @EventEmitter
   tearDown: (resetUserMedia = false) =>
     if @channel?.isConnected()
       @room?.leave()
-      @channel.close()
+    @channel.close()
     @channel = null
     @room?.destroy()
     @room = null
