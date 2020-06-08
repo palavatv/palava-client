@@ -172,9 +172,7 @@ class palava.Session extends @EventEmitter
   # Destroys the session
   destroy: =>
     @emit 'session_before_destroy'
-    if @room
-      @room.leave()
-      @room.destroy()
-    @channel   && @channel.close()
-    @userMedia && @userMedia.releaseStream()
+    @clearConnection()
+    if @userMedia
+      @userMedia.releaseStream()
     @emit 'session_after_destroy'
