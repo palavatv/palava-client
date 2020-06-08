@@ -45,6 +45,14 @@
     <pre><code class='coffeescript'></code></pre>
     
   </dd>
+  <dt id='adapter-variable'>
+    adapter
+    =
+  </dt>
+  <dd>
+    <pre><code class='coffeescript'></code></pre>
+    
+  </dd>
 </dl>
       <h2>Method Summary</h2>
       <ul class='summary'>
@@ -88,12 +96,25 @@
     <span class='signature'>
       <a href='#palava-'>
         ~
+(Integer)
+<b>palava</b><span>()</span>
+      </a>
+    </span>
+    <span class='desc'>
+      Checks which browser is used 
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#palava-'>
+        ~
 (Boolean)
 <b>palava</b><span>()</span>
       </a>
     </span>
     <span class='desc'>
-      Checks whether the WebRTC support of the browser should be compatible with palava 
+      Checks whether the WebRTC support of the browser should be compatible with palava Please note: The test requires network connectivity
+
     </span>
   </li>
   <li>
@@ -224,7 +245,31 @@
         <tt>String</tt>
       )
       &mdash;
-      <span class='desc'>A well defined id of the browser (firefox, chrome or unknown) </span>
+      <span class='desc'>A well defined id of the browser (firefox, chrome, safari, or unknown) </span>
+    </li>
+  </ul>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='palava-'>
+      ~
+(Integer)
+<b>palava</b><span>()</span>
+      <br>
+    </p>
+    <div class='docstring'>
+  <p>Checks which browser is used</p>
+</div>
+<div class='tags'>
+  <h3>Returns:</h3>
+  <ul class='return'>
+    <li>
+      <span class='type'></span>
+      (
+        <tt>Integer</tt>
+      )
+      &mdash;
+      <span class='desc'>The user agent version </span>
     </li>
   </ul>
 </div>
@@ -237,7 +282,7 @@
       <br>
     </p>
     <div class='docstring'>
-  <p>Checks whether the WebRTC support of the browser should be compatible with palava</p>
+  <p>Checks whether the WebRTC support of the browser should be compatible with palava</p><p>Please note: The test requires network connectivity</p>
 </div>
 <div class='tags'>
   <h3>Returns:</h3>

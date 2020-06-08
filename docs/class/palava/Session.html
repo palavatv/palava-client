@@ -51,15 +51,42 @@
       <ul class='summary'>
   <li>
     <span class='signature'>
-      <a href='#init-dynamic'>
+      <a href='#connect-dynamic'>
         #
 (void)
-<b>init</b><span>(o)</span>
+<b>connect</b><span>(o)</span>
       </a>
     </span>
     <span class='bound note title'>Bound</span>
     <span class='desc'>
-      Initializes the session 
+      Initializes the websocket channel, retrieves user media and joins room when stream ready <code>      the &quot;join_error&quot; event</code>
+
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#reconnect-dynamic'>
+        #
+(void)
+<b>reconnect</b><span>()</span>
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      Reconnect the session 
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#tearDown-dynamic'>
+        #
+(void)
+<b>tearDown</b><span>(resetUserMedia = false)</span>
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      Reset channel and room 
     </span>
   </li>
   <li>
@@ -116,6 +143,19 @@
   </li>
   <li>
     <span class='signature'>
+      <a href='#createChannel-dynamic'>
+        #
+(palava.Room)
+<b>createChannel</b><span>()</span>
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      Build connection to websocket endpont 
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
       <a href='#destroy-dynamic'>
         #
 (void)
@@ -137,7 +177,41 @@
 <b>constructor</b><span>(o)</span>
       <br>
     </p>
-    <div class='tags'>
+    <div class='docstring'>
+  <p>Creates the session object</p>
+</div>
+<div class='tags'>
+  <h3>Parameters:</h3>
+  <ul class='param'>
+    <li>
+      <span class='name'>o</span>
+      <span class='type'>
+        (
+          <tt>Object</tt>
+        )
+      </span>
+      &mdash;
+      <span class='desc'>See Session#connect for available options </span>
+    </li>
+  </ul>
+</div>
+  </div>
+</div>
+      <h2>Instance Method Details</h2>
+      <div class='methods'>
+  <div class='method_details'>
+    <p class='signature' id='connect-dynamic'>
+      #
+(void)
+<b>connect</b><span>(o)</span>
+      <span class='bound note'>Bound</span>
+      <br>
+    </p>
+    <div class='docstring'>
+  <p>Initializes the websocket channel, retrieves user media and joins room when stream ready</p><pre><code>      the &quot;join_error&quot; event</code></pre>
+
+</div>
+<div class='tags'>
   <h3>Parameters:</h3>
   <ul class='param'>
     <li>
@@ -157,61 +231,82 @@
   </h3>
   <ul class='options'>
     <li>
-      <span class='name'>channel</span>
-      <span class='type'>
-        (
-          <tt>palava.Channel</tt>
-        )
-      </span>
-      &mdash;
-      <span class='desc'>A channel Object which will be used for communication </span>
-    </li>
-    <li>
-      <span class='name'>web_socket_channel</span>
+      <span class='name'>webSocketAddress</span>
       <span class='type'>
         (
           <tt>WebSocket</tt>
         )
       </span>
       &mdash;
-      <span class='desc'>A websocket from which a channel will be created </span>
+      <span class='desc'>The websocket endpoint to connect to </span>
     </li>
     <li>
-      <span class='name'>identity</span>
-      <span class='type'>
-        (
-          <tt><a href='../../class/palava/Identity.html'>palava.Identity</a></tt>
-        )
-      </span>
-      &mdash;
-      <span class='desc'>TODO </span>
-    </li>
-    <li>
-      <span class='name'>options</span>
+      <span class='name'>userMediaConfig</span>
       <span class='type'>
         (
           <tt>Object</tt>
         )
       </span>
       &mdash;
-      <span class='desc'>TODO </span>
+      <span class='desc'>getUserMedia constraints </span>
+    </li>
+    <li>
+      <span class='name'>stun</span>
+      <span class='type'>
+        (
+          <tt>String</tt>
+        )
+      </span>
+      &mdash;
+      <span class='desc'>Address of stun server </span>
+    </li>
+    <li>
+      <span class='name'>turn</span>
+      <span class='type'>
+        (
+          <tt>String</tt>
+        )
+      </span>
+      &mdash;
+      <span class='desc'>Turn address and credentials </span>
+    </li>
+    <li>
+      <span class='name'>joinTimeout</span>
+      <span class='type'>
+        (
+          <tt>Integer</tt>
+        )
+      </span>
+      &mdash;
+      <span class='desc'>Milliseconds till joining is canceled by throwing </span>
     </li>
   </ul>
 </div>
   </div>
-</div>
-      <h2>Instance Method Details</h2>
-      <div class='methods'>
   <div class='method_details'>
-    <p class='signature' id='init-dynamic'>
+    <p class='signature' id='reconnect-dynamic'>
       #
 (void)
-<b>init</b><span>(o)</span>
+<b>reconnect</b><span>()</span>
       <span class='bound note'>Bound</span>
       <br>
     </p>
     <div class='docstring'>
-  <p>Initializes the session</p>
+  <p>Reconnect the session</p>
+</div>
+<div class='tags'>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='tearDown-dynamic'>
+      #
+(void)
+<b>tearDown</b><span>(resetUserMedia = false)</span>
+      <span class='bound note'>Bound</span>
+      <br>
+    </p>
+    <div class='docstring'>
+  <p>Reset channel and room</p>
 </div>
 <div class='tags'>
   <h3>Parameters:</h3>
@@ -224,7 +319,7 @@
         )
       </span>
       &mdash;
-      <span class='desc'>See constructor for details </span>
+      <span class='desc'>Also release user media </span>
     </li>
   </ul>
 </div>
@@ -314,6 +409,31 @@
     </p>
     <div class='docstring'>
   <p>Get the room of the session</p>
+</div>
+<div class='tags'>
+  <h3>Returns:</h3>
+  <ul class='return'>
+    <li>
+      <span class='type'></span>
+      (
+        <tt><a href='../../class/palava/Room.html'>palava.Room</a></tt>
+      )
+      &mdash;
+      <span class='desc'>Room of the session </span>
+    </li>
+  </ul>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='createChannel-dynamic'>
+      #
+(palava.Room)
+<b>createChannel</b><span>()</span>
+      <span class='bound note'>Bound</span>
+      <br>
+    </p>
+    <div class='docstring'>
+  <p>Build connection to websocket endpont</p>
 </div>
 <div class='tags'>
   <h3>Returns:</h3>

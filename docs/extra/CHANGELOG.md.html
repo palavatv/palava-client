@@ -35,6 +35,33 @@
       </nav>
       <div id='filecontents'>
         <h1 id="change-log">Change Log</h1>
+<h2 id="200">2.0.0</h2>
+<h3 id="breaking-changes">Breaking Changes</h3>
+<ul>
+<li>Session#init renamed to Session#connect and will automatically join room when user media ready</li>
+<li>Session options flattened (no extra options key in options required/allowed)</li>
+<li>Client sends regular pings to socket server and expects pongs, or the connection will be ended</li>
+<li>Remove session option for custom channel and rename <code>web_socket_channel</code> to <code>webSocketAddress</code></li>
+<li>Require adapter directly in palava-client and switch to <code>_no_edge</code> version</li>
+</ul>
+<h3 id="other">Other</h3>
+<ul>
+<li>Add userMediaConfig option to session options, so you can use it instead of having to create
+an identity</li>
+<li>Add session reconnect functionality</li>
+<li>Use adapter.js for browser detection + add browser.getUserAgentVersion</li>
+<li>Restrict automatic WebSocket connection retries to new connections</li>
+<li>Include more information session events:<ul>
+<li>local stream error objects</li>
+<li>signaling error objects</li>
+<li>add signaling_open event</li>
+<li>add room_left event</li>
+</ul>
+</li>
+<li>Add error types to signaling errors to be able to distinguish</li>
+<li>Remove old check that after 5 seconds unsuccessful server connection would be closed by client</li>
+<li>Avoid false positive &quot;no webrtc support&quot; messages when client is offline</li>
+</ul>
 <h2 id="1101">1.10.1</h2>
 <ul>
 <li>Send leave room event when closing connection</li>
