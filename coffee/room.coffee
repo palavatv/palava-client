@@ -76,7 +76,6 @@ class palava.Room extends @EventEmitter
   join: (status = {}) =>
     @joinCheckTimeout = setTimeout ( =>
       @emit 'join_error'
-      @leave()
     ), @options.joinTimeout
 
     @options.ownStatus[key] = status[key] for key in status
