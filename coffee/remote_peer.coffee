@@ -229,3 +229,9 @@ class palava.RemotePeer extends palava.Peer
   #
   oaError: (error) =>
     @emit 'oaerror', error
+
+  # End peer connection
+  #
+  closePeerConnection: =>
+    @peerConnection?.close()
+    @peerConnection = null

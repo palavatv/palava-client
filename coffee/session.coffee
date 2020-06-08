@@ -40,18 +40,26 @@ class palava.Session extends @EventEmitter
   #
   reconnect: =>
     @emit 'session_reconnect'
-    @clearConnection()
+    @tearDown()
     @createChannel()
     @createRoom()
     @room.join()
 
   # Reset channel and room
   #
-  clearConnection: =>
-    @room?.leave()
-    @room = null
+  # @param o [Object] Also release user media
+  #
+  tearDown: (resetUserMedia = false) =>
+    @room?.removeAllListeners()
+    @channel?.removeAllListeners()
+    if @channel?.isConnected()
+      @room?.leave()
     @channel?.close()
     @channel = null
+    @room?.destroy()
+    @room = null
+    if resetUserMedia && @userMedia
+      @userMedia.releaseStream()
 
   # Moves options into inner state
   #
@@ -132,6 +140,10 @@ class palava.Session extends @EventEmitter
   #
   createChannel: =>
     @channel = new palava.WebSocketChannel(@webSocketAddress)
+    @channel.on 'open',              => @emit 'signaling_open'
+    @channel.on 'error',      (t, e) => @emit 'signaling_error', t, e
+    @channel.on 'close',         (e) => @emit 'signaling_close', e
+    @channel.on 'not_reachable',     => @emit 'signaling_not_reachable'
 
   # Maps signals from room to session signals
   #
@@ -142,7 +154,9 @@ class palava.Session extends @EventEmitter
     @room.on 'local_stream_ready',      (s) => @emit 'local_stream_ready', s
     @room.on 'local_stream_error',      (e) => @emit 'local_stream_error', e
     @room.on 'local_stream_removed',        => @emit 'local_stream_removed'
-    @room.on 'join_error',                  => @emit 'room_join_error', @room
+    @room.on 'join_error',                  =>
+      @tearDown(true)
+      @emit 'room_join_error', @room
     @room.on 'full',                        => @emit 'room_full',       @room
     @room.on 'joined',                      => @emit 'room_joined',     @room
     @room.on 'left',                        => @emit 'room_left',       @room
@@ -160,15 +174,11 @@ class palava.Session extends @EventEmitter
     @room.on 'peer_left',               (p) => @emit 'peer_left', p
     @room.on 'peer_channel_ready',      (p, n, c) => @emit 'peer_channel_ready', p, n, c
     @room.on 'signaling_shutdown',      (p) => @emit 'signaling_shutdown', p
-    @room.on 'signaling_close',         (p) => @emit 'signaling_close', p
     @room.on 'signaling_error',      (t, e) => @emit 'signaling_error', t, e
-    @room.on 'signaling_not_reachable',     => @emit 'signaling_not_reachable'
     true
 
   # Destroys the session
   destroy: =>
     @emit 'session_before_destroy'
-    @room      && @room.leave()
-    @channel   && @channel.close()
-    @userMedia && @userMedia.releaseStream()
+    @tearDown(true)
     @emit 'session_after_destroy'

@@ -24,7 +24,6 @@ class palava.Room extends @EventEmitter
     @options   = options
 
     @setupUserMedia()
-    @setupChannel()
     @setupDistributor()
     @setupOptions()
 
@@ -37,14 +36,6 @@ class palava.Room extends @EventEmitter
     @userMedia.on 'stream_error', (error)  => @emit 'local_stream_error', error
     @userMedia.on 'stream_released',       => @emit 'local_stream_removed'
 
-  # Bind channel events to room events
-  #
-  # @nodoc
-  #
-  setupChannel: => # TODO move to session?
-    @channel.on 'not_reachable',     => @emit 'signaling_not_reachable'
-    @channel.on 'error',         (e) => @emit 'signaling_error', e
-    @channel.on 'close',         (e) => @emit 'signaling_close', e
 
   # Set default options
   #
@@ -74,7 +65,7 @@ class palava.Room extends @EventEmitter
       newPeer = new palava.RemotePeer(msg.peer_id, msg.status, @, offers)
       @emit 'peer_joined', newPeer
 
-    @distributor.on 'error',    (msg) => @emit 'signaling_error', 'server', msg.message
+    @distributor.on 'error',    (msg) => @emit 'signaling_error', 'server', msg.description
 
     @distributor.on 'shutdown', (msg) => @emit 'signaling_shutdown', msg.seconds
 
@@ -85,7 +76,6 @@ class palava.Room extends @EventEmitter
   join: (status = {}) =>
     @joinCheckTimeout = setTimeout ( =>
       @emit 'join_error'
-      @leave()
     ), @options.joinTimeout
 
     @options.ownStatus[key] = status[key] for key in status
@@ -96,13 +86,20 @@ class palava.Room extends @EventEmitter
       room_id: @id
       status: @options.ownStatus
 
-  # Leave the room
+  # Send leave room event to server
   #
   leave: =>
     if @channel
       @distributor.send
         event: 'leave_room'
     @emit 'left'
+
+  # Makes sure room is closed by disconnecting all peer connections and clearing all timeouts
+  #
+  destroy: =>
+    @getRemotePeers().forEach (peer) =>
+      peer.closePeerConnection()
+    clearTimeout(@joinCheckTimeout)
 
   # Find peer with the given id
   #
