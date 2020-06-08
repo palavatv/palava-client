@@ -54,7 +54,7 @@ class palava.Session extends @EventEmitter
     @channel?.removeAllListeners()
     if @channel?.isConnected()
       @room?.leave()
-    @channel.close()
+    @channel?.close()
     @channel = null
     @room?.destroy()
     @room = null
