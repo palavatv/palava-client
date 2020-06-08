@@ -36,12 +36,14 @@ class palava.WebSocketChannel extends @EventEmitter
     @socket.onmessage = (msg) =>
       try
         parsedMsg = JSON.parse(msg.data)
-        if parsedMsg.event == "pong"
-          @outstandingPongs = 0
-        else
-          @emit 'message', parsedMsg
       catch SyntaxError
-        @emit 'error', 'invalid_json', msg
+        @emit 'error', 'invalid_json', msg.data
+        return
+
+      if parsedMsg.event == "pong"
+        @outstandingPongs = 0
+      else
+        @emit 'message', parsedMsg
     @socket.onerror = (msg) =>
       clearInterval(@pingInterval)
       if @retries > 0
