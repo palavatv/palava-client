@@ -28,10 +28,14 @@ class palava.RemotePeer extends palava.Peer
 
     @dataChannels = {}
 
-    @setupRoom()
-    @setupPeerConnection(offers)
-    @setupDistributor()
+    @offers = offers
+    @makingOffer = false
+    @ignoreOffer = false
+    @setRemoteAnswerPending = false
 
+    @setupRoom()
+    @setupDistributor()
+    @setupPeerConnection(offers)
     if offers
       @sendOffer()
 
@@ -62,8 +66,7 @@ class palava.RemotePeer extends palava.Peer
         credential: @turnCredentials.password
     {iceServers: options}
 
-  # Sets up the peer connection and its events
-  #
+  # Sets up the peer connection and its events   #
   # @nodoc
   #
   setupPeerConnection: (offers) =>
@@ -87,6 +90,9 @@ class palava.RemotePeer extends palava.Peer
       @ready = false
       @emit 'stream_removed'
 
+    @peerConnection.onnegotiationneeded = () =>
+      @sendOffer()
+
     @peerConnection.oniceconnectionstatechange = (event) =>
       connectionState = event.target.iceConnectionState
 
@@ -107,12 +113,33 @@ class palava.RemotePeer extends palava.Peer
           @error = "connection_closed"
           @emit 'connection_closed'
 
-    # TODO onsignalingstatechange
-
     if @room.localPeer.getStream()
-      @peerConnection.addStream @room.localPeer.getStream()
-    else
-      # not suppored yet
+      for track in @room.localPeer.getStream().getTracks()
+        @peerConnection.addTrack(track, @room.localPeer.getStream())
+
+    @room.localPeer.on 'display_stream_ready', (stream) =>
+      videoSender = @peerConnection.getSenders().find(
+        (sender) => sender.track.kind == "video"
+      )
+      if videoSender
+        # if there is a local video track then replace it because that's faster
+        # and does not need renegotiation
+        videoSender.replaceTrack(track)
+      else
+        @peerConnection.addTrack(stream.getVideoTracks()[0],
+                                 @room.localPeer.getStream())
+
+    @room.localPeer.on 'display_stream_stop', (stream) =>
+      localVideoTracks = @room.localPeer.getLocalStream().getVideoTracks()
+      if localVideoTracks.length > 0
+        # if there was a local video track then reuse the display video track
+        # because it's faster and does not need renegotiation
+        videoSender = @peerConnection.getSenders().find(
+          (sender) => sender.track.kind == "video"
+        )
+        videoSender.replaceTrack(localVideoTracks[0])
+      else
+        @peerConnection.removeTrack(stream.getVideoTracks()[0])
 
     # data channel setup
 
@@ -140,8 +167,6 @@ class palava.RemotePeer extends palava.Peer
   # @nodoc
   #
   setupDistributor: =>
-    # TODO _ in events also in rtc-server
-    # TODO consistent protocol naming
     @distributor = new palava.Distributor(@room.channel, @id)
 
     @distributor.on 'peer_left', (msg) =>
@@ -157,16 +182,22 @@ class palava.RemotePeer extends palava.Peer
       return if msg.candidate == ""
       candidate = new RTCIceCandidate({candidate: msg.candidate, sdpMLineIndex: msg.sdpmlineindex, sdpMid: msg.sdpmid})
       unless @room.options.filterIceCandidateTypes.includes(candidate.type)
-        @peerConnection.addIceCandidate(candidate)
+        await @peerConnection.addIceCandidate(candidate)
 
     @distributor.on 'offer', (msg) =>
-      @peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
-      @emit 'offer' # ignored so far
+      # we sent an offer already and are the preferred offerer, so we don't back down
+      return if @pendingOffer && @offers
+
+      # we backed down, so we drop the pending offer and choose the other peer's offer
+      @pendingOffer = null
+
+      await @peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
       @sendAnswer()
 
     @distributor.on 'answer', (msg) =>
-      @peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
-      @emit 'answer' # ignored so far
+      await @peerConnection.setLocalDescription(@pendingOffer) if @pendingOffer
+      @pendingOffer = null
+      await @peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
 
     @distributor.on 'peer_updated_status', (msg) =>
       @status = msg.status
@@ -199,30 +230,32 @@ class palava.RemotePeer extends palava.Peer
     @on 'oaerror',    (e) => @room.emit('peer_oaerror', @, e)
     @on 'channel_ready', (n, c) => @room.emit('peer_channel_ready', @, n, c)
 
-  # Sends the offer for a peer connection
-  #
-  # @nodoc
+  sendMessage: (data) =>
+    @distributor.send
+      event: 'message'
+      data: data
+
+  # Sends the offer to create a peer connection
   #
   sendOffer: =>
-    @peerConnection.createOffer  @sdpSender('offer'),  @oaError, palava.browser.getConstraints()
+    @peerConnection.createOffer  @sdpSender('offer'),  @oaError, palava.browser.getConstraints() if @peerConnection.signalingState == "stable" && !@pendingOffer
 
   # Sends the answer to create a peer connection
   #
   sendAnswer: =>
     @peerConnection.createAnswer @sdpSender('answer'), @oaError, palava.browser.getConstraints()
 
-  sendMessage: (data) =>
-    @distributor.send
-      event: 'message'
-      data: data
 
-  # Helper for sending sdp
+  # Send offer/answer
   #
   # @nodoc
   #
   sdpSender: (event) =>
     (sdp) =>
-      @peerConnection.setLocalDescription(sdp)
+      if event == 'offer'
+        @pendingOffer = sdp
+      else
+        await @peerConnection.setLocalDescription(sdp)
       @distributor.send
         event: event
         sdp: sdp

@@ -33,6 +33,10 @@ class palava.LocalPeer extends palava.Peer
       @emit 'stream_ready', e
     @userMedia.on 'stream_error', (e) =>
       @emit 'stream_error', e
+    @userMedia.on 'display_stream_ready', (e) =>
+      @emit 'display_stream_ready', e
+    @userMedia.on 'display_stream_error', (e) =>
+      @emit 'display_stream_error', e
     if @getStream()
       @ready = true
       @emit 'stream_ready'
@@ -53,6 +57,9 @@ class palava.LocalPeer extends palava.Peer
   #
   getStream: =>
     @userMedia.getStream()
+
+  requestDisplaySharing: =>
+    @userMedia.requestDisplaySharing()
 
   # Updates the status of the local peer. The status is extended or updated with the given items.
   #

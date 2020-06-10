@@ -171,7 +171,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     function Gum(config) {
       this.releaseStream = bind(this.releaseStream, this);
+      this.getDisplayStream = bind(this.getDisplayStream, this);
+      this.getLocalStream = bind(this.getLocalStream, this);
       this.getStream = bind(this.getStream, this);
+      this.stopDisplaySharing = bind(this.stopDisplaySharing, this);
+      this.requestDisplaySharing = bind(this.requestDisplaySharing, this);
       this.requestStream = bind(this.requestStream, this);
       this.changeConfig = bind(this.changeConfig, this);
       this.config = config || {
@@ -179,6 +183,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         audio: true
       };
       this.stream = null;
+      this.localStream = null;
+      this.displayStream = null;
     }
 
     Gum.prototype.changeConfig = function(config) {
@@ -190,6 +196,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Gum.prototype.requestStream = function() {
       return navigator.mediaDevices.getUserMedia(this.config).then((function(_this) {
         return function(stream) {
+          _this.localStream = stream.clone();
           _this.stream = stream;
           return _this.emit('stream_ready', stream);
         };
@@ -200,8 +207,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       })(this));
     };
 
+    Gum.prototype.requestDisplaySharing = function() {
+      return navigator.mediaDevices.getDisplayMedia({
+        video: true
+      }).then((function(_this) {
+        return function(stream) {
+          if (_this.localStream.getAudioTracks().length > 0) {
+            stream.addTrack(_this.localStream.getAudioTracks()[0], _this.localStream);
+          }
+          _this.displayStream = stream.clone();
+          _this.stream = stream;
+          return _this.emit('display_stream_ready', stream);
+        };
+      })(this))["catch"]((function(_this) {
+        return function(error) {
+          return _this.emit('display_stream_error', error);
+        };
+      })(this));
+    };
+
+    Gum.prototype.stopDisplaySharing = function() {
+      this.stream = this.localStream;
+      this.emit('display_stream_stop', this.displayStream);
+      return this.displayStream = null;
+    };
+
     Gum.prototype.getStream = function() {
       return this.stream;
+    };
+
+    Gum.prototype.getLocalStream = function() {
+      return this.localStream;
+    };
+
+    Gum.prototype.getDisplayStream = function() {
+      return this.displayStream;
     };
 
     Gum.prototype.releaseStream = function() {
@@ -379,6 +419,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.enableAudio = bind(this.enableAudio, this);
       this.disableAudio = bind(this.disableAudio, this);
       this.updateStatus = bind(this.updateStatus, this);
+      this.requestDisplaySharing = bind(this.requestDisplaySharing, this);
       this.getStream = bind(this.getStream, this);
       this.setupRoom = bind(this.setupRoom, this);
       this.setupUserMedia = bind(this.setupUserMedia, this);
@@ -409,6 +450,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           return _this.emit('stream_error', e);
         };
       })(this));
+      this.userMedia.on('display_stream_ready', (function(_this) {
+        return function(e) {
+          return _this.emit('display_stream_ready', e);
+        };
+      })(this));
+      this.userMedia.on('display_stream_error', (function(_this) {
+        return function(e) {
+          return _this.emit('display_stream_error', e);
+        };
+      })(this));
       if (this.getStream()) {
         this.ready = true;
         return this.emit('stream_ready');
@@ -436,6 +487,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     LocalPeer.prototype.getStream = function() {
       return this.userMedia.getStream();
+    };
+
+    LocalPeer.prototype.requestDisplaySharing = function() {
+      return this.userMedia.requestDisplaySharing();
     };
 
     LocalPeer.prototype.updateStatus = function(status) {
@@ -681,9 +736,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.setupRoom();
       this.setupPeerConnection(offers);
       this.setupDistributor();
-      if (offers) {
-        this.sendOffer();
-      }
+      this.offers = offers;
     }
 
     RemotePeer.prototype.getStream = function() {
@@ -715,7 +768,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     RemotePeer.prototype.setupPeerConnection = function(offers) {
-      var channel, label, options, ref, registerChannel;
+      var channel, i, label, len, options, ref, ref1, registerChannel, track;
       this.peerConnection = new RTCPeerConnection(this.generateIceOptions(), palava.browser.getPeerConnectionOptions());
       this.peerConnection.onicecandidate = (function(_this) {
         return function(event) {
@@ -743,6 +796,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           return _this.emit('stream_removed');
         };
       })(this);
+      this.peerConnection.onnegotiationneeded = (function(_this) {
+        return function() {
+          return _this.sendOffer();
+        };
+      })(this);
       this.peerConnection.oniceconnectionstatechange = (function(_this) {
         return function(event) {
           var connectionState;
@@ -767,10 +825,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         };
       })(this);
       if (this.room.localPeer.getStream()) {
-        this.peerConnection.addStream(this.room.localPeer.getStream());
-      } else {
-
+        ref = this.room.localPeer.getStream().getTracks();
+        for (i = 0, len = ref.length; i < len; i++) {
+          track = ref[i];
+          this.peerConnection.addTrack(track, this.room.localPeer.getStream());
+        }
       }
+      this.room.localPeer.on('display_stream_ready', (function(_this) {
+        return function(stream) {
+          var videoSender;
+          videoSender = _this.peerConnection.getSenders().find(function(sender) {
+            return sender.track.kind === "video";
+          });
+          if (videoSender) {
+            return videoSender.replaceTrack(track);
+          } else {
+            return _this.peerConnection.addTrack(stream.getVideoTracks()[0], _this.room.localPeer.getStream());
+          }
+        };
+      })(this));
+      this.room.localPeer.on('display_stream_stop', (function(_this) {
+        return function(stream) {
+          var localVideoTracks, videoSender;
+          localVideoTracks = _this.room.localPeer.getLocalStream().getVideoTracks();
+          if (localVideoTracks.length > 0) {
+            videoSender = _this.peerConnection.getSenders().find(function(sender) {
+              return sender.track.kind === "video";
+            });
+            return videoSender.replaceTrack(localVideoTracks[0]);
+          } else {
+            return _this.peerConnection.removeTrack(stream.getVideoTracks()[0]);
+          }
+        };
+      })(this));
       if (this.room.options.dataChannels != null) {
         registerChannel = (function(_this) {
           return function(channel) {
@@ -782,9 +869,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           };
         })(this);
         if (offers) {
-          ref = this.room.options.dataChannels;
-          for (label in ref) {
-            options = ref[label];
+          ref1 = this.room.options.dataChannels;
+          for (label in ref1) {
+            options = ref1[label];
             channel = this.peerConnection.createDataChannel(label, options);
             channel.onopen = function() {
               return registerChannel(this);
@@ -832,6 +919,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       })(this));
       this.distributor.on('offer', (function(_this) {
         return function(msg) {
+          if (_this.peerConnection.signalingState !== "stable") {
+            if (_this.offers) {
+              return;
+            }
+            _this.peerConnection.setLocalDescription({
+              type: "rollback"
+            });
+          }
           _this.peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp));
           _this.emit('offer');
           return _this.sendAnswer();
@@ -945,6 +1040,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     RemotePeer.prototype.sdpSender = function(event) {
       return (function(_this) {
         return function(sdp) {
+          if (event === 'offer' && _this.peerConnection.signalingState !== 'stable') {
+            return;
+          }
           _this.peerConnection.setLocalDescription(sdp);
           return _this.distributor.send({
             event: event,
@@ -1598,7 +1696,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.LIB_VERSION = '2.2.0';
 
-  palava.LIB_COMMIT = 'v2.1.0-12-g412482867a-dirty';
+  palava.LIB_COMMIT = 'v2.2.0-1-gb4ef48ea59-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";

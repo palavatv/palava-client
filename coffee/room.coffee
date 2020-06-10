@@ -85,6 +85,7 @@ class palava.Room extends @EventEmitter
 
     @options.ownStatus[key] = status[key] for key in status
     @options.ownStatus.user_agent ||= palava.browser.getUserAgent()
+    @options.ownStatus.user_agent_version ||= palava.browser.getUserAgentVersion()
 
     @distributor.send
       event: 'join_room'
