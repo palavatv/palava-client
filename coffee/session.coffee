@@ -77,7 +77,7 @@ class palava.Session extends @EventEmitter
       @roomOptions.ownStatus = o.identity.getStatus()
 
     if o.userMediaConfig
-      @userMedia = new palava.Gum(@userMediaConfig)
+      @userMedia = new palava.Gum(o.userMediaConfig)
 
     if o.dataChannels
       @roomOptions.dataChannels = o.dataChannels
