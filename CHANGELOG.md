@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.1.0 (unreleased)
+
+* LocalPeer#{disable,enable}{Audio,Video}: Mute microphone / disable camera
+  * Remove LocalPeer#toggleMute
+
 ## 2.0.1
 
 * Fix that user media config would be ignored

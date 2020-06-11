@@ -67,17 +67,25 @@ class palava.LocalPeer extends palava.Peer
       status: @status
     @status
 
-  toggleMute: =>
-    # TODO: to be tested
-    tracks = @getStream.getAudioTracks()
+  disableAudio: =>
+    return unless @ready
+    for track in @getStream().getAudioTracks()
+      track.enabled = false
 
-    if tracks.length == 0
-      return
+  enableAudio: =>
+    return unless @ready
+    for track in @getStream().getAudioTracks()
+      track.enabled = true
 
-    muted = not tracks[0].enabled
+  disableVideo: =>
+    return unless @ready
+    for track in @getStream().getVideoTracks()
+      track.enabled = false
 
-    for track in tracks
-      track.enabled = muted
+  enableVideo: =>
+    return unless @ready
+    for track in @getStream().getVideoTracks()
+      track.enabled = true
 
   # Leave the room
   leave: =>
