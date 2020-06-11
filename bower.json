@@ -1,7 +1,7 @@
 {
   "name": "palava",
   "description": "Signaling client for WebRTC video-/audio conferencing using the palava protocol",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": {
     "name": "palava e. V.",
     "email": "contact@palava.tv",

@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.0.1
+
+* Fix that user media config would be ignored
+* Remove Gum's detectMedia() method (use Peer's hasVideo / hasAudio instead)
+
 ## 2.0.0
 
 ### Breaking Changes

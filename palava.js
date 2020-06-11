@@ -1,6 +1,6 @@
 
 /*
-palava v2.0.0 | LGPL | https://github.com/palavatv/palava-client
+palava v2.0.1 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 
@@ -173,7 +173,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.releaseStream = bind(this.releaseStream, this);
       this.getStream = bind(this.getStream, this);
       this.requestStream = bind(this.requestStream, this);
-      this.detectMedia = bind(this.detectMedia, this);
       this.changeConfig = bind(this.changeConfig, this);
       this.config = config || {
         video: true,
@@ -188,24 +187,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       return this.requestStream();
     };
 
-    Gum.prototype.detectMedia = function() {
-      this.config = {
-        video: false,
-        audio: false
-      };
-      if (this.stream && this.stream.getVideoTracks().length > 0) {
-        this.config.video = true;
-      }
-      if (this.stream && this.stream.getAudioTracks().length > 0) {
-        return this.config.audio = true;
-      }
-    };
-
     Gum.prototype.requestStream = function() {
       return navigator.mediaDevices.getUserMedia(this.config).then((function(_this) {
         return function(stream) {
           _this.stream = stream;
-          _this.detectMedia();
           return _this.emit('stream_ready', stream);
         };
       })(this))["catch"]((function(_this) {
@@ -1315,7 +1300,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         this.roomOptions.ownStatus = o.identity.getStatus();
       }
       if (o.userMediaConfig) {
-        this.userMedia = new palava.Gum(this.userMediaConfig);
+        this.userMedia = new palava.Gum(o.userMediaConfig);
       }
       if (o.dataChannels) {
         this.roomOptions.dataChannels = o.dataChannels;
@@ -1532,9 +1517,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '2.0.0';
+  palava.LIB_VERSION = '2.0.1';
 
-  palava.LIB_COMMIT = 'v1.10.1-49-g35c57774a6-dirty';
+  palava.LIB_COMMIT = 'v2.0.1-0-gb51e215678-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
