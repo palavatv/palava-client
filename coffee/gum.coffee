@@ -12,18 +12,12 @@ class palava.Gum extends @EventEmitter
     @releaseStream()
     @requestStream()
 
-  detectMedia: =>
-    @config = {video: false, audio: false}
-    @config.video = true if @stream && @stream.getVideoTracks().length > 0
-    @config.audio = true if @stream && @stream.getAudioTracks().length > 0
-
   requestStream: =>
     navigator.mediaDevices.getUserMedia(
       @config
     ).then(
       (stream) =>
         @stream = stream
-        @detectMedia()
         @emit 'stream_ready', stream
     ).catch(
       (error) =>
