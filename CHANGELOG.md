@@ -4,6 +4,8 @@
 
 * LocalPeer#{disable,enable}{Audio,Video}: Mute microphone / disable camera
   * Remove LocalPeer#toggleMute
+* Improve Peer#has{Audio,Video} checks to also check for enabled status
+* Add Peer#canSend{Audio,Video} to only check for capabilities (i.e. tracks are present)
 
 ## 2.0.1
 
