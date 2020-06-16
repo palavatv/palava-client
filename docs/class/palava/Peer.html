@@ -56,10 +56,36 @@
       <ul class='summary'>
   <li>
     <span class='signature'>
+      <a href='#transmitsAudio-dynamic'>
+        #
+(Boolean)
+<b>transmitsAudio</b><span>()</span>
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      Checks whether the participant is sending audio 
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
       <a href='#hasAudio-dynamic'>
         #
 (Boolean)
 <b>hasAudio</b><span>()</span>
+      </a>
+    </span>
+    <span class='bound note title'>Bound</span>
+    <span class='desc'>
+      Checks whether the participant is could send audio (but maybe has it muted) 
+    </span>
+  </li>
+  <li>
+    <span class='signature'>
+      <a href='#transmitsVideo-dynamic'>
+        #
+(Boolean)
+<b>transmitsVideo</b><span>()</span>
       </a>
     </span>
     <span class='bound note title'>Bound</span>
@@ -77,7 +103,7 @@
     </span>
     <span class='bound note title'>Bound</span>
     <span class='desc'>
-      Checks whether the participant is sending audio 
+      Checks whether the participant is could send video (but maybe put in on hold) 
     </span>
   </li>
   <li>
@@ -214,10 +240,60 @@
       <h2>Instance Method Details</h2>
       <div class='methods'>
   <div class='method_details'>
+    <p class='signature' id='transmitsAudio-dynamic'>
+      #
+(Boolean)
+<b>transmitsAudio</b><span>()</span>
+      <span class='bound note'>Bound</span>
+      <br>
+    </p>
+    <div class='docstring'>
+  <p>Checks whether the participant is sending audio</p>
+</div>
+<div class='tags'>
+  <h3>Returns:</h3>
+  <ul class='return'>
+    <li>
+      <span class='type'></span>
+      (
+        <tt>Boolean</tt>
+      )
+      &mdash;
+      <span class='desc'><code>true</code> if participant is sending audio </span>
+    </li>
+  </ul>
+</div>
+  </div>
+  <div class='method_details'>
     <p class='signature' id='hasAudio-dynamic'>
       #
 (Boolean)
 <b>hasAudio</b><span>()</span>
+      <span class='bound note'>Bound</span>
+      <br>
+    </p>
+    <div class='docstring'>
+  <p>Checks whether the participant is could send audio (but maybe has it muted)</p>
+</div>
+<div class='tags'>
+  <h3>Returns:</h3>
+  <ul class='return'>
+    <li>
+      <span class='type'></span>
+      (
+        <tt>Boolean</tt>
+      )
+      &mdash;
+      <span class='desc'><code>true</code> if participant has audio tracks </span>
+    </li>
+  </ul>
+</div>
+  </div>
+  <div class='method_details'>
+    <p class='signature' id='transmitsVideo-dynamic'>
+      #
+(Boolean)
+<b>transmitsVideo</b><span>()</span>
       <span class='bound note'>Bound</span>
       <br>
     </p>
@@ -247,7 +323,7 @@
       <br>
     </p>
     <div class='docstring'>
-  <p>Checks whether the participant is sending audio</p>
+  <p>Checks whether the participant is could send video (but maybe put in on hold)</p>
 </div>
 <div class='tags'>
   <h3>Returns:</h3>
@@ -258,7 +334,7 @@
         <tt>Boolean</tt>
       )
       &mdash;
-      <span class='desc'><code>true</code> if participant is sending audio </span>
+      <span class='desc'><code>true</code> if participant has audio tracks </span>
     </li>
   </ul>
 </div>

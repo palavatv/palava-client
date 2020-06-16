@@ -1,10 +1,11 @@
 # Change Log
 
-## 2.1.0 (unreleased)
+## 2.1.0
 
 * LocalPeer#{disable,enable}{Audio,Video}: Mute microphone / disable camera
   * Remove LocalPeer#toggleMute
 * Add Peer#transmits{Audio,Video} check for enabled status of respective media
+* Rework development rake tasks (de-namespace, add prepare_release)
 
 ## 2.0.1
 

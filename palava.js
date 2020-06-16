@@ -1,6 +1,6 @@
 
 /*
-palava v2.0.1 | LGPL | https://github.com/palavatv/palava-client
+palava v2.1.0 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 
@@ -280,7 +280,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.getError = bind(this.getError, this);
       this.hasError = bind(this.hasError, this);
       this.hasVideo = bind(this.hasVideo, this);
+      this.transmitsVideo = bind(this.transmitsVideo, this);
       this.hasAudio = bind(this.hasAudio, this);
+      this.transmitsAudio = bind(this.transmitsAudio, this);
       var base;
       this.id = id;
       this.status = status || {};
@@ -290,14 +292,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       this.error = null;
     }
 
+    Peer.prototype.transmitsAudio = function() {
+      var ref, ref1, ref2;
+      return !!((ref = this.getStream()) != null ? (ref1 = ref.getAudioTracks()) != null ? (ref2 = ref1[0]) != null ? ref2.enabled : void 0 : void 0 : void 0);
+    };
+
     Peer.prototype.hasAudio = function() {
       var ref, ref1;
-      return ((ref = this.getStream()) != null ? (ref1 = ref.getAudioTracks()) != null ? ref1.length : void 0 : void 0) > 0;
+      return !!((ref = this.getStream()) != null ? (ref1 = ref.getAudioTracks()) != null ? ref1[0] : void 0 : void 0);
+    };
+
+    Peer.prototype.transmitsVideo = function() {
+      var ref, ref1, ref2;
+      return !!((ref = this.getStream()) != null ? (ref1 = ref.getVideoTracks()) != null ? (ref2 = ref1[0]) != null ? ref2.enabled : void 0 : void 0 : void 0);
     };
 
     Peer.prototype.hasVideo = function() {
       var ref, ref1;
-      return ((ref = this.getStream()) != null ? (ref1 = ref.getVideoTracks()) != null ? ref1.length : void 0 : void 0) > 0;
+      return !!((ref = this.getStream()) != null ? (ref1 = ref.getVideoTracks()) != null ? ref1[0] : void 0 : void 0);
     };
 
     Peer.prototype.hasError = function() {
@@ -362,7 +374,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     function LocalPeer(id, status, room) {
       this.leave = bind(this.leave, this);
-      this.toggleMute = bind(this.toggleMute, this);
+      this.enableVideo = bind(this.enableVideo, this);
+      this.disableVideo = bind(this.disableVideo, this);
+      this.enableAudio = bind(this.enableAudio, this);
+      this.disableAudio = bind(this.disableAudio, this);
       this.updateStatus = bind(this.updateStatus, this);
       this.getStream = bind(this.getStream, this);
       this.setupRoom = bind(this.setupRoom, this);
@@ -439,17 +454,58 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       return this.status;
     };
 
-    LocalPeer.prototype.toggleMute = function() {
-      var i, len, muted, results, track, tracks;
-      tracks = this.getStream.getAudioTracks();
-      if (tracks.length === 0) {
+    LocalPeer.prototype.disableAudio = function() {
+      var i, len, ref, results, track;
+      if (!this.ready) {
         return;
       }
-      muted = !tracks[0].enabled;
+      ref = this.getStream().getAudioTracks();
       results = [];
-      for (i = 0, len = tracks.length; i < len; i++) {
-        track = tracks[i];
-        results.push(track.enabled = muted);
+      for (i = 0, len = ref.length; i < len; i++) {
+        track = ref[i];
+        results.push(track.enabled = false);
+      }
+      return results;
+    };
+
+    LocalPeer.prototype.enableAudio = function() {
+      var i, len, ref, results, track;
+      if (!this.ready) {
+        return;
+      }
+      ref = this.getStream().getAudioTracks();
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        track = ref[i];
+        results.push(track.enabled = true);
+      }
+      return results;
+    };
+
+    LocalPeer.prototype.disableVideo = function() {
+      var i, len, ref, results, track;
+      if (!this.ready) {
+        return;
+      }
+      ref = this.getStream().getVideoTracks();
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        track = ref[i];
+        results.push(track.enabled = false);
+      }
+      return results;
+    };
+
+    LocalPeer.prototype.enableVideo = function() {
+      var i, len, ref, results, track;
+      if (!this.ready) {
+        return;
+      }
+      ref = this.getStream().getVideoTracks();
+      results = [];
+      for (i = 0, len = ref.length; i < len; i++) {
+        track = ref[i];
+        results.push(track.enabled = true);
       }
       return results;
     };
@@ -1517,9 +1573,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '2.0.1';
+  palava.LIB_VERSION = '2.1.0';
 
-  palava.LIB_COMMIT = 'v2.0.1-0-gb51e215678-dirty';
+  palava.LIB_COMMIT = 'v2.0.1-5-g2bb3ac22d7-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";

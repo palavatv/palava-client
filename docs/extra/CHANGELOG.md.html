@@ -35,6 +35,15 @@
       </nav>
       <div id='filecontents'>
         <h1 id="change-log">Change Log</h1>
+<h2 id="210">2.1.0</h2>
+<ul>
+<li>LocalPeer#{disable,enable}{Audio,Video}: Mute microphone / disable camera<ul>
+<li>Remove LocalPeer#toggleMute</li>
+</ul>
+</li>
+<li>Add Peer#transmits{Audio,Video} check for enabled status of respective media</li>
+<li>Rework development rake tasks (de-namespace, add prepare_release)</li>
+</ul>
 <h2 id="201">2.0.1</h2>
 <ul>
 <li>Fix that user media config would be ignored</li>
