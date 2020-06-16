@@ -23,7 +23,7 @@ class palava.Peer extends @EventEmitter
   # @return [Boolean] `true` if participant is sending audio
   #
   transmitsAudio: () =>
-    return @getStream()?.getAudioTracks()?[0]?.enabled
+    return !!@getStream()?.getAudioTracks()?[0]?.enabled
 
   # Checks whether the participant is could send audio (but maybe has it muted)
   #
@@ -37,7 +37,7 @@ class palava.Peer extends @EventEmitter
   # @return [Boolean] `true` if participant is sending audio
   #
   transmitsVideo: =>
-    return @getStream()?.getVideoTracks()?[0]?.enabled
+    return !!@getStream()?.getVideoTracks()?[0]?.enabled
 
   # Checks whether the participant is could send video (but maybe put in on hold)
   #
