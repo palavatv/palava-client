@@ -58,7 +58,7 @@ class palava.Room extends @EventEmitter
       for peer in msg.peers
         offers = !palava.browser.isChrome()
         newPeer = new palava.RemotePeer(peer.peer_id, peer.status, @, offers)
-      @emit "joined", @
+      @emit "joined", msg.own_id, msg.turn_user, msg.turn_password
 
     @distributor.on 'new_peer', (msg) =>
       offers = msg.status.user_agent == 'chrome'

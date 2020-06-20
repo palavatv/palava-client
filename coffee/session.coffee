@@ -158,7 +158,11 @@ class palava.Session extends @EventEmitter
       @tearDown(true)
       @emit 'room_join_error', @room
     @room.on 'full',                        => @emit 'room_full',       @room
-    @room.on 'joined',                      => @emit 'room_joined',     @room
+    @room.on 'joined',               (u, p) =>
+      @turnCredentials =
+        user: tu
+        password: tpw
+      @emit 'room_joined', @room
     @room.on 'left',                        => @emit 'room_left',       @room
     @room.on 'peer_joined',             (p) => @emit 'peer_joined', p
     @room.on 'peer_offer',              (p) => @emit 'peer_offer', p
@@ -168,7 +172,11 @@ class palava.Session extends @EventEmitter
     @room.on 'peer_stream_removed',     (p) => @emit 'peer_stream_removed', p
     @room.on 'peer_connection_pending',      (p) => @emit 'peer_connection_pending', p
     @room.on 'peer_connection_established',  (p) => @emit 'peer_connection_established', p
-    @room.on 'peer_connection_failed',       (p) => @emit 'peer_connection_failed', p
+    @room.on 'peer_connection_failed',       (p) =>
+      if !p.hasTriedTurn && @turnCredentials
+        p.tryTurn @turnCredentials
+      else
+        @emit 'peer_connection_failed', p
     @room.on 'peer_connection_disconnected', (p) => @emit 'peer_connection_disconnected', p
     @room.on 'peer_connection_closed',       (p) => @emit 'peer_connection_closed', p
     @room.on 'peer_left',               (p) => @emit 'peer_left', p

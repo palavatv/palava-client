@@ -29,6 +29,7 @@ class palava.RemotePeer extends palava.Peer
     @setupPeerConnection(offers)
     @setupDistributor()
 
+    @offers = offers
     if offers
       @sendOffer()
 
@@ -52,11 +53,11 @@ class palava.RemotePeer extends palava.Peer
     options = []
     if @room.options.stun
       options.push({urls: [@room.options.stun]})
-    if @room.options.turn
+    if @room.options.turn && @turnCredentials
       options.push
-        urls: [@room.options.turn.url]
-        username: @room.options.turn.username
-        credential: @room.options.turn.password
+        urls: [@room.options.turn]
+        username: @turnCredentials.user
+        credential: @turnCredentials.password
     {iceServers: options}
 
   # Sets up the peer connection and its events
@@ -131,6 +132,21 @@ class palava.RemotePeer extends palava.Peer
           registerChannel(event.channel)
 
     @peerConnection
+
+  # Check if turn was already tried as (last) connection option
+  #
+  # @return [Boolean] true if turn was tried by using the tryTurn function
+  #
+  hasTriedTurn: => !!@turnCredentials
+
+  # Check if turn was already tried as (last) connection option
+  #
+  # @return [Object] true if turn was tried by using the tryTurn function
+  #
+  tryTurn: (credentials) =>
+    @closePeerConnection()
+    @turnCredentials = credentials
+    @setupPeerConnection(@offers)
 
   # Sets up the distributor connecting to the participant
   #
