@@ -44,6 +44,7 @@ class palava.Room extends @EventEmitter
   setupOptions: =>
     @options.joinTimeout ||= 1000
     @options.ownStatus ||= {}
+    @options.filterIceCandidateTypes ||= []
 
   # Initialize global distributor and messaging
   #
@@ -54,15 +55,15 @@ class palava.Room extends @EventEmitter
 
     @distributor.on 'joined_room', (msg) =>
       clearTimeout(@joinCheckTimeout)
-      new palava.LocalPeer(msg.own_id, @options.ownStatus, @)
-      for peer in msg.peers
-        offers = !palava.browser.isChrome()
-        newPeer = new palava.RemotePeer(peer.peer_id, peer.status, @, offers)
       if msg.turn_user
         turnCredentials = { user: msg.turn_user, password: msg.turn_password }
       else
         turnCredentials = null
-      @emit "joined", msg.own_id, turnCredentials
+      new palava.LocalPeer(msg.own_id, @options.ownStatus, @)
+      for peer in msg.peers
+        offers = !palava.browser.isChrome()
+        newPeer = new palava.RemotePeer(peer.peer_id, peer.status, @, offers, turnCredentials)
+      @emit "joined"
 
     @distributor.on 'new_peer', (msg) =>
       offers = msg.status.user_agent == 'chrome'

@@ -85,11 +85,14 @@ class palava.Session extends @EventEmitter
     if o.stun
       @roomOptions.stun = o.stun
 
-    if o.turn
-      @roomOptions.turn = o.turn
+    if o.turnUrls
+      @roomOptions.turnUrls = o.turnUrls
 
     if o.joinTimeout
       @roomOptions.joinTimeout = o.joinTimeout
+
+    if o.filterIceCandidateTypes
+      @roomOptions.filterIceCandidateTypes = o.filterIceCandidateTypes
 
   # Checks whether the inner state of the session is valid. Emits events otherwise
   #
@@ -107,6 +110,9 @@ class palava.Session extends @EventEmitter
       return false
     unless @roomOptions.stun
       @emit 'argument_error', 'no stun server given'
+      return false
+    if @roomOptions.turnUrls && !Array.isArray(@roomOptions.turnUrls)
+      @emit 'argument_error', 'turnUrls must be an array'
       return false
     unless navigator.onLine
       @emit 'signaling_not_reachable'
@@ -157,11 +163,9 @@ class palava.Session extends @EventEmitter
     @room.on 'join_error',                  =>
       @tearDown(true)
       @emit 'room_join_error', @room
-    @room.on 'full',                        => @emit 'room_full',       @room
-    @room.on 'joined', (ownId, turnCredentials) =>
-      @turnCredentials = turnCredentials
-      @emit 'room_joined', @room
-    @room.on 'left',                        => @emit 'room_left',       @room
+    @room.on 'full',                        => @emit 'room_full',   @room
+    @room.on 'joined',                      => @emit 'room_joined', @room
+    @room.on 'left',                        => @emit 'room_left',   @room
     @room.on 'peer_joined',             (p) => @emit 'peer_joined', p
     @room.on 'peer_offer',              (p) => @emit 'peer_offer', p
     @room.on 'peer_answer',             (p) => @emit 'peer_answer', p
@@ -170,11 +174,7 @@ class palava.Session extends @EventEmitter
     @room.on 'peer_stream_removed',     (p) => @emit 'peer_stream_removed', p
     @room.on 'peer_connection_pending',      (p) => @emit 'peer_connection_pending', p
     @room.on 'peer_connection_established',  (p) => @emit 'peer_connection_established', p
-    @room.on 'peer_connection_failed', (peer) =>
-      if !peer.hasTriedTurn && @turnCredentials
-        peer.tryTurn @turnCredentials
-      else
-        @emit 'peer_connection_failed', p
+    @room.on 'peer_connection_failed',       (p) => @emit 'peer_connection_failed', p
     @room.on 'peer_connection_disconnected', (p) => @emit 'peer_connection_disconnected', p
     @room.on 'peer_connection_closed',       (p) => @emit 'peer_connection_closed', p
     @room.on 'peer_left',               (p) => @emit 'peer_left', p
