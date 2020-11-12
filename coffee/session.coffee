@@ -85,11 +85,14 @@ class palava.Session extends @EventEmitter
     if o.stun
       @roomOptions.stun = o.stun
 
-    if o.turn
-      @roomOptions.turn = o.turn
+    if o.turnUrls
+      @roomOptions.turnUrls = o.turnUrls
 
     if o.joinTimeout
       @roomOptions.joinTimeout = o.joinTimeout
+
+    if o.filterIceCandidateTypes
+      @roomOptions.filterIceCandidateTypes = o.filterIceCandidateTypes
 
   # Checks whether the inner state of the session is valid. Emits events otherwise
   #
@@ -107,6 +110,9 @@ class palava.Session extends @EventEmitter
       return false
     unless @roomOptions.stun
       @emit 'argument_error', 'no stun server given'
+      return false
+    if @roomOptions.turnUrls && !Array.isArray(@roomOptions.turnUrls)
+      @emit 'argument_error', 'turnUrls must be an array'
       return false
     unless navigator.onLine
       @emit 'signaling_not_reachable'
@@ -157,9 +163,9 @@ class palava.Session extends @EventEmitter
     @room.on 'join_error',                  =>
       @tearDown(true)
       @emit 'room_join_error', @room
-    @room.on 'full',                        => @emit 'room_full',       @room
-    @room.on 'joined',                      => @emit 'room_joined',     @room
-    @room.on 'left',                        => @emit 'room_left',       @room
+    @room.on 'full',                        => @emit 'room_full',   @room
+    @room.on 'joined',                      => @emit 'room_joined', @room
+    @room.on 'left',                        => @emit 'room_left',   @room
     @room.on 'peer_joined',             (p) => @emit 'peer_joined', p
     @room.on 'peer_offer',              (p) => @emit 'peer_offer', p
     @room.on 'peer_answer',             (p) => @emit 'peer_answer', p

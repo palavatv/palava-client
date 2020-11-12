@@ -14,14 +14,17 @@ class palava.RemotePeer extends palava.Peer
   # @param id [String] ID of the participant
   # @param status [Object] Status object of the participant
   # @param room [palava.Room] Room the participant is in
+  # @param offers [Boolean] If true, we send the offer, otherwise the peer
+  # @param turnCredentials [Object] username and password for the turn server (optional)
   #
-  constructor: (id, status, room, offers) ->
+  constructor: (id, status, room, offers, turnCredentials) ->
     @muted = false
     @local = false
     super id, status
 
     @room = room
     @remoteStream = null
+    @turnCredentials = turnCredentials
 
     @dataChannels = {}
 
@@ -52,11 +55,11 @@ class palava.RemotePeer extends palava.Peer
     options = []
     if @room.options.stun
       options.push({urls: [@room.options.stun]})
-    if @room.options.turn
+    if @room.options.turnUrls && @turnCredentials
       options.push
-        urls: [@room.options.turn.url]
-        username: @room.options.turn.username
-        credential: @room.options.turn.password
+        urls: @room.options.turnUrls
+        username: @turnCredentials.user
+        credential: @turnCredentials.password
     {iceServers: options}
 
   # Sets up the peer connection and its events
@@ -153,7 +156,8 @@ class palava.RemotePeer extends palava.Peer
       # empty msg.candidate causes error messages in firefox, so let RTCPeerConnection deal with it and return here
       return if msg.candidate == ""
       candidate = new RTCIceCandidate({candidate: msg.candidate, sdpMLineIndex: msg.sdpmlineindex, sdpMid: msg.sdpmid})
-      @peerConnection.addIceCandidate(candidate)
+      unless @room.filterIceCandidateTypes.includes(candidate.type)
+        @peerConnection.addIceCandidate(candidate)
 
     @distributor.on 'offer', (msg) =>
       @peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
