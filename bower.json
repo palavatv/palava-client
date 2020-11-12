@@ -9,7 +9,7 @@
   },
   "license": "LGPL-3.0",
   "dependencies": {
-    "webrtc-adapter": "^7.6.0",
+    "webrtc-adapter": "^7.7.0",
     "eventEmitter": "~5.2.9"
   },
   "main": [
