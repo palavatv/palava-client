@@ -40,8 +40,10 @@ class palava.WebSocketChannel extends @EventEmitter
           @outstandingPongs = 0
         else
           @emit 'message', parsedMsg
-      catch
-        @emit 'error', 'invalid_format', msg.data
+      catch error
+        @emit 'error', 'invalid_format',
+          error: error,
+          data: msg.data
 
     @socket.onerror = (msg) =>
       clearInterval(@pingInterval)
