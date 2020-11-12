@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.2.0
+
+* Add support for TURN relays via signaltower
+* Update webrtc-adapter to 7.7.0
+
 ## 2.1.0
 
 * LocalPeer#{disable,enable}{Audio,Video}: Mute microphone / disable camera

@@ -152,7 +152,7 @@
     <p class='signature' id='constructor-dynamic'>
       #
 (void)
-<b>constructor</b><span>(id, status, room, offers)</span>
+<b>constructor</b><span>(id, status, room, offers, turnCredentials)</span>
       <br>
     </p>
     <div class='tags'>
@@ -187,6 +187,26 @@
       </span>
       &mdash;
       <span class='desc'>Room the participant is in </span>
+    </li>
+    <li>
+      <span class='name'>offers</span>
+      <span class='type'>
+        (
+          <tt>Boolean</tt>
+        )
+      </span>
+      &mdash;
+      <span class='desc'>If true, we send the offer, otherwise the peer </span>
+    </li>
+    <li>
+      <span class='name'>turnCredentials</span>
+      <span class='type'>
+        (
+          <tt>Object</tt>
+        )
+      </span>
+      &mdash;
+      <span class='desc'>username and password for the turn server (optional) </span>
     </li>
   </ul>
 </div>

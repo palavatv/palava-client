@@ -1,5 +1,5 @@
 ###
-palava v2.1.0 | LGPL | https://github.com/palavatv/palava-client
+palava v2.2.0 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 

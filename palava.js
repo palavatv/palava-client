@@ -1,6 +1,6 @@
 
 /*
-palava v2.1.0 | LGPL | https://github.com/palavatv/palava-client
+palava v2.2.0 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 
@@ -658,7 +658,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   palava.RemotePeer = (function(superClass) {
     extend(RemotePeer, superClass);
 
-    function RemotePeer(id, status, room, offers) {
+    function RemotePeer(id, status, room, offers, turnCredentials) {
       this.closePeerConnection = bind(this.closePeerConnection, this);
       this.oaError = bind(this.oaError, this);
       this.sdpSender = bind(this.sdpSender, this);
@@ -676,6 +676,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       RemotePeer.__super__.constructor.call(this, id, status);
       this.room = room;
       this.remoteStream = null;
+      this.turnCredentials = turnCredentials;
       this.dataChannels = {};
       this.setupRoom();
       this.setupPeerConnection(offers);
@@ -701,11 +702,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           urls: [this.room.options.stun]
         });
       }
-      if (this.room.options.turn) {
+      if (this.room.options.turnUrls && this.turnCredentials) {
         options.push({
-          urls: [this.room.options.turn.url],
-          username: this.room.options.turn.username,
-          credential: this.room.options.turn.password
+          urls: this.room.options.turnUrls,
+          username: this.turnCredentials.user,
+          credential: this.turnCredentials.password
         });
       }
       return {
@@ -824,7 +825,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             sdpMLineIndex: msg.sdpmlineindex,
             sdpMid: msg.sdpmid
           });
-          return _this.peerConnection.addIceCandidate(candidate);
+          if (!_this.room.options.filterIceCandidateTypes.includes(candidate.type)) {
+            return _this.peerConnection.addIceCandidate(candidate);
+          }
         };
       })(this));
       this.distributor.on('offer', (function(_this) {
@@ -1022,25 +1025,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     };
 
     Room.prototype.setupOptions = function() {
-      var base, base1;
+      var base, base1, base2;
       (base = this.options).joinTimeout || (base.joinTimeout = 1000);
-      return (base1 = this.options).ownStatus || (base1.ownStatus = {});
+      (base1 = this.options).ownStatus || (base1.ownStatus = {});
+      return (base2 = this.options).filterIceCandidateTypes || (base2.filterIceCandidateTypes = []);
     };
 
     Room.prototype.setupDistributor = function() {
       this.distributor = new palava.Distributor(this.channel);
       this.distributor.on('joined_room', (function(_this) {
         return function(msg) {
-          var i, len, newPeer, offers, peer, ref;
+          var i, len, newPeer, offers, peer, ref, turnCredentials;
           clearTimeout(_this.joinCheckTimeout);
+          if (msg.turn_user) {
+            turnCredentials = {
+              user: msg.turn_user,
+              password: msg.turn_password
+            };
+          } else {
+            turnCredentials = null;
+          }
           new palava.LocalPeer(msg.own_id, _this.options.ownStatus, _this);
           ref = msg.peers;
           for (i = 0, len = ref.length; i < len; i++) {
             peer = ref[i];
             offers = !palava.browser.isChrome();
-            newPeer = new palava.RemotePeer(peer.peer_id, peer.status, _this, offers);
+            newPeer = new palava.RemotePeer(peer.peer_id, peer.status, _this, offers, turnCredentials);
           }
-          return _this.emit("joined", _this);
+          return _this.emit("joined");
         };
       })(this));
       this.distributor.on('new_peer', (function(_this) {
@@ -1190,7 +1202,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       })(this);
       this.socket.onmessage = (function(_this) {
         return function(msg) {
-          var parsedMsg;
+          var error, parsedMsg;
           try {
             parsedMsg = JSON.parse(msg.data);
             if (parsedMsg.event === "pong") {
@@ -1198,8 +1210,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             } else {
               return _this.emit('message', parsedMsg);
             }
-          } catch (error) {
-            return _this.emit('error', 'invalid_format', msg.data);
+          } catch (error1) {
+            error = error1;
+            return _this.emit('error', 'invalid_format', {
+              error: error,
+              data: msg.data
+            });
           }
         };
       })(this);
@@ -1364,11 +1380,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       if (o.stun) {
         this.roomOptions.stun = o.stun;
       }
-      if (o.turn) {
-        this.roomOptions.turn = o.turn;
+      if (o.turnUrls) {
+        this.roomOptions.turnUrls = o.turnUrls;
       }
       if (o.joinTimeout) {
-        return this.roomOptions.joinTimeout = o.joinTimeout;
+        this.roomOptions.joinTimeout = o.joinTimeout;
+      }
+      if (o.filterIceCandidateTypes) {
+        return this.roomOptions.filterIceCandidateTypes = o.filterIceCandidateTypes;
       }
     };
 
@@ -1388,6 +1407,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       }
       if (!this.roomOptions.stun) {
         this.emit('argument_error', 'no stun server given');
+        return false;
+      }
+      if (this.roomOptions.turnUrls && !Array.isArray(this.roomOptions.turnUrls)) {
+        this.emit('argument_error', 'turnUrls must be an array');
         return false;
       }
       if (!navigator.onLine) {
@@ -1573,9 +1596,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '2.1.0';
+  palava.LIB_VERSION = '2.2.0';
 
-  palava.LIB_COMMIT = 'v2.0.1-5-g2bb3ac22d7-dirty';
+  palava.LIB_COMMIT = 'v2.1.0-12-g412482867a-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
