@@ -156,7 +156,7 @@ class palava.RemotePeer extends palava.Peer
       # empty msg.candidate causes error messages in firefox, so let RTCPeerConnection deal with it and return here
       return if msg.candidate == ""
       candidate = new RTCIceCandidate({candidate: msg.candidate, sdpMLineIndex: msg.sdpmlineindex, sdpMid: msg.sdpmid})
-      unless @room.filterIceCandidateTypes.includes(candidate.type)
+      unless @room.options.filterIceCandidateTypes.includes(candidate.type)
         @peerConnection.addIceCandidate(candidate)
 
     @distributor.on 'offer', (msg) =>
