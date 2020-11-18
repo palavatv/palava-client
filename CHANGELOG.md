@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.2.1
+
+* Only catch parsing-related errors with "invalid_format" error
+
 ## 2.2.0
 
 * Add support for TURN relays via signaltower

@@ -1,6 +1,6 @@
 
 /*
-palava v2.2.0 | LGPL | https://github.com/palavatv/palava-client
+palava v2.2.1 | LGPL | https://github.com/palavatv/palava-client
 
 Copyright (C) 2014-2020 palava e. V.  contact@palava.tv
 
@@ -1205,17 +1205,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           var error, parsedMsg;
           try {
             parsedMsg = JSON.parse(msg.data);
-            if (parsedMsg.event === "pong") {
-              return _this.outstandingPongs = 0;
-            } else {
-              return _this.emit('message', parsedMsg);
-            }
           } catch (error1) {
             error = error1;
-            return _this.emit('error', 'invalid_format', {
+            _this.emit('error', 'invalid_format', {
               error: error,
               data: msg.data
             });
+            return;
+          }
+          if (parsedMsg.event === "pong") {
+            return _this.outstandingPongs = 0;
+          } else {
+            return _this.emit('message', parsedMsg);
           }
         };
       })(this);
@@ -1596,9 +1597,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   palava.PROTOCOL_VERSION = '1.0.0';
 
-  palava.LIB_VERSION = '2.2.0';
+  palava.LIB_VERSION = '2.2.1';
 
-  palava.LIB_COMMIT = 'v2.1.0-12-g412482867a-dirty';
+  palava.LIB_COMMIT = 'v2.2.0-1-g84e26da095-dirty';
 
   palava.protocol_identifier = function() {
     return palava.PROTOCOL_NAME = "palava.1.0";
