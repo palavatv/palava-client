@@ -29,21 +29,25 @@ class palava.WebSocketChannel extends @EventEmitter
   #
   setupWebsocket: =>
     @socket = new WebSocket(@address)
+
     @socket.onopen = (handshake) =>
       @retries = 0
       @sendDeliverOnConnectMessages()
       @emit 'open', handshake
+
     @socket.onmessage = (msg) =>
       try
         parsedMsg = JSON.parse(msg.data)
-        if parsedMsg.event == "pong"
-          @outstandingPongs = 0
-        else
-          @emit 'message', parsedMsg
       catch error
         @emit 'error', 'invalid_format',
           error: error,
           data: msg.data
+        return
+
+      if parsedMsg.event == "pong"
+        @outstandingPongs = 0
+      else
+        @emit 'message', parsedMsg
 
     @socket.onerror = (msg) =>
       clearInterval(@pingInterval)
@@ -53,6 +57,7 @@ class palava.WebSocketChannel extends @EventEmitter
         @startClientPings()
       else
         @emit 'error', 'socket', msg
+
     @socket.onclose = =>
       clearInterval(@pingInterval)
       @emit 'close'
