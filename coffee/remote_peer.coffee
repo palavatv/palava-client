@@ -32,6 +32,7 @@ class palava.RemotePeer extends palava.Peer
     @setupPeerConnection(offers)
     @setupDistributor()
 
+    @offers = offers
     if offers
       @sendOffer()
 
@@ -86,6 +87,10 @@ class palava.RemotePeer extends palava.Peer
       @remoteStream = null
       @ready = false
       @emit 'stream_removed'
+
+    @peerConnection.onnegotiationneeded = () =>
+      @negotiationInProcess = true
+      @sendOffer()
 
     @peerConnection.oniceconnectionstatechange = (event) =>
       connectionState = event.target.iceConnectionState
@@ -160,12 +165,19 @@ class palava.RemotePeer extends palava.Peer
         @peerConnection.addIceCandidate(candidate)
 
     @distributor.on 'offer', (msg) =>
+      if @negotiationInProcess
+        # we're in a race (both peers sent an offer at the same time)
+        # case 1: we have offer precedence, thus we throw away the other offer
+        return if @offers
+        # case 2: the peer has offer precedence, thus we back off and roll back
+        @peerConnection.setLocalDescription({type: "rollback"})
       @peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
       @emit 'offer' # ignored so far
       @sendAnswer()
 
     @distributor.on 'answer', (msg) =>
       @peerConnection.setRemoteDescription(new RTCSessionDescription(msg.sdp))
+      @negotiationInProcess = false
       @emit 'answer' # ignored so far
 
     @distributor.on 'peer_updated_status', (msg) =>
