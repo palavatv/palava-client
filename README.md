@@ -39,7 +39,7 @@ Use the [yarn link](https://classic.yarnpkg.com/en/docs/cli/link/) feature:
 ### Compile latest source
 
 - Make sure you have Ruby and Bundler installed (and have run `$ bundle install` once)
-- `$ rake build:bundle`
+- `$ rake bundle`
 - Rebuild palava-web, for example, by restarting the yarn dev server
 
 ## Credits
