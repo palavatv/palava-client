@@ -9,7 +9,7 @@ GEM
     execjs (2.7.0)
     json (2.3.0)
     paint (2.1.1)
-    rack (2.2.3)
+    rack (2.2.6.4)
     rake (13.0.0)
     sprockets (3.7.2)
       concurrent-ruby (~> 1.0)
