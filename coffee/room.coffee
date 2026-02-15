@@ -1,22 +1,22 @@
-#= require ./local_peer
-#= require ./remote_peer
-#= require ./gum
-#= require ./distributor
-
-palava = @palava
+import EventEmitter from 'wolfy87-eventemitter'
+import * as browser from './browser.js'
+import { Distributor } from './distributor.js'
+import { LocalPeer } from './local_peer.js'
+import { RemotePeer } from './remote_peer.js'
 
 # A room connecting multiple participants
 #
-class palava.Room extends @EventEmitter
+export class Room extends EventEmitter
 
   # @param roomId [String] ID of the room
-  # @param channel [palava.Channel] Channel used for communication
+  # @param channel [Channel] Channel used for communication
   # @param userMedia [UserMedia] UserMedia used for local user
   # @param options [Object] Further objects for the room
   # @option options joinTimeout [Integer] Timeout for joining
   # @option options ownStatus [Object] The status of the local user
   #
   constructor: (roomId, channel, userMedia, options = {}) ->
+    super()
     @id        = roomId
     @userMedia = userMedia
     @channel   = channel
@@ -51,7 +51,7 @@ class palava.Room extends @EventEmitter
   # @nodoc
   #
   setupDistributor: =>
-    @distributor = new palava.Distributor(@channel)
+    @distributor = new Distributor(@channel)
 
     @distributor.on 'joined_room', (msg) =>
       clearTimeout(@joinCheckTimeout)
@@ -59,18 +59,18 @@ class palava.Room extends @EventEmitter
         turnCredentials = { user: msg.turn_user, password: msg.turn_password }
       else
         turnCredentials = null
-      new palava.LocalPeer(msg.own_id, @options.ownStatus, @)
+      new LocalPeer(msg.own_id, @options.ownStatus, @)
       for peer in msg.peers
-        offers = !palava.browser.isChrome()
-        newPeer = new palava.RemotePeer(peer.peer_id, peer.status, @, offers, turnCredentials)
+        offers = !browser.isChrome()
+        newPeer = new RemotePeer(peer.peer_id, peer.status, @, offers, turnCredentials)
       @emit "joined"
 
     @distributor.on 'new_peer', (msg) =>
       offers = msg.status.user_agent == 'chrome'
-      newPeer = new palava.RemotePeer(msg.peer_id, msg.status, @, offers)
+      newPeer = new RemotePeer(msg.peer_id, msg.status, @, offers)
       @emit 'peer_joined', newPeer
 
-    @distributor.on 'error',    (msg) => @emit 'signaling_error', 'server', msg.description
+    @distributor.on 'error', (msg) => @emit 'signaling_error', 'server', msg.description
 
     @distributor.on 'shutdown', (msg) => @emit 'signaling_shutdown', msg.seconds
 
@@ -84,7 +84,7 @@ class palava.Room extends @EventEmitter
     ), @options.joinTimeout
 
     @options.ownStatus[key] = status[key] for key in status
-    @options.ownStatus.user_agent ||= palava.browser.getUserAgent()
+    @options.ownStatus.user_agent ||= browser.getUserAgent()
 
     @distributor.send
       event: 'join_room'
@@ -110,21 +110,21 @@ class palava.Room extends @EventEmitter
   #
   # @param id [String] id of the searched peer
   #
-  # @return [palava.Peer] The peer with the given id or `undefined`
+  # @return [Peer] The peer with the given id or `undefined`
   #
   getPeerById: (id) => @peers[id]
 
   # Get local peer
   #
-  # @return [palava.Peer] The local peer
+  # @return [Peer] The local peer
   #
-  getLocalPeer:     => @localPeer
+  getLocalPeer: => @localPeer
 
   # Get remote peers
   #
   # @return [Array] All peers except the local peer
   #
-  getRemotePeers:   => @getAllPeers(false)
+  getRemotePeers: => @getAllPeers(false)
 
   # Get all peers
   #

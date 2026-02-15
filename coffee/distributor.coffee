@@ -1,10 +1,8 @@
-palava = @palava
-
 # Distributor supports exchanging direct messages with peers through a channel.
 # The incoming messages are filtered and outgoing messages are are sent within
 # appropriate `send_to_peer` messages.
 #
-class palava.Distributor
+export class Distributor
 
   # @param channel [palava.Channel] The channel to connect through
   # @param peerId [String] The id of the peer to connect to or `null` for global messages
@@ -23,15 +21,10 @@ class palava.Distributor
   #
   on: (event, handler) =>
     @channel.on 'message', (msg) =>
-      # console.log('got msg', msg)
       if @peerId
-        # TODO not in sync with protocol page
-        #if msg.event == 'from_peer' and msg.sender_id == @peerId and event == msg.data.event
         if msg.sender_id == @peerId && event == msg.event
           handler(msg)
       else
-        # TODO not in sync with protocol page
-        #if msg.event != 'from_peer' and event == msg.event
         if !msg.sender_id && event == msg.event
           handler(msg)
 

@@ -1,3 +1,0 @@
-# initialize namespace
-@palava =
-  browser: {}
