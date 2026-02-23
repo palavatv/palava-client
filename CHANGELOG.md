@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.0.0
+
+* Use modern coffee/js modules
+* Add support for WebRTC renegotiation
+* Add support for request local audio/video after the connection is established
+
 ## 2.2.1
 
 * Only catch parsing-related errors with "invalid_format" error

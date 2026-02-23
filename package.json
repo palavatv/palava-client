@@ -1,18 +1,26 @@
 {
   "name": "palava-client",
   "description": "Signaling client for WebRTC video-/audio conferencing using the palava protocol",
-  "version": "2.2.1",
+  "version": "3.0.0",
   "author": {
     "name": "palava e. V.",
     "email": "contact@palava.tv",
     "homepage": "https://palava.tv"
   },
   "license": "LGPL-3.0",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "scripts": {
+    "build": "coffee -c -o dist/ coffee/",
+    "watch": "coffee -c -w -o dist/ coffee/"
+  },
   "dependencies": {
     "webrtc-adapter": "^7.7.0",
-    "wolfy87-eventemitter": "~5.2.9"
+    "wolfy87-eventemitter": "^5.2.9"
   },
-  "browser": "./palava.js",
+  "devDependencies": {
+    "coffeescript": "^2.7.0"
+  },
   "keywords": [
     "webrtc",
     "websocket",

@@ -1,15 +1,13 @@
-#= require ./gum
+import { Gum } from './gum.js'
 
-palava = @palava
-
-class palava.Identity
+export class Identity
   constructor: (o) ->
     @userMediaConfig = o.userMediaConfig
     @status       = o.status || {}
     @status.name  = o.name
 
   newUserMedia: ->
-    new palava.Gum(@userMediaConfig)
+    new Gum(@userMediaConfig)
 
   getName: =>
     @name

@@ -1,12 +1,13 @@
-palava = @palava
+import EventEmitter from 'wolfy87-eventemitter'
 
-class palava.DataChannel extends @EventEmitter
+export class DataChannel extends EventEmitter
 
   MAX_BUFFER: 1024 * 1024
 
   constructor: (@channel) ->
+    super()
     @channel.onmessage = (event) => @emit 'message', event.data
-    @channel.onclose = () => @emit 'close'
+    @channel.onclose = => @emit 'close'
     @channel.onerror = (e) => @emit 'error', e
     @sendBuffer = []
 
@@ -41,4 +42,3 @@ class palava.DataChannel extends @EventEmitter
         console.log 'Exception in write callback:', e
 
       @sendBuffer.shift()
-

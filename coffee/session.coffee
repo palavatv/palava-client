@@ -1,15 +1,17 @@
-#= require ./browser
-#= require ./web_socket_channel
-
-palava = @palava
+import EventEmitter from 'wolfy87-eventemitter'
+import * as browser from './browser.js'
+import { Gum } from './gum.js'
+import { Room } from './room.js'
+import { WebSocketChannel } from './web_socket_channel.js'
 
 # Session is a wrapper around a concrete room, channel and userMedia
-class palava.Session extends @EventEmitter
+export class Session extends EventEmitter
   # Creates the session object
   #
   # @param o [Object] See Session#connect for available options
   #
-  constructor: (o) ->
+  constructor: (o = {}) ->
+    super()
     @roomOptions = {}
     @assignOptions(o)
 
@@ -77,7 +79,7 @@ class palava.Session extends @EventEmitter
       @roomOptions.ownStatus = o.identity.getStatus()
 
     if o.userMediaConfig
-      @userMedia = new palava.Gum(o.userMediaConfig)
+      @userMedia = new Gum(o.userMediaConfig)
 
     if o.dataChannels
       @roomOptions.dataChannels = o.dataChannels
@@ -117,16 +119,16 @@ class palava.Session extends @EventEmitter
     unless navigator.onLine
       @emit 'signaling_not_reachable'
       return false
-    if e = palava.browser.checkForWebrtcError()
+    if e = browser.checkForWebrtcError()
       @emit 'webrtc_no_support', 'WebRTC is not supported by your browser', e
       return false
     true
 
   # Get the channel of the session
   #
-  # @return [palava.Channel] The channel of the session
+  # @return [Channel] The channel of the session
   #
-  getChannel:   => @channel
+  getChannel: => @channel
 
   # Get the UserMedia of the session
   #
@@ -136,16 +138,16 @@ class palava.Session extends @EventEmitter
 
   # Get the room of the session
   #
-  # @return [palava.Room] Room of the session
+  # @return [Room] Room of the session
   #
-  getRoom:      => @room
+  getRoom: => @room
 
   # Build connection to websocket endpont
   #
-  # @return [palava.Room] Room of the session
+  # @return [Room] Room of the session
   #
   createChannel: =>
-    @channel = new palava.WebSocketChannel(@webSocketAddress)
+    @channel = new WebSocketChannel(@webSocketAddress)
     @channel.on 'open',              => @emit 'signaling_open'
     @channel.on 'error',      (t, e) => @emit 'signaling_error', t, e
     @channel.on 'close',         (e) => @emit 'signaling_close', e
@@ -156,7 +158,7 @@ class palava.Session extends @EventEmitter
   # @nodoc
   #
   createRoom: => # TODO move some more stuff away from the room? eg signaling
-    @room = new palava.Room @roomId, @channel, @userMedia, @roomOptions
+    @room = new Room(@roomId, @channel, @userMedia, @roomOptions)
     @room.on 'local_stream_ready',      (s) => @emit 'local_stream_ready', s
     @room.on 'local_stream_error',      (e) => @emit 'local_stream_error', e
     @room.on 'local_stream_removed',        => @emit 'local_stream_removed'
